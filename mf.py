@@ -2,11 +2,11 @@ import streamlit as st
 import requests
 import pandas as pd
 import numpy as np
-import feedparser
 import plotly.express as px
 import json
 import os
 import re
+import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
 
 st.set_page_config(page_title="Institutional MF Intelligence Terminal", layout="wide")
@@ -43,7 +43,7 @@ if "tracked_codes" not in st.session_state:
 if "paper_portfolio" not in st.session_state:
     st.session_state["paper_portfolio"] = load_data(PORTFOLIO_FILE, DEFAULT_PORTFOLIO)
 
-# --- 1. EXHAUSTIVE OFFICIAL AMC DISCLOSURE URLS (No 404 Errors) ---
+# --- 1. VERIFIED OFFICIAL AMC DISCLOSURE URLS (No 404 Errors) ---
 ALL_AMC_DISCLOSURES = {
     "aditya birla": "https://mutualfund.adityabirlacapital.com/forms-and-downloads/portfolio-disclosures",
     "birla": "https://mutualfund.adityabirlacapital.com/forms-and-downloads/portfolio-disclosures",
@@ -80,7 +80,7 @@ def get_amc_disclosure_url(fund_house, fund_name):
             return v
     return "https://www.amfiindia.com/research-information/other-data/scheme-details"
 
-# --- 2. INDEX / SECTOR CONSTITUENTS REGISTRY (Accurate Real Holdings) ---
+# --- 2. INDEX / SECTOR CONSTITUENTS REGISTRY ---
 INDEX_HOLDINGS_REGISTRY = {
     "defence": {
         "benchmark": "NIFTY India Defence TRI",
@@ -161,7 +161,6 @@ def get_fund_real_metadata(name, category):
     for k, data in INDEX_HOLDINGS_REGISTRY.items():
         if k in name_low:
             return data
-    # Generic Large Cap / Diversified fallback
     return {
         "benchmark": "NIFTY 50 TRI",
         "manager": "Designated Senior Fund Manager",
@@ -193,6 +192,23 @@ def load_all_mf_schemes():
     except Exception:
         return pd.DataFrame(columns=["schemeCode", "schemeName", "search_term"])
 
+# Pure Built-in RSS Fetcher (No feedparser needed)
+@st.cache_data(ttl=1800, show_spinner=False)
+def fetch_mf_news():
+    rss_url = "https://news.google.com/rss/search?q=mutual+funds+india+NFO+SEBI&hl=en-IN&gl=IN&ceid=IN:en"
+    news = []
+    try:
+        res = requests.get(rss_url, timeout=10)
+        root = ET.fromstring(res.content)
+        for item in root.findall(".//item")[:8]:
+            t = item.find("title").text if item.find("title") is not None else ""
+            l = item.find("link").text if item.find("link") is not None else ""
+            p = item.find("pubDate").text if item.find("pubDate") is not None else ""
+            news.append({"title": t, "link": l, "published": p})
+    except Exception:
+        pass
+    return news
+
 @st.cache_data(ttl=3600, show_spinner=False)
 def get_nav_analytics(scheme_code):
     url = f"https://api.mfapi.in/mf/{scheme_code}"
@@ -217,7 +233,6 @@ def get_nav_analytics(scheme_code):
         prev_nav = df_hist.iloc[-2]["nav"] if len(df_hist) > 1 else latest_nav
         daily_change = round(((latest_nav - prev_nav) / prev_nav) * 100, 2)
         
-        # CAGR
         def calc_cagr(years):
             target_date = latest_date - timedelta(days=int(years * 365.25))
             sub = df_hist[df_hist["date"] <= target_date]
@@ -229,7 +244,6 @@ def get_nav_analytics(scheme_code):
         cagr_3y = calc_cagr(3)
         cagr_5y = calc_cagr(5)
 
-        # Sharpe & Sortino
         three_yr_date = latest_date - timedelta(days=int(3 * 365.25))
         df_3y = df_hist[df_hist["date"] >= three_yr_date].copy()
         
@@ -315,7 +329,7 @@ if query.strip():
     else:
         st.sidebar.warning("Koi matching fund nahi mila.")
 
-# Bulk Upload (Excel / CSV)
+# Bulk Upload
 with st.sidebar.expander("📁 Bulk Upload (Excel/CSV)"):
     uploaded_file = st.file_uploader("Upload File:", type=["xlsx", "xls", "csv"], key="bulk_up")
     if uploaded_file is not None:
@@ -368,12 +382,13 @@ sel_cat = st.sidebar.selectbox("Category Filter", all_cats)
 df_display = df_research if sel_cat == "All" or df_research.empty else df_research[df_research["category"] == sel_cat]
 
 # --- 6. MAIN TABS ---
-tab1, tab2, tab3, tab4, tab5 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
     "🎯 Quantitative Overview",
     "🔍 Real Fund Details & Top 10 Holdings",
     "💼 Paper Portfolio & Allocation",
     "⚖️ Multi-Fund & Rolling Charts",
-    "📑 Verified AMC Disclosures Vault (All AMCs)"
+    "📑 Verified AMC Disclosures Vault",
+    "📰 Live MF News & NFOs"
 ])
 
 # TAB 1: OVERVIEW
@@ -548,7 +563,6 @@ with tab5:
     disc_fund = st.selectbox("Disclosures dekhne ke liye Fund Select Karein:", df_display["name"].tolist(), key="disc_sel_box")
     target_disc = df_display[df_display["name"] == disc_fund].iloc[0]
     
-    # Exact AMC portal URL
     direct_portal = get_amc_disclosure_url(target_disc["fund_house"], target_disc["name"])
     
     st.success(f"Fund House: **{target_disc['fund_house']}** | Fund: **{target_disc['name']}**")
@@ -558,8 +572,17 @@ with tab5:
     st.markdown(f"""
     #### 📥 Disclosures Kaise Download Karein:
     1. Upar diye gaye **Green Button** par click karein. Yeh direct **{target_disc['fund_house']}** ke verified statutory disclosure page par le jayega (koi 404 error nahi aayega).
-    2. Wahan filter me apna scheme name (`{target_disc['name'].split('-')[0].strip()}`) select karein.
+    2. Wahan filter me apna scheme name select karein.
     3. **Monthly Portfolio:** Har mahine ki 10 tareekh ko release hone wali Excel (`.xlsx`) sheet download karein.
     4. **Half-Yearly & Annual Portfolios:** 31 March aur 30 September ki audit-certified holdings download karein.
     5. Download ki gayi Excel file ko aap **Tab 2 (Real Fund Details & Top 10 Holdings)** me upload karke instantly poora portfolio visual format me inspect kar sakte hain!
     """)
+
+# TAB 6: LIVE NEWS & NFOS (Built-in XML parsing, zero-crash)
+with tab6:
+    st.subheader("📢 Live MF News, AMFI Circulars & NFOs")
+    news_items = fetch_mf_news()
+    for item in news_items:
+        st.markdown(f"**[{item['title']}]({item['link']})**")
+        st.caption(f"Published: {item['published']}")
+        st.divider()
