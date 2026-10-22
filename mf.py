@@ -31,13 +31,11 @@ st.markdown("""
         font-family: 'JetBrains Mono', monospace !important;
     }
 
-    /* Main Background Theme */
     .stApp {
         background: radial-gradient(circle at top right, #0f172a 0%, #030712 100%);
         color: #f8fafc;
     }
     
-    /* Modern Glassmorphic Metric Cards */
     div[data-testid="stMetric"] {
         background: rgba(15, 23, 42, 0.65) !important;
         border: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -69,7 +67,6 @@ st.markdown("""
         font-family: 'JetBrains Mono', monospace !important;
     }
 
-    /* Tabs Styling */
     .stTabs [data-baseweb="tab-list"] {
         gap: 8px !important;
         background: rgba(15, 23, 42, 0.6) !important;
@@ -93,7 +90,6 @@ st.markdown("""
         box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4) !important;
     }
 
-    /* Buttons */
     .stButton > button {
         background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
         color: white !important;
@@ -111,20 +107,17 @@ st.markdown("""
         box-shadow: 0 6px 20px rgba(2, 132, 199, 0.5) !important;
     }
 
-    /* Sidebar Customization */
     section[data-testid="stSidebar"] {
         background-color: #030712 !important;
         border-right: 1px solid rgba(255, 255, 255, 0.07) !important;
     }
 
-    /* Tables & Dataframes */
     div[data-testid="stDataFrame"] {
         border: 1px solid rgba(255, 255, 255, 0.08) !important;
         border-radius: 14px !important;
         overflow: hidden !important;
     }
 
-    /* Custom Header Tag */
     .terminal-badge {
         display: inline-flex;
         align-items: center;
@@ -317,6 +310,433 @@ def load_all_mf_schemes():
     except Exception:
         return pd.DataFrame(columns=["schemeCode", "schemeName", "search_term"])
 
-@st.cache_data(ttl=1800, show_spinner=False)
-def fetch_mf_news():
-    rss_url = "
+@st.cache_data(ttl=3600, show_spinner=False)
+def get_nav_analytics(scheme_code):
+    url = f"https://api.mfapi.in/mf/{scheme_code}"
+    try:
+        res = requests.get(url, timeout=10)
+        data = res.json()
+        if "data" not in data or len(data["data"]) == 0:
+            return None
+        
+        meta = data.get("meta", {})
+        scheme_name = meta.get("scheme_name", "Unknown")
+        category = meta.get("scheme_category", "Equity Scheme")
+        fund_house = meta.get("fund_house", "Mutual Fund AMC")
+        
+        df_hist = pd.DataFrame(data["data"])
+        df_hist["nav"] = df_hist["nav"].astype(float)
+        df_hist["date"] = pd.to_datetime(df_hist["date"], format="%d-%m-%Y")
+        df_hist = df_hist.sort_values("date").reset_index(drop=True)
+        
+        latest_nav = df_hist.iloc[-1]["nav"]
+        latest_date = df_hist.iloc[-1]["date"]
+        prev_nav = df_hist.iloc[-2]["nav"] if len(df_hist) > 1 else latest_nav
+        daily_change = round(((latest_nav - prev_nav) / prev_nav) * 100, 2)
+        
+        def calc_cagr(years):
+            target_date = latest_date - timedelta(days=int(years * 365.25))
+            sub = df_hist[df_hist["date"] <= target_date]
+            if not sub.empty:
+                past_nav = sub.iloc[-1]["nav"]
+                return round(((latest_nav / past_nav) ** (1 / years) - 1) * 100, 2)
+            return np.nan
+
+        cagr_3y = calc_cagr(3)
+        cagr_5y = calc_cagr(5)
+
+        three_yr_date = latest_date - timedelta(days=int(3 * 365.25))
+        df_3y = df_hist[df_hist["date"] >= three_yr_date].copy()
+        
+        sharpe_ratio = np.nan
+        sortino_ratio = np.nan
+        rf = 0.065
+        daily_rf = (1 + rf) ** (1 / 252) - 1
+
+        if len(df_3y) > 200:
+            df_3y["daily_return"] = df_3y["nav"].pct_change()
+            returns = df_3y["daily_return"].dropna()
+            excess_daily = returns - daily_rf
+            vol_annual = returns.std() * np.sqrt(252)
+            excess_annual = returns.mean() * 252 - rf
+            if vol_annual > 0:
+                sharpe_ratio = round(excess_annual / vol_annual, 2)
+            downside = excess_daily[excess_daily < 0]
+            if len(downside) > 0:
+                downside_vol = np.sqrt((downside**2).mean()) * np.sqrt(252)
+                if downside_vol > 0:
+                    sortino_ratio = round(excess_annual / downside_vol, 2)
+
+        meta_info = get_fund_real_metadata(scheme_name, category)
+
+        return {
+            "name": scheme_name,
+            "category": category,
+            "fund_house": fund_house,
+            "benchmark": meta_info["benchmark"],
+            "fund_manager": meta_info["manager"],
+            "aum_cr": meta_info["aum_cr"],
+            "inception_date": meta_info["inception"],
+            "top_holdings": meta_info["holdings"],
+            "latest_nav": latest_nav,
+            "daily_change": daily_change,
+            "latest_date": latest_date.strftime("%d %b %Y"),
+            "cagr_3y": cagr_3y,
+            "cagr_5y": cagr_5y,
+            "sharpe_ratio": sharpe_ratio,
+            "sortino_ratio": sortino_ratio,
+            "history": df_hist
+        }
+    except Exception:
+        return None
+
+all_schemes_df = load_all_mf_schemes()
+
+# --- TOP TERMINAL HEADER ---
+col_head1, col_head2 = st.columns([3, 1])
+with col_head1:
+    st.markdown('<div class="terminal-badge">● LIVE QUANT STREAM CONNECTED</div>', unsafe_allow_html=True)
+    st.markdown("<h1 style='margin-top: -10px; font-weight: 800; font-size: 2.2rem; background: linear-gradient(90deg, #38bdf8 0%, #818cf8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>APEX QUANTITATIVE TERMINAL</h1>", unsafe_allow_html=True)
+    st.markdown("<p style='color: #64748b; font-size: 0.95rem; margin-top: -8px;'>Real-time AMFI NAV Engine • Quantitative Risk Ratios • Institutional Disclosures</p>", unsafe_allow_html=True)
+
+with col_head2:
+    st.markdown(f"<div style='text-align: right; color: #94a3b8; font-family: monospace; font-size: 0.85rem; padding-top: 15px;'>MARKET STATUS<br><span style='color: #4ade80; font-weight: 700;'>AMFI LIVE NAV VERIFIED</span></div>", unsafe_allow_html=True)
+
+# --- SIDEBAR ENGINE ---
+st.sidebar.markdown("<h3 style='color: #38bdf8; font-weight: 700;'>⚡ TERMINAL CONTROL</h3>", unsafe_allow_html=True)
+
+query = st.sidebar.text_input("🔍 Quick Fund Search:", placeholder="e.g. Nippon Small, Defence, Motilal...")
+
+if query.strip():
+    keywords = query.strip().lower().split()
+    matched = all_schemes_df.copy()
+    for kw in keywords:
+        matched = matched[matched["search_term"].str.contains(kw, na=False)]
+    
+    if len(matched) > 0:
+        results = matched.head(30)
+        selected_option = st.sidebar.selectbox(f"Matches ({len(matched)} found):", results["schemeName"].tolist())
+        if st.sidebar.button("➕ Add to Watchlist"):
+            code = int(matched[matched["schemeName"] == selected_option]["schemeCode"].iloc[0])
+            if code not in st.session_state["tracked_codes"]:
+                st.session_state["tracked_codes"].append(code)
+                save_data(WATCHLIST_FILE, st.session_state["tracked_codes"])
+                st.sidebar.success("Added to terminal pipeline!")
+                st.rerun()
+            else:
+                st.sidebar.info("Already tracking.")
+    else:
+        st.sidebar.warning("No scheme match found.")
+
+# Bulk Upload (Excel/CSV)
+with st.sidebar.expander("📁 Batch Import (Excel/CSV)"):
+    uploaded_file = st.file_uploader("Upload File:", type=["xlsx", "xls", "csv"], key="bulk_up")
+    if uploaded_file is not None:
+        try:
+            upload_df = pd.read_csv(uploaded_file) if uploaded_file.name.endswith(".csv") else pd.read_excel(uploaded_file)
+            fund_col = st.selectbox("Scheme Column:", upload_df.columns.tolist())
+            if st.button("🚀 Process Batch Import"):
+                raw_names = upload_df[fund_col].dropna().astype(str).tolist()
+                new_added = 0
+                for raw_name in raw_names:
+                    kw = [w.lower() for w in raw_name.replace("-", " ").split() if len(w) > 2]
+                    sub = all_schemes_df.copy()
+                    for k in kw[:4]:
+                        sub = sub[sub["search_term"].str.contains(k, na=False)]
+                    if not sub.empty:
+                        c = int(sub.iloc[0]["schemeCode"])
+                        if c not in st.session_state["tracked_codes"]:
+                            st.session_state["tracked_codes"].append(c)
+                            new_added += 1
+                save_data(WATCHLIST_FILE, st.session_state["tracked_codes"])
+                st.success(f"{new_added} schemes added!")
+                st.rerun()
+        except Exception as e:
+            st.error(f"Error: {e}")
+
+# Data Prep
+analytics_data = []
+for code in st.session_state["tracked_codes"]:
+    res = get_nav_analytics(code)
+    if res:
+        res["code"] = code
+        analytics_data.append(res)
+
+df_research = pd.DataFrame(analytics_data)
+
+# Remove Fund Option
+with st.sidebar.expander("🗑️ Remove Scheme"):
+    if not df_research.empty:
+        funds_dict = {row["name"]: int(row["code"]) for _, row in df_research.iterrows()}
+        selected_to_remove = st.selectbox("Select scheme to purge:", list(funds_dict.keys()))
+        if st.button("Purge Scheme"):
+            code_to_remove = funds_dict[selected_to_remove]
+            if code_to_remove in st.session_state["tracked_codes"]:
+                st.session_state["tracked_codes"].remove(code_to_remove)
+                save_data(WATCHLIST_FILE, st.session_state["tracked_codes"])
+                st.rerun()
+
+st.sidebar.markdown(f"<p style='color: #64748b; font-size: 0.85rem; margin-top: 20px;'>Active Schemes Monitored: <b style='color: #e2e8f0;'>{len(st.session_state['tracked_codes'])}</b></p>", unsafe_allow_html=True)
+if st.sidebar.button("🔄 Reset to Default Core"):
+    st.session_state["tracked_codes"] = DEFAULT_WATCHLIST.copy()
+    save_data(WATCHLIST_FILE, st.session_state["tracked_codes"])
+    st.rerun()
+
+all_cats = ["All"] + sorted([c for c in df_research["category"].unique() if c]) if not df_research.empty else ["All"]
+sel_cat = st.sidebar.selectbox("Filter Category:", all_cats)
+df_display = df_research if sel_cat == "All" or df_research.empty else df_research[df_research["category"] == sel_cat]
+
+# --- MAIN TABS ---
+tab1, tab2, tab3, tab4, tab5 = st.tabs([
+    "📊 Quantitative Terminal",
+    "🏢 Institutional Portfolio & Holdings",
+    "💼 Paper Portfolio & Risk Allocation",
+    "📈 Normalized Alpha & Rolling Engine",
+    "📑 Verified AMC Statutory Disclosures"
+])
+
+# TAB 1: QUANTITATIVE TERMINAL
+with tab1:
+    col_k1, col_k2, col_k3, col_k4 = st.columns(4)
+    col_k1.metric("TRACKED FUNDS", len(df_display))
+    gainers = len(df_display[df_display["daily_change"] > 0]) if not df_display.empty else 0
+    col_k2.metric("DAILY GREEN BREADTH", f"{gainers} / {len(df_display)}")
+    avg_3y = round(df_display["cagr_3y"].dropna().mean(), 2) if not df_display.empty else 0.0
+    col_k3.metric("AVG 3Y CAGR", f"{avg_3y}%")
+    avg_sharpe = round(df_display["sharpe_ratio"].dropna().mean(), 2) if not df_display.empty else 0.0
+    col_k4.metric("MEDIAN SHARPE", f"{avg_sharpe}")
+
+    st.markdown("<div style='height: 15px;'></div>", unsafe_allow_html=True)
+
+    if not df_display.empty:
+        v_df = df_display[[
+            "name", "category", "benchmark", "latest_nav", "daily_change", 
+            "cagr_3y", "cagr_5y", "sharpe_ratio", "sortino_ratio", "latest_date"
+        ]].copy()
+        v_df.columns = [
+            "Scheme Name", "Category", "Benchmark", "NAV (₹)", "1D Change (%)", 
+            "3Y CAGR (%)", "5Y CAGR (%)", "Sharpe (3Y)", "Sortino (3Y)", "As of Date"
+        ]
+        st.dataframe(v_df, use_container_width=True)
+    else:
+        st.info("Watchlist empty. Add schemes from sidebar.")
+
+# TAB 2: HOLDINGS & REAL METADATA
+with tab2:
+    if not df_display.empty:
+        sel_detail_fund = st.selectbox("Select Target Scheme for Deep-Dive:", df_display["name"].tolist(), key="detail_sel")
+        target_f = df_display[df_display["name"] == sel_detail_fund].iloc[0]
+        
+        c1, c2, c3, c4 = st.columns(4)
+        c1.metric("PORTFOLIO LEAD", target_f["fund_manager"])
+        c2.metric("SCHEME AUM", str(target_f["aum_cr"]))
+        c3.metric("INCEPTION DATE", target_f["inception_date"])
+        c4.metric("BENCHMARK", target_f["benchmark"])
+
+        st.markdown("<div style='height: 15px;'></div>", unsafe_allow_html=True)
+        st.markdown(f"#### 🏛️ Top 10 High-Conviction Holdings: <span style='color: #38bdf8;'>{sel_detail_fund}</span>", unsafe_allow_html=True)
+
+        th_df = pd.DataFrame(target_f["top_holdings"])
+        h1, h2 = st.columns([3, 2])
+        with h1:
+            st.dataframe(th_df, use_container_width=True)
+        with h2:
+            fig_h = px.pie(
+                th_df, 
+                values="Weight (%)", 
+                names="Company", 
+                hole=0.55,
+                color_discrete_sequence=px.colors.sequential.Electric
+            )
+            fig_h.update_layout(
+                paper_bgcolor="rgba(0,0,0,0)", 
+                plot_bgcolor="rgba(0,0,0,0)",
+                font=dict(color="#94a3b8"),
+                margin=dict(t=10, b=10, l=10, r=10)
+            )
+            st.plotly_chart(fig_h, use_container_width=True)
+
+        st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
+        with st.expander("📤 Inspect AMC Monthly Portfolio (.xlsx / .csv)"):
+            up_port = st.file_uploader("Upload AMC Monthly Statement:", type=["xlsx", "xls", "csv"], key="port_up")
+            if up_port is not None:
+                try:
+                    p_df = pd.read_csv(up_port) if up_port.name.endswith(".csv") else pd.read_excel(up_port)
+                    st.success("File parsed successfully:")
+                    st.dataframe(p_df.head(25), use_container_width=True)
+                except Exception as e:
+                    st.error(f"Error: {e}")
+
+# TAB 3: PAPER PORTFOLIO
+with tab3:
+    paper_rows = []
+    total_invested = 0.0
+    total_current = 0.0
+
+    for idx, item in enumerate(st.session_state["paper_portfolio"]):
+        f_info = get_nav_analytics(item["code"])
+        curr_nav = f_info["latest_nav"] if f_info else item["buy_nav"]
+        inv_amt = item["units"] * item["buy_nav"]
+        curr_amt = item["units"] * curr_nav
+        pnl = curr_amt - inv_amt
+        pnl_pct = (pnl / inv_amt * 100) if inv_amt > 0 else 0.0
+        
+        total_invested += inv_amt
+        total_current += curr_amt
+        
+        paper_rows.append({
+            "ID": idx,
+            "Scheme Name": item["name"],
+            "Category": f_info["category"] if f_info else "Equity",
+            "Units": round(item["units"], 3),
+            "Buy NAV (₹)": item["buy_nav"],
+            "Current NAV (₹)": curr_nav,
+            "Invested (₹)": round(inv_amt, 2),
+            "Current Value (₹)": round(curr_amt, 2),
+            "Total P&L (₹)": round(pnl, 2),
+            "Return (%)": round(pnl_pct, 2)
+        })
+
+    tot_pnl = total_current - total_invested
+    tot_pct = (tot_pnl / total_invested * 100) if total_invested > 0 else 0.0
+
+    p1, p2, p3 = st.columns(3)
+    p1.metric("CAPITAL INVESTED", f"₹{total_invested:,.2f}")
+    p2.metric("PORTFOLIO VALUATION", f"₹{total_current:,.2f}")
+    p3.metric("NET UNREALIZED GAIN", f"₹{tot_pnl:,.2f}", f"{tot_pct:.2f}%")
+    
+    st.markdown("<div style='height: 15px;'></div>", unsafe_allow_html=True)
+    if paper_rows:
+        df_p = pd.DataFrame(paper_rows)
+        st.dataframe(df_p.drop(columns=["ID"]), use_container_width=True)
+        
+        alloc_col1, alloc_col2 = st.columns(2)
+        with alloc_col1:
+            fig_alloc = px.pie(
+                df_p, 
+                values="Current Value (₹)", 
+                names="Scheme Name", 
+                title="Capital Deployment by Scheme", 
+                hole=0.5,
+                color_discrete_sequence=px.colors.sequential.Agsunset
+            )
+            fig_alloc.update_layout(paper_bgcolor="rgba(0,0,0,0)", font=dict(color="#94a3b8"))
+            st.plotly_chart(fig_alloc, use_container_width=True)
+        with alloc_col2:
+            fig_cat = px.pie(
+                df_p, 
+                values="Current Value (₹)", 
+                names="Category", 
+                title="Category Exposure Concentration", 
+                hole=0.5,
+                color_discrete_sequence=px.colors.sequential.Teal
+            )
+            fig_cat.update_layout(paper_bgcolor="rgba(0,0,0,0)", font=dict(color="#94a3b8"))
+            st.plotly_chart(fig_cat, use_container_width=True)
+
+    t_add, t_del = st.columns([2, 1])
+    with t_add:
+        with st.expander("➕ Execute Virtual Position"):
+            if not df_research.empty:
+                f_map = {r["name"]: r["code"] for _, r in df_research.iterrows()}
+                sel_f = st.selectbox("Scheme:", list(f_map.keys()), key="paper_add_sel")
+                c_u, c_b = st.columns(2)
+                u = c_u.number_input("Units", min_value=0.01, value=100.0, step=10.0)
+                def_nav = get_nav_analytics(f_map[sel_f])["latest_nav"]
+                b_nav = c_b.number_input("Acquisition NAV (₹)", min_value=0.01, value=float(def_nav), step=1.0)
+                if st.button("Commit Trade"):
+                    st.session_state["paper_portfolio"].append({
+                        "code": f_map[sel_f], "name": sel_f, "units": float(u),
+                        "buy_nav": float(b_nav), "buy_date": datetime.today().strftime("%Y-%m-%d")
+                    })
+                    save_data(PORTFOLIO_FILE, st.session_state["paper_portfolio"])
+                    st.rerun()
+    with t_del:
+        with st.expander("🗑️ Close Position"):
+            if st.session_state["paper_portfolio"]:
+                names_d = [f"{i+1}. {t['name']} ({t['units']} units)" for i, t in enumerate(st.session_state["paper_portfolio"])]
+                s_d = st.selectbox("Select Trade to Liquidate:", names_d)
+                if st.button("Liquidate"):
+                    st.session_state["paper_portfolio"].pop(names_d.index(s_d))
+                    save_data(PORTFOLIO_FILE, st.session_state["paper_portfolio"])
+                    st.rerun()
+
+# TAB 4: NORMALIZED PERFORMANCE & ROLLING
+with tab4:
+    if len(df_display) >= 2:
+        comp_funds = st.multiselect("Select Schemes to Normalize (Base = 100):", df_display["name"].tolist(), default=df_display["name"].tolist()[:2])
+        if comp_funds:
+            combined_df = pd.DataFrame()
+            for fn in comp_funds:
+                sub_row = df_display[df_display["name"] == fn].iloc[0]
+                hist = sub_row["history"].copy()
+                hist["Normalized_Performance"] = (hist["nav"] / hist["nav"].iloc[0]) * 100
+                hist["Scheme"] = fn
+                combined_df = pd.concat([combined_df, hist[["date", "Normalized_NAV" if "Normalized_NAV" in hist else "Normalized_Performance", "Scheme"]]])
+            
+            fig_comp = px.line(
+                combined_df, 
+                x="date", 
+                y="Normalized_Performance", 
+                color="Scheme",
+                color_discrete_sequence=["#38bdf8", "#ec4899", "#10b981", "#f59e0b"]
+            )
+            fig_comp.update_layout(
+                hovermode="x unified",
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(0,0,0,0)",
+                font=dict(color="#94a3b8"),
+                xaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.05)"),
+                yaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.05)")
+            )
+            st.plotly_chart(fig_comp, use_container_width=True)
+
+        st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
+        st.markdown("#### ⏳ Rolling Horizon Engine (1-Year & 3-Year Windows)")
+        roll_fund = st.selectbox("Select Target Scheme:", df_display["name"].tolist())
+        r_hist = df_display[df_display["name"] == roll_fund].iloc[0]["history"].copy()
+        
+        r_hist["1Y_Rolling_Return (%)"] = r_hist["nav"].pct_change(252) * 100
+        r_hist["3Y_Rolling_CAGR (%)"] = ((r_hist["nav"] / r_hist["nav"].shift(756)) ** (1/3) - 1) * 100
+        
+        fig_roll = px.line(
+            r_hist.dropna(subset=["1Y_Rolling_Return (%)"]), 
+            x="date", 
+            y=["1Y_Rolling_Return (%)", "3Y_Rolling_CAGR (%)"],
+            color_discrete_sequence=["#06b6d4", "#a855f7"]
+        )
+        fig_roll.update_layout(
+            hovermode="x unified",
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+            font=dict(color="#94a3b8"),
+            xaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.05)"),
+            yaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.05)")
+        )
+        st.plotly_chart(fig_roll, use_container_width=True)
+    else:
+        st.info("At least 2 schemes required for comparison engine.")
+
+# TAB 5: STATUTORY DISCLOSURES
+with tab5:
+    disc_fund = st.selectbox("Select Scheme for Compliance Audit:", df_display["name"].tolist(), key="disc_sel_box")
+    target_disc = df_display[df_display["name"] == disc_fund].iloc[0]
+    direct_portal = get_amc_disclosure_url(target_disc["fund_house"], target_disc["name"])
+    
+    st.markdown(f"""
+    <div style='background: rgba(15, 23, 42, 0.6); padding: 25px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08);'>
+        <h3 style='margin:0; color:#38bdf8;'>SEBI Statutory Portfolio Repository</h3>
+        <p style='color:#94a3b8; font-size: 0.95rem; margin-top: 5px;'>Target Entity: <b style='color:#f8fafc;'>{target_disc['fund_house']}</b> | Scheme: <b style='color:#f8fafc;'>{target_disc['name']}</b></p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("<div style='height: 15px;'></div>", unsafe_allow_html=True)
+    st.link_button(f"🌐 Access Official {target_disc['fund_house']} Repository", direct_portal)
+    
+    st.markdown("""
+    ---
+    ##### 📌 Regulatory Compliance Guidelines:
+    * **Monthly Portfolio Disclosure:** Uploaded by AMCs strictly within 10 days of close of each month.
+    * **Half-Yearly Disclosures:** Published as of March 31 & September 30.
+    * **Full Factsheet & Scrip Allocation:** Download `.xlsx` from the verified portal link above and upload directly to **Tab 2** for complete portfolio parsing.
+    """)
