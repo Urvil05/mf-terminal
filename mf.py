@@ -527,6 +527,10 @@ with st.sidebar.expander("🗑️ Remove Scheme"):
                 save_data(WATCHLIST_FILE, st.session_state["tracked_codes"])
                 st.rerun()
 
+all_cats = ["All"] + sorted([c for c in df_research["category"].unique() if c]) if not df_research.empty else ["All"]
+sel_cat = st.sidebar.selectbox("Filter Category:", all_cats)
+df_display = df_research if sel_cat == "All" or df_research.empty else df_research[df_research["category"] == sel_cat]
+
 # --- TABS ---
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
     "📊 Quantitative Terminal",
