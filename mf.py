@@ -272,9 +272,9 @@ def fetch_live_indices():
         "NIFTY 50": "^NSEI",
         "NIFTY BANK": "^NSEBANK",
         "NIFTY IT": "^CNXIT",
+        "NIFTY SMALLCAP 250": "NIFTYSMLCAP250.NS",
         "NIFTY AUTO": "^CNXAUTO",
-        "NIFTY METAL": "^CNXMETAL",
-        "RELIANCE": "RELIANCE.NS"
+        "NIFTY DEFENCE": "NIFTY_IND_DEFENCE.NS"
     }
     
     headers = {
