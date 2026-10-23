@@ -264,18 +264,54 @@ def get_amc_disclosure_url(fund_house, fund_name):
             return v
     return "https://www.amfiindia.com/otherdata"
 
-# --- SMART INDEX ENGINE (API-FREE & CRASH-PROOF) ---
-@st.cache_data(ttl=60, show_spinner=False)
+# --- 100% REAL LIVE INDICES ENGINE (NO YFINANCE NEEDED) ---
+@st.cache_data(ttl=120, show_spinner=False)
 def fetch_live_indices():
-    from datetime import datetime
-    base_indices = [
-        {"name": "NIFTY 50", "base_price": 25840.60, "proxy_vol": 0.45},
-        {"name": "NIFTY BANK", "base_price": 54210.15, "proxy_vol": 0.32},
-        {"name": "NIFTY MIDCAP 150", "base_price": 21680.40, "proxy_vol": 0.78},
-        {"name": "NIFTY SMALLCAP 250", "base_price": 18450.90, "proxy_vol": 0.92},
-        {"name": "NIFTY IT", "base_price": 42120.30, "proxy_vol": -0.24},
-        {"name": "NIFTY DEFENCE", "base_price": 8140.20, "proxy_vol": 1.15}
-    ]
+    # Direct Yahoo Finance API calls without any external library
+    tickers = {
+        "NIFTY 50": "^NSEI",
+        "NIFTY BANK": "^NSEBANK",
+        "NIFTY IT": "^CNXIT",
+        "NIFTY AUTO": "^CNXAUTO",
+        "NIFTY METAL": "^CNXMETAL",
+        "RELIANCE": "RELIANCE.NS"
+    }
+    
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+    }
+    
+    results = []
+    for name, symbol in tickers.items():
+        try:
+            url = f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}?interval=1d&range=5d"
+            r = requests.get(url, headers=headers, timeout=5)
+            data = r.json()
+            
+            # Pura asli closing data extract karna
+            closes = [c for c in data['chart']['result'][0]['indicators']['quote'][0]['close'] if c is not None]
+            
+            if len(closes) >= 2:
+                prev_close = closes[-2]
+                curr_close = closes[-1]
+                pct_change = ((curr_close - prev_close) / prev_close) * 100
+                
+                results.append({
+                    "name": name,
+                    "close": f"{curr_close:,.2f}",
+                    "change": f"{pct_change:+.2f}%",
+                    "positive": pct_change >= 0
+                })
+            else:
+                raise Exception
+        except:
+            results.append({
+                "name": name,
+                "close": "FETCHING..",
+                "change": "0.00%",
+                "positive": True
+            })
+    return results
     
     now = datetime.now()
     if 9 <= now.hour < 16:
