@@ -274,8 +274,7 @@ def fetch_live_indices():
         "NIFTY IT": "^CNXIT",
         "NIFTY SMALLCAP 250": "NIFTYSMLCAP250.NS",
         "NIFTY AUTO": "^CNXAUTO",
-        "NIFTY DEFENCE": "NIFTY_IND_DEFENCE.NS"
-    }
+        }
     
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
