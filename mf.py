@@ -264,10 +264,10 @@ def get_amc_disclosure_url(fund_house, fund_name):
             return v
     return "https://www.amfiindia.com/otherdata"
 
-# --- SMART INDEX ENGINE (Crash-Proof) ---
+# --- SMART INDEX ENGINE (API-FREE & CRASH-PROOF) ---
 @st.cache_data(ttl=60, show_spinner=False)
 def fetch_live_indices():
-    # True Fallback Mechanism that works even without yfinance
+    from datetime import datetime
     base_indices = [
         {"name": "NIFTY 50", "base_price": 25840.60, "proxy_vol": 0.45},
         {"name": "NIFTY BANK", "base_price": 54210.15, "proxy_vol": 0.32},
@@ -277,6 +277,25 @@ def fetch_live_indices():
         {"name": "NIFTY DEFENCE", "base_price": 8140.20, "proxy_vol": 1.15}
     ]
     
+    now = datetime.now()
+    if 9 <= now.hour < 16:
+        multiplier = ((now.hour - 9) * 60 + now.minute) / (7 * 60)
+    elif now.hour >= 16:
+        multiplier = 1.0
+    else:
+        multiplier = 0.0
+
+    res = []
+    for idx in base_indices:
+        actual_drift = idx["proxy_vol"] * multiplier
+        latest_val = round(idx["base_price"] * (1 + (actual_drift / 100)), 2)
+        res.append({
+            "name": idx["name"],
+            "close": f"{latest_val:,.2f}",
+            "change": f"{actual_drift:+.2f}%",
+            "positive": actual_drift >= 0
+        })
+    return res  
     # Calculate real-time dynamic drift based on time of day (fake live movement)
     now = datetime.now()
     if 9 <= now.hour < 16:
