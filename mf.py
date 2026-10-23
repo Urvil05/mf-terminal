@@ -141,6 +141,17 @@ st.markdown("""
         padding: 10px 14px;
         text-align: center;
     }
+
+    .floating-ticker-bar {
+        overflow: hidden;
+        white-space: nowrap;
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid rgba(56, 189, 248, 0.35);
+        border-radius: 10px;
+        padding: 8px 16px;
+        margin-bottom: 16px;
+        box-shadow: 0 4px 25px rgba(0, 0, 0, 0.5);
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -309,7 +320,6 @@ def get_fund_real_metadata(name, category):
 # --- NSE BENCHMARKS CLOSING TICKER ---
 @st.cache_data(ttl=600, show_spinner=False)
 def fetch_nse_benchmarks():
-    # Representative latest closing levels of key NSE benchmark indices
     return [
         {"name": "NIFTY 50", "close": "25,840.60", "change": "+0.45%", "positive": True},
         {"name": "NIFTY BANK", "close": "54,210.15", "change": "+0.32%", "positive": True},
@@ -317,6 +327,14 @@ def fetch_nse_benchmarks():
         {"name": "NIFTY SMALLCAP 250", "close": "18,450.90", "change": "+0.92%", "positive": True},
         {"name": "NIFTY IT", "close": "42,120.30", "change": "-0.24%", "positive": False},
         {"name": "NIFTY DEFENCE", "close": "8,140.20", "change": "+1.15%", "positive": True}
+    ]
+
+# Active NFOs Tracker
+def fetch_active_nfos():
+    return [
+        {"name": "Motilal Oswal Multi Asset Allocation Fund", "dates": "Open till 30 Oct"},
+        {"name": "HDFC Nifty EV & New Age Automotive Index Fund", "dates": "Closes 04 Nov"},
+        {"name": "SBI Manufacturing Momentum Fund", "dates": "Active NFO"}
     ]
 
 # --- DATA FETCHERS ---
@@ -355,9 +373,7 @@ def get_nav_analytics(scheme_code):
         prev_nav = df_hist.iloc[-2]["nav"] if len(df_hist) > 1 else latest_nav
         daily_change = round(((latest_nav - prev_nav) / prev_nav) * 100, 2)
         
-        # Predictive Indicative NAV for Today / Tomorrow
         meta_info = get_fund_real_metadata(scheme_name, category)
-        # Using holdings momentum & beta proxy to project next day NAV
         est_drift_pct = round(daily_change * 0.90, 2)
         pred_nav = round(latest_nav * (1 + (est_drift_pct / 100)), 2)
         pred_str = f"₹{pred_nav} ({est_drift_pct:+}%)"
@@ -372,6 +388,11 @@ def get_nav_analytics(scheme_code):
 
         cagr_3y = calc_cagr(3)
         cagr_5y = calc_cagr(5)
+
+        # Max Drawdown Calculation
+        df_hist["Peak_NAV"] = df_hist["nav"].cummax()
+        df_hist["Drawdown"] = ((df_hist["nav"] - df_hist["Peak_NAV"]) / df_hist["Peak_NAV"]) * 100
+        max_drawdown = round(df_hist["Drawdown"].min(), 2)
 
         three_yr_date = latest_date - timedelta(days=int(3 * 365.25))
         df_3y = df_hist[df_hist["date"] >= three_yr_date].copy()
@@ -408,6 +429,7 @@ def get_nav_analytics(scheme_code):
             "prev_nav": prev_nav,
             "daily_change": daily_change,
             "predicted_nav": pred_str,
+            "max_drawdown": max_drawdown,
             "latest_date": latest_date.strftime("%d %b %Y"),
             "cagr_3y": cagr_3y,
             "cagr_5y": cagr_5y,
@@ -430,7 +452,43 @@ with col_head1:
 with col_head2:
     st.markdown(f"<div style='text-align: right; color: #94a3b8; font-family: monospace; font-size: 0.85rem; padding-top: 15px;'>MARKET STATUS<br><span style='color: #4ade80; font-weight: 700;'>AMFI LIVE NAV VERIFIED</span></div>", unsafe_allow_html=True)
 
-# --- 4. NSE MAJOR BENCHMARKS TICKER BAR ---
+# Fetch Data for Active Tracked Schemes
+analytics_data = []
+for code in st.session_state["tracked_codes"]:
+    res = get_nav_analytics(code)
+    if res:
+        res["code"] = code
+        analytics_data.append(res)
+
+df_research = pd.DataFrame(analytics_data)
+
+# --- 1. FLOATING BREAKING NEWS MARQUEE (NEWS CHANNEL TICKER) ---
+ticker_items = []
+# 1% Movers in Watchlist
+if not df_research.empty:
+    for _, row in df_research.iterrows():
+        chg = row["daily_change"]
+        short_name = row["name"].split("-")[0].strip()
+        if chg >= 1.0:
+            ticker_items.append(f"<span style='color: #4ade80; font-weight: 700;'>🟢 {short_name}: +{chg}%</span>")
+        elif chg <= -1.0:
+            ticker_items.append(f"<span style='color: #f87171; font-weight: 700;'>🔴 {short_name}: {chg}%</span>")
+
+# Active NFOs in Marquee
+for nfo in fetch_active_nfos():
+    ticker_items.append(f"<span style='color: #38bdf8; font-weight: 600;'>📢 NFO: <b>{nfo['name']}</b> ({nfo['dates']})</span>")
+
+if ticker_items:
+    marquee_content = " &nbsp;&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;&nbsp; ".join(ticker_items)
+    st.markdown(f"""
+    <div class="floating-ticker-bar">
+        <marquee behavior="scroll" direction="left" scrollamount="6" style="color: #e2e8f0; font-family: 'JetBrains Mono', monospace; font-size: 0.88rem;">
+            🔥 <b>LIVE PULSE (±1% MOVERS & NFOs):</b> &nbsp;&nbsp;&nbsp;&nbsp; {marquee_content}
+        </marquee>
+    </div>
+    """, unsafe_allow_html=True)
+
+# --- 2. NSE MAJOR BENCHMARKS TICKER BAR ---
 benchmarks_list = fetch_nse_benchmarks()
 b_cols = st.columns(len(benchmarks_list))
 for idx, b in enumerate(benchmarks_list):
@@ -445,6 +503,17 @@ for idx, b in enumerate(benchmarks_list):
         """, unsafe_allow_html=True)
 
 st.markdown("<div style='height: 15px;'></div>", unsafe_allow_html=True)
+
+# --- 3. PRICE ALERT NOTIFICATIONS (INTRADAY MOVERS) ---
+if not df_research.empty:
+    big_movers = df_research[df_research["daily_change"].abs() >= 1.0]
+    if not big_movers.empty:
+        with st.expander("⚡ Active Price Volatility Alerts (±1% Daily Movement)", expanded=True):
+            for _, mover in big_movers.iterrows():
+                if mover["daily_change"] >= 1.0:
+                    st.success(f"🚀 **Surge Alert:** {mover['name']} has jumped **+{mover['daily_change']}%** today (Latest NAV: ₹{mover['latest_nav']}).")
+                else:
+                    st.error(f"📉 **Dip Alert:** {mover['name']} has declined **{mover['daily_change']}%** today (Latest NAV: ₹{mover['latest_nav']}).")
 
 # --- SIDEBAR ENGINE ---
 st.sidebar.markdown("<h3 style='color: #38bdf8; font-weight: 700;'>⚡ TERMINAL CONTROL</h3>", unsafe_allow_html=True)
@@ -498,16 +567,6 @@ with st.sidebar.expander("📁 Batch Import (Excel/CSV)"):
         except Exception as e:
             st.error(f"Error: {e}")
 
-# Data Prep
-analytics_data = []
-for code in st.session_state["tracked_codes"]:
-    res = get_nav_analytics(code)
-    if res:
-        res["code"] = code
-        analytics_data.append(res)
-
-df_research = pd.DataFrame(analytics_data)
-
 # Remove Fund Option
 with st.sidebar.expander("🗑️ Remove Scheme"):
     if not df_research.empty:
@@ -531,17 +590,18 @@ sel_cat = st.sidebar.selectbox("Filter Category:", all_cats)
 df_display = df_research if sel_cat == "All" or df_research.empty else df_research[df_research["category"] == sel_cat]
 
 # --- MAIN TABS ---
-tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "📊 Quantitative Terminal & Predictions",
-    "🏢 Institutional Portfolio & Holdings",
-    "💼 Paper Portfolio & Daily PnL",
-    "📈 Normalized Alpha & Rolling Engine",
-    "📑 Verified AMC Statutory Disclosures"
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
+    "📊 Quantitative Terminal",
+    "🏢 Institutional Holdings",
+    "💼 Paper Portfolio & Tax Planner",
+    "🔀 Portfolio Overlap Analyzer",
+    "📉 Max Drawdown & Crash Recovery",
+    "📈 Normalized Alpha & Rolling",
+    "📑 Statutory Disclosures"
 ])
 
-# TAB 1: QUANTITATIVE TERMINAL & PREDICTIONS
+# TAB 1: QUANTITATIVE TERMINAL
 with tab1:
-    # Gainers vs Losers Breadth Cards
     pos_count = len(df_display[df_display["daily_change"] > 0]) if not df_display.empty else 0
     neg_count = len(df_display[df_display["daily_change"] < 0]) if not df_display.empty else 0
     total_tracked = len(df_display)
@@ -560,68 +620,56 @@ with tab1:
     if not df_display.empty:
         v_df = df_display[[
             "name", "category", "benchmark", "latest_nav", "daily_change", 
-            "predicted_nav", "cagr_3y", "cagr_5y", "sharpe_ratio", "sortino_ratio", "latest_date"
+            "predicted_nav", "max_drawdown", "cagr_3y", "cagr_5y", "sharpe_ratio", "latest_date"
         ]].copy()
         v_df.columns = [
             "Scheme Name", "Category", "Benchmark", "Latest NAV (₹)", "1D Change (%)", 
-            "🔮 Tomorrow Projected NAV", "3Y CAGR (%)", "5Y CAGR (%)", "Sharpe (3Y)", "Sortino (3Y)", "As of Date"
+            "🔮 Tomorrow Projected NAV", "Max Drawdown (%)", "3Y CAGR (%)", "5Y CAGR (%)", "Sharpe (3Y)", "As of Date"
         ]
         st.dataframe(v_df, use_container_width=True)
     else:
         st.info("Watchlist empty. Add schemes from sidebar.")
 
-# TAB 2: HOLDINGS & REAL METADATA
+# TAB 2: HOLDINGS & METADATA
 with tab2:
     if not df_display.empty:
-        sel_detail_fund = st.selectbox("Select Target Scheme for Deep-Dive:", df_display["name"].tolist(), key="detail_sel")
+        sel_detail_fund = st.selectbox("Select Target Scheme:", df_display["name"].tolist(), key="detail_sel")
         target_f = df_display[df_display["name"] == sel_detail_fund].iloc[0]
         
         c1, c2, c3, c4 = st.columns(4)
         c1.metric("PORTFOLIO LEAD", target_f["fund_manager"])
         c2.metric("SCHEME AUM", str(target_f["aum_cr"]))
         c3.metric("INCEPTION DATE", target_f["inception_date"])
-        c4.metric("BENCHMARK", target_f["benchmark"])
+        c4.metric("MAX PEAK DRAWDOWN", f"{target_f['max_drawdown']}%")
 
         st.markdown("<div style='height: 15px;'></div>", unsafe_allow_html=True)
-        st.markdown(f"#### 🏛️ Top 10 High-Conviction Holdings: <span style='color: #38bdf8;'>{sel_detail_fund}</span>", unsafe_allow_html=True)
-
         th_df = pd.DataFrame(target_f["top_holdings"])
         h1, h2 = st.columns([3, 2])
         with h1:
             st.dataframe(th_df, use_container_width=True)
         with h2:
-            fig_h = px.pie(
-                th_df, 
-                values="Weight (%)", 
-                names="Company", 
-                hole=0.55,
-                color_discrete_sequence=px.colors.sequential.Electric
-            )
-            fig_h.update_layout(
-                paper_bgcolor="rgba(0,0,0,0)", 
-                plot_bgcolor="rgba(0,0,0,0)",
-                font=dict(color="#94a3b8"),
-                margin=dict(t=10, b=10, l=10, r=10)
-            )
+            fig_h = px.pie(th_df, values="Weight (%)", names="Company", hole=0.55, color_discrete_sequence=px.colors.sequential.Electric)
+            fig_h.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(color="#94a3b8"), margin=dict(t=10, b=10, l=10, r=10))
             st.plotly_chart(fig_h, use_container_width=True)
 
-        st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
         with st.expander("📤 Inspect AMC Monthly Portfolio (.xlsx / .csv)"):
             up_port = st.file_uploader("Upload AMC Monthly Statement:", type=["xlsx", "xls", "csv"], key="port_up")
             if up_port is not None:
                 try:
                     p_df = pd.read_csv(up_port) if up_port.name.endswith(".csv") else pd.read_excel(up_port)
-                    st.success("File parsed successfully:")
                     st.dataframe(p_df.head(25), use_container_width=True)
                 except Exception as e:
                     st.error(f"Error: {e}")
 
-# TAB 3: PAPER PORTFOLIO & DAILY PNL
+# TAB 3: PAPER PORTFOLIO & TAX PLANNER
 with tab3:
     paper_rows = []
     total_invested = 0.0
     total_current = 0.0
     total_daily_pnl = 0.0
+    total_tax_liability = 0.0
+
+    today_dt = datetime.today()
 
     for idx, item in enumerate(st.session_state["paper_portfolio"]):
         f_info = get_nav_analytics(item["code"])
@@ -633,13 +681,21 @@ with tab3:
         pnl = curr_amt - inv_amt
         pnl_pct = (pnl / inv_amt * 100) if inv_amt > 0 else 0.0
         
-        # 1-Day Daily P&L for this holding
         day_pnl = item["units"] * (curr_nav - prev_n)
-        day_pnl_pct = f_info["daily_change"] if f_info else 0.0
+        
+        # Tax Calculation (Holding > 365 Days = LTCG @ 12.5%, else STCG @ 20%)
+        buy_dt = datetime.strptime(item.get("buy_date", "2026-01-01"), "%Y-%m-%d")
+        holding_days = (today_dt - buy_dt).days
+        tax_type = "LTCG (12.5%)" if holding_days >= 365 else "STCG (20%)"
+        
+        tax_amt = 0.0
+        if pnl > 0:
+            tax_amt = (pnl * 0.125) if holding_days >= 365 else (pnl * 0.20)
         
         total_invested += inv_amt
         total_current += curr_amt
         total_daily_pnl += day_pnl
+        total_tax_liability += tax_amt
         
         paper_rows.append({
             "ID": idx,
@@ -650,8 +706,11 @@ with tab3:
             "Invested (₹)": round(inv_amt, 2),
             "Current Value (₹)": round(curr_amt, 2),
             "Today's P&L (₹)": round(day_pnl, 2),
-            "Total P&L (₹)": round(pnl, 2),
-            "Return (%)": round(pnl_pct, 2)
+            "Total Gain (₹)": round(pnl, 2),
+            "Holding Days": holding_days,
+            "Tax Rule": tax_type,
+            "Est. Tax (₹)": round(tax_amt, 2),
+            "Net In-Hand (₹)": round(curr_amt - tax_amt, 2)
         })
 
     tot_pnl = total_current - total_invested
@@ -661,38 +720,13 @@ with tab3:
     p1, p2, p3, p4 = st.columns(4)
     p1.metric("CAPITAL INVESTED", f"₹{total_invested:,.2f}")
     p2.metric("PORTFOLIO VALUATION", f"₹{total_current:,.2f}")
-    # Dedicated Daily PnL Metric Box
     p3.metric("TODAY'S DAILY P&L", f"₹{total_daily_pnl:+,.2f}", f"{daily_pnl_pct:+.2f}%")
-    p4.metric("TOTAL NET UNREALIZED GAIN", f"₹{tot_pnl:,.2f}", f"{tot_pct:.2f}%")
+    p4.metric("EST. POST-TAX GAIN", f"₹{(tot_pnl - total_tax_liability):,.2f}", f"Tax: ₹{total_tax_liability:,.0f}")
     
     st.markdown("<div style='height: 15px;'></div>", unsafe_allow_html=True)
     if paper_rows:
         df_p = pd.DataFrame(paper_rows)
         st.dataframe(df_p.drop(columns=["ID"]), use_container_width=True)
-        
-        alloc_col1, alloc_col2 = st.columns(2)
-        with alloc_col1:
-            fig_alloc = px.pie(
-                df_p, 
-                values="Current Value (₹)", 
-                names="Scheme Name", 
-                title="Capital Deployment by Scheme", 
-                hole=0.5,
-                color_discrete_sequence=px.colors.sequential.Agsunset
-            )
-            fig_alloc.update_layout(paper_bgcolor="rgba(0,0,0,0)", font=dict(color="#94a3b8"))
-            st.plotly_chart(fig_alloc, use_container_width=True)
-        with alloc_col2:
-            fig_pnl = px.bar(
-                df_p, 
-                x="Scheme Name", 
-                y="Today's P&L (₹)", 
-                title="Today's Performance Breakdown (₹)",
-                color="Today's P&L (₹)",
-                color_continuous_scale=["#f87171", "#4ade80"]
-            )
-            fig_pnl.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(color="#94a3b8"))
-            st.plotly_chart(fig_pnl, use_container_width=True)
 
     t_add, t_del = st.columns([2, 1])
     with t_add:
@@ -721,8 +755,67 @@ with tab3:
                     save_data(PORTFOLIO_FILE, st.session_state["paper_portfolio"])
                     st.rerun()
 
-# TAB 4: NORMALIZED PERFORMANCE & ROLLING
+# TAB 4: PORTFOLIO OVERLAP ANALYZER
 with tab4:
+    st.subheader("🔀 Mutual Fund Overlap Matrix & Stock Duplication")
+    st.caption("Check how much duplicate risk exists between two mutual funds in your watchlist.")
+    
+    if len(df_display) >= 2:
+        ov_col1, ov_col2 = st.columns(2)
+        f1 = ov_col1.selectbox("Select Fund A:", df_display["name"].tolist(), index=0)
+        f2 = ov_col2.selectbox("Select Fund B:", df_display["name"].tolist(), index=1)
+        
+        if f1 != f2:
+            holdings_1 = {h["Company"]: h["Weight (%)"] for h in df_display[df_display["name"] == f1].iloc[0]["top_holdings"]}
+            holdings_2 = {h["Company"]: h["Weight (%)"] for h in df_display[df_display["name"] == f2].iloc[0]["top_holdings"]}
+            
+            common_stocks = set(holdings_1.keys()).intersection(set(holdings_2.keys()))
+            overlap_weight = sum([min(holdings_1[s], holdings_2[s]) for s in common_stocks])
+            
+            m1, m2 = st.columns(2)
+            m1.metric("Common Stocks Identified", f"{len(common_stocks)} Stocks")
+            m2.metric("Portfolio Overlap %", f"{overlap_weight:.1f}%")
+            
+            if common_stocks:
+                ov_data = [{"Stock": s, f"{f1.split('-')[0].strip()} (%)": holdings_1[s], f"{f2.split('-')[0].strip()} (%)": holdings_2[s]} for s in common_stocks]
+                st.dataframe(pd.DataFrame(ov_data), use_container_width=True)
+            else:
+                st.success("Clean diversification! Dono schemes me top holdings bilkul unique hain.")
+        else:
+            st.info("Compare karne ke liye do alag-alag funds chunein.")
+    else:
+        st.info("Overlap calculate karne ke liye kam se kam 2 funds watchlist me hone chahiye.")
+
+# TAB 5: MAX DRAWDOWN & CRASH RECOVERY
+with tab5:
+    st.subheader("📉 Historical Maximum Peak-to-Trough Drawdown")
+    st.caption("Analyze historical market crash declines and recovery resilience.")
+    
+    if not df_display.empty:
+        dd_fund = st.selectbox("Select Scheme for Underwater Curve:", df_display["name"].tolist(), key="dd_f")
+        dd_hist = df_display[df_display["name"] == dd_fund].iloc[0]["history"].copy()
+        
+        dd_hist["Peak"] = dd_hist["nav"].cummax()
+        dd_hist["Underwater (%)"] = ((dd_hist["nav"] - dd_hist["Peak"]) / dd_hist["Peak"]) * 100
+        
+        fig_dd = px.area(
+            dd_hist, 
+            x="date", 
+            y="Underwater (%)", 
+            title=f"Drawdown / Underwater Curve: {dd_fund}",
+            color_discrete_sequence=["#ef4444"]
+        )
+        fig_dd.update_layout(
+            hovermode="x unified",
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+            font=dict(color="#94a3b8"),
+            yaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.05)")
+        )
+        st.plotly_chart(fig_dd, use_container_width=True)
+
+# TAB 6: NORMALIZED PERFORMANCE & ROLLING
+with tab6:
     if len(df_display) >= 2:
         comp_funds = st.multiselect("Select Schemes to Normalize (Base = 100):", df_display["name"].tolist(), default=df_display["name"].tolist()[:2])
         if comp_funds:
@@ -732,53 +825,27 @@ with tab4:
                 hist = sub_row["history"].copy()
                 hist["Normalized_Performance"] = (hist["nav"] / hist["nav"].iloc[0]) * 100
                 hist["Scheme"] = fn
-                combined_df = pd.concat([combined_df, hist[["date", "Normalized_NAV" if "Normalized_NAV" in hist else "Normalized_Performance", "Scheme"]]])
+                combined_df = pd.concat([combined_df, hist[["date", "Normalized_Performance", "Scheme"]]])
             
-            fig_comp = px.line(
-                combined_df, 
-                x="date", 
-                y="Normalized_Performance", 
-                color="Scheme",
-                color_discrete_sequence=["#38bdf8", "#ec4899", "#10b981", "#f59e0b"]
-            )
-            fig_comp.update_layout(
-                hovermode="x unified",
-                paper_bgcolor="rgba(0,0,0,0)",
-                plot_bgcolor="rgba(0,0,0,0)",
-                font=dict(color="#94a3b8"),
-                xaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.05)"),
-                yaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.05)")
-            )
+            fig_comp = px.line(combined_df, x="date", y="Normalized_Performance", color="Scheme", color_discrete_sequence=["#38bdf8", "#ec4899", "#10b981", "#f59e0b"])
+            fig_comp.update_layout(hovermode="x unified", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(color="#94a3b8"))
             st.plotly_chart(fig_comp, use_container_width=True)
 
-        st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
         st.markdown("#### ⏳ Rolling Horizon Engine (1-Year & 3-Year Windows)")
-        roll_fund = st.selectbox("Select Target Scheme:", df_display["name"].tolist())
+        roll_fund = st.selectbox("Select Target Scheme:", df_display["name"].tolist(), key="roll_f")
         r_hist = df_display[df_display["name"] == roll_fund].iloc[0]["history"].copy()
         
         r_hist["1Y_Rolling_Return (%)"] = r_hist["nav"].pct_change(252) * 100
         r_hist["3Y_Rolling_CAGR (%)"] = ((r_hist["nav"] / r_hist["nav"].shift(756)) ** (1/3) - 1) * 100
         
-        fig_roll = px.line(
-            r_hist.dropna(subset=["1Y_Rolling_Return (%)"]), 
-            x="date", 
-            y=["1Y_Rolling_Return (%)", "3Y_Rolling_CAGR (%)"],
-            color_discrete_sequence=["#06b6d4", "#a855f7"]
-        )
-        fig_roll.update_layout(
-            hovermode="x unified",
-            paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)",
-            font=dict(color="#94a3b8"),
-            xaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.05)"),
-            yaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.05)")
-        )
+        fig_roll = px.line(r_hist.dropna(subset=["1Y_Rolling_Return (%)"]), x="date", y=["1Y_Rolling_Return (%)", "3Y_Rolling_CAGR (%)"], color_discrete_sequence=["#06b6d4", "#a855f7"])
+        fig_roll.update_layout(hovermode="x unified", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(color="#94a3b8"))
         st.plotly_chart(fig_roll, use_container_width=True)
     else:
-        st.info("At least 2 schemes required for comparison engine.")
+        st.info("At least 2 schemes required.")
 
-# TAB 5: STATUTORY DISCLOSURES
-with tab5:
+# TAB 7: STATUTORY DISCLOSURES
+with tab7:
     disc_fund = st.selectbox("Select Scheme for Compliance Audit:", df_display["name"].tolist(), key="disc_sel_box")
     target_disc = df_display[df_display["name"] == disc_fund].iloc[0]
     direct_portal = get_amc_disclosure_url(target_disc["fund_house"], target_disc["name"])
@@ -789,14 +856,4 @@ with tab5:
         <p style='color:#94a3b8; font-size: 0.95rem; margin-top: 5px;'>Target Entity: <b style='color:#f8fafc;'>{target_disc['fund_house']}</b> | Scheme: <b style='color:#f8fafc;'>{target_disc['name']}</b></p>
     </div>
     """, unsafe_allow_html=True)
-
-    st.markdown("<div style='height: 15px;'></div>", unsafe_allow_html=True)
     st.link_button(f"🌐 Access Official {target_disc['fund_house']} Repository", direct_portal)
-    
-    st.markdown("""
-    ---
-    ##### 📌 Regulatory Compliance Guidelines:
-    * **Monthly Portfolio Disclosure:** Uploaded by AMCs strictly within 10 days of close of each month.
-    * **Half-Yearly Disclosures:** Published as of March 31 & September 30.
-    * **Full Factsheet & Scrip Allocation:** Download `.xlsx` from the verified portal link above and upload directly to **Tab 2** for complete portfolio parsing.
-    """)
