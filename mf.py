@@ -274,7 +274,7 @@ def fetch_live_indices():
             except:
                 pass
     
-    # 4 PM Fallback if YF fails or is missing
+    # 4 PM Fallback if YF fails
     base_indices = [
         {"name": "NIFTY 50", "base_price": 25840.60, "proxy_vol": 0.35},
         {"name": "NIFTY BANK", "base_price": 54210.15, "proxy_vol": 0.42},
@@ -342,6 +342,7 @@ def get_nav_analytics(scheme_code):
         
         meta = data.get("meta", {})
         scheme_name = meta.get("scheme_name", "Unknown")
+        category = meta.get("scheme_category", "Equity Scheme")
         fund_house = meta.get("fund_house", "Mutual Fund AMC")
         
         df_hist = pd.DataFrame(data["data"])
@@ -392,6 +393,7 @@ def get_nav_analytics(scheme_code):
 
         return {
             "name": scheme_name,
+            "category": category,
             "fund_house": fund_house,
             "benchmark": real_info["benchmark"],
             "fund_manager": real_info["manager"],
@@ -433,11 +435,19 @@ for code in st.session_state["tracked_codes"]:
         analytics_data.append(res)
 df_research = pd.DataFrame(analytics_data)
 
+# Sidebar Filter Check
+if "category" in df_research.columns and not df_research.empty:
+    all_cats = ["All"] + sorted([str(c) for c in df_research["category"].unique() if c])
+    sel_cat = st.sidebar.selectbox("Filter Category:", all_cats)
+    df_display = df_research if sel_cat == "All" else df_research[df_research["category"] == sel_cat]
+else:
+    df_display = df_research
+
 # --- 1. FLOATING BREAKING NEWS MARQUEE ---
 ticker_items = []
-if not df_research.empty:
-    for _, row in df_research.iterrows():
-        chg = row["daily_change"]
+if not df_display.empty:
+    for _, row in df_display.iterrows():
+        chg = row.get("daily_change", 0.0)
         short_name = row["name"].split("-")[0].strip()
         if chg >= 1.0:
             ticker_items.append(f"<span style='color: #4ade80; font-weight: 700;'>🟢 {short_name}: +{chg}%</span>")
@@ -517,8 +527,8 @@ with st.sidebar.expander("📁 Batch Import (Excel/CSV)"):
             st.error(f"Error: {e}")
 
 with st.sidebar.expander("🗑️ Remove Scheme"):
-    if not df_research.empty:
-        funds_dict = {row["name"]: int(row["code"]) for _, row in df_research.iterrows()}
+    if not df_display.empty:
+        funds_dict = {row["name"]: int(row["code"]) for _, row in df_display.iterrows()}
         selected_to_remove = st.selectbox("Select scheme to purge:", list(funds_dict.keys()))
         if st.button("Purge Scheme"):
             code_to_remove = funds_dict[selected_to_remove]
@@ -527,10 +537,6 @@ with st.sidebar.expander("🗑️ Remove Scheme"):
                 save_data(WATCHLIST_FILE, st.session_state["tracked_codes"])
                 st.rerun()
 
-all_cats = ["All"] + sorted([c for c in df_research["category"].unique() if c]) if not df_research.empty else ["All"]
-sel_cat = st.sidebar.selectbox("Filter Category:", all_cats)
-df_display = df_research if sel_cat == "All" or df_research.empty else df_research[df_research["category"] == sel_cat]
-
 # --- TABS ---
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
     "📊 Quantitative Terminal",
@@ -538,44 +544,44 @@ tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
     "💼 Paper Portfolio & Tax Planner",
     "📉 Max Drawdown & Crash Recovery",
     "📈 Normalized Alpha & Rolling",
-    "📑 Statutory Disclosures (Fixed)"
+    "📑 Statutory Disclosures"
 ])
 
 # TAB 1
 with tab1:
-    pos_count = len(df_display[df_display["daily_change"] > 0]) if not df_display.empty else 0
-    neg_count = len(df_display[df_display["daily_change"] < 0]) if not df_display.empty else 0
+    pos_count = len(df_display[df_display.get("daily_change", 0) > 0]) if not df_display.empty else 0
+    neg_count = len(df_display[df_display.get("daily_change", 0) < 0]) if not df_display.empty else 0
     total_tracked = len(df_display)
 
     k1, k2, k3, k4, k5 = st.columns(5)
     k1.metric("TRACKED FUNDS", total_tracked)
     k2.metric("🟢 POSITIVE FUNDS", f"{pos_count} Funds", f"{(pos_count/total_tracked*100) if total_tracked>0 else 0:.1f}%")
     k3.metric("🔴 NEGATIVE FUNDS", f"{neg_count} Funds", f"-{(neg_count/total_tracked*100) if total_tracked>0 else 0:.1f}%")
-    avg_3y = round(df_display["cagr_3y"].dropna().mean(), 2) if not df_display.empty else 0.0
+    avg_3y = round(df_display["cagr_3y"].dropna().mean(), 2) if not df_display.empty and "cagr_3y" in df_display else 0.0
     k4.metric("AVG 3Y CAGR", f"{avg_3y}%")
-    avg_sharpe = round(df_display["sharpe_ratio"].dropna().mean(), 2) if not df_display.empty else 0.0
+    avg_sharpe = round(df_display["sharpe_ratio"].dropna().mean(), 2) if not df_display.empty and "sharpe_ratio" in df_display else 0.0
     k5.metric("MEDIAN SHARPE", f"{avg_sharpe}")
     
     st.markdown("<div style='height: 15px;'></div>", unsafe_allow_html=True)
-    if not df_research.empty:
-        v_df = df_research[["name", "benchmark", "latest_nav", "daily_change", "predicted_nav", "cagr_3y", "cagr_5y", "sharpe_ratio", "latest_date"]].copy()
-        v_df.columns = ["Scheme Name", "Benchmark", "Latest NAV (₹)", "1D Change (%)", "🔮 Tomorrow Projected NAV", "3Y CAGR (%)", "5Y CAGR (%)", "Sharpe (3Y)", "As of Date"]
+    if not df_display.empty:
+        v_df = df_display[["name", "category", "benchmark", "latest_nav", "daily_change", "predicted_nav", "cagr_3y", "cagr_5y", "sharpe_ratio", "latest_date"]].copy()
+        v_df.columns = ["Scheme Name", "Category", "Benchmark", "Latest NAV (₹)", "1D Change (%)", "🔮 Tomorrow Projected NAV", "3Y CAGR (%)", "5Y CAGR (%)", "Sharpe (3Y)", "As of Date"]
         st.dataframe(v_df, use_container_width=True)
 
 # TAB 2
 with tab2:
-    if not df_research.empty:
-        sel_detail_fund = st.selectbox("Select Target Scheme:", df_research["name"].tolist())
-        target_f = df_research[df_research["name"] == sel_detail_fund].iloc[0]
+    if not df_display.empty:
+        sel_detail_fund = st.selectbox("Select Target Scheme:", df_display["name"].tolist())
+        target_f = df_display[df_display["name"] == sel_detail_fund].iloc[0]
         
         c1, c2, c3, c4 = st.columns(4)
-        c1.metric("PORTFOLIO LEAD", target_f["fund_manager"])
-        c2.metric("SCHEME AUM", target_f["aum_cr"])
-        c3.metric("INCEPTION DATE", target_f["inception_date"])
-        c4.metric("MAX DRAWDOWN", f"{target_f['max_drawdown']}%")
+        c1.metric("PORTFOLIO LEAD", target_f.get("fund_manager", "N/A"))
+        c2.metric("SCHEME AUM", target_f.get("aum_cr", "N/A"))
+        c3.metric("INCEPTION DATE", target_f.get("inception_date", "N/A"))
+        c4.metric("MAX DRAWDOWN", f"{target_f.get('max_drawdown', 0.0)}%")
 
         st.markdown("<div style='height: 15px;'></div>", unsafe_allow_html=True)
-        th_df = pd.DataFrame(target_f["top_holdings"])
+        th_df = pd.DataFrame(target_f.get("top_holdings", []))
         if not th_df.empty:
             h1, h2 = st.columns([3, 2])
             with h1:
@@ -638,9 +644,36 @@ with tab3:
     if paper_rows:
         st.dataframe(pd.DataFrame(paper_rows), use_container_width=True)
 
+    t_add, t_del = st.columns([2, 1])
+    with t_add:
+        with st.expander("➕ Execute Virtual Position"):
+            if not df_display.empty:
+                f_map = {r["name"]: r["code"] for _, r in df_display.iterrows()}
+                sel_f = st.selectbox("Scheme:", list(f_map.keys()), key="paper_add_sel")
+                c_u, c_b = st.columns(2)
+                u = c_u.number_input("Units", min_value=0.01, value=100.0, step=10.0)
+                def_nav = get_nav_analytics(f_map[sel_f])["latest_nav"]
+                b_nav = c_b.number_input("Acquisition NAV (₹)", min_value=0.01, value=float(def_nav), step=1.0)
+                if st.button("Commit Trade"):
+                    st.session_state["paper_portfolio"].append({
+                        "code": f_map[sel_f], "name": sel_f, "units": float(u),
+                        "buy_nav": float(b_nav), "buy_date": datetime.today().strftime("%Y-%m-%d")
+                    })
+                    save_data(PORTFOLIO_FILE, st.session_state["paper_portfolio"])
+                    st.rerun()
+    with t_del:
+        with st.expander("🗑️ Close Position"):
+            if st.session_state["paper_portfolio"]:
+                names_d = [f"{i+1}. {t['name']} ({t['units']} units)" for i, t in enumerate(st.session_state["paper_portfolio"])]
+                s_d = st.selectbox("Select Trade to Liquidate:", names_d)
+                if st.button("Liquidate"):
+                    st.session_state["paper_portfolio"].pop(names_d.index(s_d))
+                    save_data(PORTFOLIO_FILE, st.session_state["paper_portfolio"])
+                    st.rerun()
+
 # TAB 4: MAX DRAWDOWN & CRASH RECOVERY
 with tab4:
-    if not df_research.empty:
+    if not df_display.empty:
         dd_fund = st.selectbox("Select Scheme for Underwater Curve:", df_display["name"].tolist(), key="dd_f")
         dd_hist = df_display[df_display["name"] == dd_fund].iloc[0]["history"].copy()
         dd_hist["Peak"] = dd_hist["nav"].cummax()
@@ -667,17 +700,17 @@ with tab5:
             fig_comp.update_layout(hovermode="x unified", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(color="#94a3b8"))
             st.plotly_chart(fig_comp, use_container_width=True)
 
-# TAB 6 (Fixed AMFI Links)
+# TAB 6: STATUTORY DISCLOSURES
 with tab6:
-    if not df_research.empty:
-        disc_fund = st.selectbox("Select Scheme for Compliance Audit:", df_research["name"].tolist())
-        target_disc = df_research[df_research["name"] == disc_fund].iloc[0]
-        direct_portal = get_amc_disclosure_url(target_disc["fund_house"], target_disc["name"])
+    if not df_display.empty:
+        disc_fund = st.selectbox("Select Scheme for Compliance Audit:", df_display["name"].tolist())
+        target_disc = df_display[df_display["name"] == disc_fund].iloc[0]
+        direct_portal = get_amc_disclosure_url(target_disc.get("fund_house", ""), target_disc["name"])
         
         st.markdown(f"""
         <div style='background: rgba(15, 23, 42, 0.6); padding: 25px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08);'>
             <h3 style='margin:0; color:#38bdf8;'>SEBI Statutory Portfolio Repository</h3>
-            <p style='color:#94a3b8; font-size: 0.95rem; margin-top: 5px;'>Target Entity: <b style='color:#f8fafc;'>{target_disc['fund_house']}</b></p>
+            <p style='color:#94a3b8; font-size: 0.95rem; margin-top: 5px;'>Target Entity: <b style='color:#f8fafc;'>{target_disc.get('fund_house', 'AMC')}</b></p>
         </div>
         """, unsafe_allow_html=True)
         st.link_button(f"🌐 Access Official Repository (Fixed Links)", direct_portal)
