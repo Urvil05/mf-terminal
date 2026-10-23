@@ -754,38 +754,99 @@ with tab3:
                     st.session_state["paper_portfolio"].pop(names_d.index(s_d))
                     save_data(PORTFOLIO_FILE, st.session_state["paper_portfolio"])
                     st.rerun()
-
 # TAB 4: PORTFOLIO OVERLAP ANALYZER
 with tab4:
     st.subheader("🔀 Mutual Fund Overlap Matrix & Stock Duplication")
-    st.caption("Check how much duplicate risk exists between two mutual funds in your watchlist.")
+    st.caption("Check how much duplicate stock risk exists between two mutual funds in your watchlist.")
     
     if len(df_display) >= 2:
         ov_col1, ov_col2 = st.columns(2)
-        f1 = ov_col1.selectbox("Select Fund A:", df_display["name"].tolist(), index=0)
-        f2 = ov_col2.selectbox("Select Fund B:", df_display["name"].tolist(), index=1)
+        fund_list = df_display["name"].tolist()
+        f1 = ov_col1.selectbox("Select Fund A:", fund_list, index=0, key="ov_f1")
+        f2 = ov_col2.selectbox("Select Fund B:", fund_list, index=1 if len(fund_list) > 1 else 0, key="ov_f2")
         
         if f1 != f2:
-            holdings_1 = {h["Company"]: h["Weight (%)"] for h in df_display[df_display["name"] == f1].iloc[0]["top_holdings"]}
-            holdings_2 = {h["Company"]: h["Weight (%)"] for h in df_display[df_display["name"] == f2].iloc[0]["top_holdings"]}
+            row1 = df_display[df_display["name"] == f1].iloc[0]
+            row2 = df_display[df_display["name"] == f2].iloc[0]
             
-            common_stocks = set(holdings_1.keys()).intersection(set(holdings_2.keys()))
-            overlap_weight = sum([min(holdings_1[s], holdings_2[s]) for s in common_stocks])
+            h_list1 = row1.get("top_holdings", [])
+            h_list2 = row2.get("top_holdings", [])
             
-            m1, m2 = st.columns(2)
-            m1.metric("Common Stocks Identified", f"{len(common_stocks)} Stocks")
-            m2.metric("Portfolio Overlap %", f"{overlap_weight:.1f}%")
-            
-            if common_stocks:
-                ov_data = [{"Stock": s, f"{f1.split('-')[0].strip()} (%)": holdings_1[s], f"{f2.split('-')[0].strip()} (%)": holdings_2[s]} for s in common_stocks]
-                st.dataframe(pd.DataFrame(ov_data), use_container_width=True)
+            if not h_list1 or not h_list2:
+                st.warning("Inme se kisi fund ka holding data abhi load nahi hua hai.")
             else:
-                st.success("Clean diversification! Dono schemes me top holdings bilkul unique hain.")
+                # Smart Stock Normalizer (Removes Ltd, Limited, dots, punctuation)
+                def clean_name(name_str):
+                    s = re.sub(r'\(.*?\)', '', str(name_str))
+                    s = re.sub(r'[^a-zA-Z0-9\s]', ' ', s)
+                    s = re.sub(r'\b(ltd|limited|inc|corporation|corp|india)\b', ' ', s, flags=re.I)
+                    return " ".join(s.split()).lower()
+
+                # Dictionary with cleaned keys
+                dict1 = {}
+                for h in h_list1:
+                    c_key = clean_name(h.get("Company", ""))
+                    if c_key:
+                        dict1[c_key] = {"original": h.get("Company"), "weight": float(h.get("Weight (%)", 0.0))}
+
+                dict2 = {}
+                for h in h_list2:
+                    c_key = clean_name(h.get("Company", ""))
+                    if c_key:
+                        dict2[c_key] = {"original": h.get("Company"), "weight": float(h.get("Weight (%)", 0.0))}
+
+                common_keys = set(dict1.keys()).intersection(set(dict2.keys()))
+                
+                # Overlap Weight calculation = sum of min(weightA, weightB)
+                overlap_pct = 0.0
+                overlap_rows = []
+                
+                for k in common_keys:
+                    w1 = dict1[k]["weight"]
+                    w2 = dict2[k]["weight"]
+                    min_w = min(w1, w2)
+                    overlap_pct += min_w
+                    overlap_rows.append({
+                        "Common Company": dict1[k]["original"],
+                        f"{f1[:20]}... (%)": w1,
+                        f"{f2[:20]}... (%)": w2,
+                        "Overlapping Weight (%)": min_w
+                    })
+
+                # Display Metrics
+                m1, m2, m3 = st.columns(3)
+                m1.metric("COMMON STOCKS", f"{len(common_keys)} Companies")
+                m2.metric("PORTFOLIO OVERLAP", f"{overlap_pct:.2f}%")
+                
+                if overlap_pct > 35:
+                    m3.metric("DIVERSIFICATION STATUS", "⚠️ High Duplication", "High Risk")
+                elif overlap_pct > 15:
+                    m3.metric("DIVERSIFICATION STATUS", "⚖️ Moderate Overlap", "Normal")
+                else:
+                    m3.metric("DIVERSIFICATION STATUS", "✅ Well Diversified", "Good")
+
+                st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
+                
+                if overlap_rows:
+                    df_ov = pd.DataFrame(overlap_rows).sort_values("Overlapping Weight (%)", ascending=False)
+                    st.dataframe(df_ov, use_container_width=True)
+                    
+                    fig_ov = px.bar(
+                        df_ov, 
+                        x="Common Company", 
+                        y="Overlapping Weight (%)",
+                        title="Common Stock Weight Contribution (%)",
+                        color="Overlapping Weight (%)",
+                        color_continuous_scale=["#38bdf8", "#818cf8"]
+                    )
+                    fig_ov.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(color="#94a3b8"))
+                    st.plotly_chart(fig_ov, use_container_width=True)
+                else:
+                    st.success("🎉 Bilkul unique holdings hain! Dono funds me koi common duplicate stock nahi hai.")
         else:
             st.info("Compare karne ke liye do alag-alag funds chunein.")
     else:
         st.info("Overlap calculate karne ke liye kam se kam 2 funds watchlist me hone chahiye.")
-
 # TAB 5: MAX DRAWDOWN & CRASH RECOVERY
 with tab5:
     st.subheader("📉 Historical Maximum Peak-to-Trough Drawdown")
