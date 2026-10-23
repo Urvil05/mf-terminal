@@ -18,8 +18,8 @@ except ImportError:
 
 # Page Setup
 st.set_page_config(
-    page_title="APEX MF | Institutional Terminal", 
-    page_icon="⚡", 
+    page_title="Mutual Fund | Terminal", 
+    page_icon="⚡💸 ", 
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -82,8 +82,8 @@ INITIAL_METADATA = {
     "abakkus": {
         "manager": "Sunil Singhania",
         "aum_cr": "₹3,500 Cr (Est)",
-        "inception": "July 2019",
-        "benchmark": "BSE 500 TRI",
+        "inception": "February 2026",
+        "benchmark": "Nifty Smallcap 250 TRI",
         "holdings": [
             {"Company": "Jindal Stainless", "Sector": "Metals", "Weight (%)": 5.4},
             {"Company": "Ion Exchange", "Sector": "Capital Goods", "Weight (%)": 4.8},
