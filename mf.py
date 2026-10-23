@@ -462,9 +462,8 @@ for code in st.session_state["tracked_codes"]:
 
 df_research = pd.DataFrame(analytics_data)
 
-# --- 1. FLOATING BREAKING NEWS MARQUEE (NEWS CHANNEL TICKER) ---
+# --- 1. FLOATING BREAKING NEWS MARQUEE ---
 ticker_items = []
-# 1% Movers in Watchlist
 if not df_research.empty:
     for _, row in df_research.iterrows():
         chg = row["daily_change"]
@@ -474,7 +473,6 @@ if not df_research.empty:
         elif chg <= -1.0:
             ticker_items.append(f"<span style='color: #f87171; font-weight: 700;'>🔴 {short_name}: {chg}%</span>")
 
-# Active NFOs in Marquee
 for nfo in fetch_active_nfos():
     ticker_items.append(f"<span style='color: #38bdf8; font-weight: 600;'>📢 NFO: <b>{nfo['name']}</b> ({nfo['dates']})</span>")
 
@@ -504,7 +502,7 @@ for idx, b in enumerate(benchmarks_list):
 
 st.markdown("<div style='height: 15px;'></div>", unsafe_allow_html=True)
 
-# --- 3. PRICE ALERT NOTIFICATIONS (INTRADAY MOVERS) ---
+# --- 3. PRICE ALERT NOTIFICATIONS ---
 if not df_research.empty:
     big_movers = df_research[df_research["daily_change"].abs() >= 1.0]
     if not big_movers.empty:
@@ -589,12 +587,11 @@ all_cats = ["All"] + sorted([c for c in df_research["category"].unique() if c]) 
 sel_cat = st.sidebar.selectbox("Filter Category:", all_cats)
 df_display = df_research if sel_cat == "All" or df_research.empty else df_research[df_research["category"] == sel_cat]
 
-# --- MAIN TABS ---
-tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
+# --- MAIN TABS (OVERLAP REMOVED) ---
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
     "📊 Quantitative Terminal",
     "🏢 Institutional Holdings",
     "💼 Paper Portfolio & Tax Planner",
-    "🔀 Portfolio Overlap Analyzer",
     "📉 Max Drawdown & Crash Recovery",
     "📈 Normalized Alpha & Rolling",
     "📑 Statutory Disclosures"
@@ -683,7 +680,6 @@ with tab3:
         
         day_pnl = item["units"] * (curr_nav - prev_n)
         
-        # Tax Calculation (Holding > 365 Days = LTCG @ 12.5%, else STCG @ 20%)
         buy_dt = datetime.strptime(item.get("buy_date", "2026-01-01"), "%Y-%m-%d")
         holding_days = (today_dt - buy_dt).days
         tax_type = "LTCG (12.5%)" if holding_days >= 365 else "STCG (20%)"
@@ -754,8 +750,9 @@ with tab3:
                     st.session_state["paper_portfolio"].pop(names_d.index(s_d))
                     save_data(PORTFOLIO_FILE, st.session_state["paper_portfolio"])
                     st.rerun()
-# TAB 5: MAX DRAWDOWN & CRASH RECOVERY
-with tab5:
+
+# TAB 4: MAX DRAWDOWN & CRASH RECOVERY
+with tab4:
     st.subheader("📉 Historical Maximum Peak-to-Trough Drawdown")
     st.caption("Analyze historical market crash declines and recovery resilience.")
     
@@ -782,8 +779,8 @@ with tab5:
         )
         st.plotly_chart(fig_dd, use_container_width=True)
 
-# TAB 6: NORMALIZED PERFORMANCE & ROLLING
-with tab6:
+# TAB 5: NORMALIZED PERFORMANCE & ROLLING
+with tab5:
     if len(df_display) >= 2:
         comp_funds = st.multiselect("Select Schemes to Normalize (Base = 100):", df_display["name"].tolist(), default=df_display["name"].tolist()[:2])
         if comp_funds:
@@ -812,8 +809,8 @@ with tab6:
     else:
         st.info("At least 2 schemes required.")
 
-# TAB 7: STATUTORY DISCLOSURES
-with tab7:
+# TAB 6: STATUTORY DISCLOSURES
+with tab6:
     disc_fund = st.selectbox("Select Scheme for Compliance Audit:", df_display["name"].tolist(), key="disc_sel_box")
     target_disc = df_display[df_display["name"] == disc_fund].iloc[0]
     direct_portal = get_amc_disclosure_url(target_disc["fund_house"], target_disc["name"])
