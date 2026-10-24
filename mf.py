@@ -244,25 +244,7 @@ if "paper_portfolio" not in st.session_state:
 if "meta_data" not in st.session_state:
     st.session_state["meta_data"] = load_data(META_FILE)
 
-# --- VERIFIED DISCLOSURE URLS (FIXED AMFI LINK) ---
-ALL_AMC_DISCLOSURES = {
-    "abakkus": "https://abakkusinvest.com/disclosures/",
-    "aditya birla": "https://mutualfund.adityabirlacapital.com/forms-and-downloads/portfolio-disclosures",
-    "hdfc": "https://www.hdfcfund.com/statutory-disclosure/portfolio/monthly-portfolio",
-    "nippon": "https://mf.nipponindiaim.com/investor-service/downloads/factsheet-and-portfolio",
-    "sbi": "https://www.sbimf.com/en-us/portfolios",
-    "motilal": "https://www.motilaloswalmf.com/downloads/mutual-fund/scheme-portfolio",
-    "parag parikh": "https://amc.ppfas.com/schemes/monthly-portfolio-disclosure/",
-    "quant": "https://quantmutual.com/statutory-disclosures",
-    "tata": "https://www.tatamutualfund.com/downloads/factsheets-portfolio"
 }
-
-def get_amc_disclosure_url(fund_house, fund_name):
-    query_str = (str(fund_house) + " " + str(fund_name)).lower()
-    for k, v in ALL_AMC_DISCLOSURES.items():
-        if k in query_str:
-            return v
-    return "https://www.amfiindia.com/otherdata"
 
 # --- 100% REAL LIVE INDICES ENGINE (NO YFINANCE NEEDED) ---
 @st.cache_data(ttl=120, show_spinner=False)
@@ -598,13 +580,12 @@ with st.sidebar.expander("🗑️ Remove Scheme"):
                 st.rerun()
 
 # --- TABS ---
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "📊 Quantitative Terminal",
     "🏢 Institutional Holdings",
     "💼 Paper Portfolio & Tax Planner",
     "📉 Max Drawdown & Crash Recovery",
-    "📈 Normalized Alpha & Rolling",
-    "📑 Statutory Disclosures (Fixed)"
+    "📈 Normalized Alpha & Rolling"
 ])
 
 # TAB 1
@@ -759,18 +740,3 @@ with tab5:
             fig_comp = px.line(combined_df, x="date", y="Normalized_Performance", color="Scheme")
             fig_comp.update_layout(hovermode="x unified", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(color="#94a3b8"))
             st.plotly_chart(fig_comp, use_container_width=True)
-
-# TAB 6
-with tab6:
-    if not df_display.empty:
-        disc_fund = st.selectbox("Select Scheme for Compliance Audit:", df_display["name"].tolist())
-        target_disc = df_display[df_display["name"] == disc_fund].iloc[0]
-        direct_portal = get_amc_disclosure_url(target_disc.get("fund_house", ""), target_disc["name"])
-        
-        st.markdown(f"""
-        <div style='background: rgba(15, 23, 42, 0.6); padding: 25px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08);'>
-            <h3 style='margin:0; color:#38bdf8;'>SEBI Statutory Portfolio Repository</h3>
-            <p style='color:#94a3b8; font-size: 0.95rem; margin-top: 5px;'>Target Entity: <b style='color:#f8fafc;'>{target_disc.get('fund_house', 'AMC')}</b></p>
-        </div>
-        """, unsafe_allow_html=True)
-        st.link_button(f"🌐 Access Official Repository (Fixed Links)", direct_portal)
