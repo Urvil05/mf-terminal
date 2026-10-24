@@ -244,8 +244,6 @@ if "paper_portfolio" not in st.session_state:
 if "meta_data" not in st.session_state:
     st.session_state["meta_data"] = load_data(META_FILE)
 
-}
-
 # --- 100% REAL LIVE INDICES ENGINE (NO YFINANCE NEEDED) ---
 @st.cache_data(ttl=120, show_spinner=False)
 def fetch_live_indices():
