@@ -167,7 +167,7 @@ if st.session_state["watchlist"]:
         st.rerun()
 
 # --- MAIN UI ---
-st.markdown("<h1 style='font-weight: 800; font-size: 2.2rem; color: #38bdf8;'>MUTUAL FUND TERMINAL</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='font-weight: 800; font-size: 2.2rem; color: #38bdf8;'>FUND TERMINAL</h1>", unsafe_allow_html=True)
 tab1, tab2 = st.tabs(["📊 Quant Dashboard", "🏢 Factsheet Parser"])
 
 with tab1:
