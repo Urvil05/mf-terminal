@@ -7,7 +7,7 @@ import json
 import os
 from datetime import datetime, timedelta
 
-st.set_page_config(page_title="Mutual Fund Terminal", page_icon="⚡", layout="wide")
+st.set_page_config(page_title="APEX MF | Institutional Terminal", page_icon="⚡", layout="wide")
 
 st.markdown("""
 <style>
@@ -19,20 +19,23 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 WATCHLIST_FILE = "tracked_funds.json"
+PORTFOLIO_FILE = "paper_portfolio.json"
 DEFAULT_WATCHLIST = [] 
 
-def load_watchlist():
-    if os.path.exists(WATCHLIST_FILE):
+def load_json(filepath, default_val):
+    if os.path.exists(filepath):
         try:
-            with open(WATCHLIST_FILE, "r") as f: return json.load(f)
+            with open(filepath, "r") as f: return json.load(f)
         except: pass
-    return DEFAULT_WATCHLIST
+    return default_val
 
-def save_watchlist(data):
-    with open(WATCHLIST_FILE, "w") as f: json.dump(data, f)
+def save_json(filepath, data):
+    with open(filepath, "w") as f: json.dump(data, f)
 
 if "watchlist" not in st.session_state:
-    st.session_state["watchlist"] = load_watchlist()
+    st.session_state["watchlist"] = load_json(WATCHLIST_FILE, DEFAULT_WATCHLIST)
+if "portfolio" not in st.session_state:
+    st.session_state["portfolio"] = load_json(PORTFOLIO_FILE, [])
 
 # --- AMFI DATA FETCHERS ---
 @st.cache_data(ttl=86400, show_spinner=False)
@@ -60,7 +63,7 @@ def calculate_fund_metrics(code):
         elif "small" in cat_low: bench = "NIFTY Smallcap 250 TRI"
         elif "flexi" in cat_low or "multi" in cat_low: bench = "NIFTY 500 TRI"
         elif "elss" in cat_low: bench = "NIFTY 500 TRI"
-        elif "index" in cat_low: bench = "NIFTY INDIA DEFENCE TRI"
+        elif "index" in cat_low: bench = "NIFTY 50 TRI"
         elif "debt" in cat_low or "liquid" in cat_low: bench = "NIFTY Liquid Index"
         else: bench = "NIFTY 500 TRI" 
         
@@ -114,7 +117,8 @@ def calculate_fund_metrics(code):
             "1-Year (%)": ret_1y,
             "3-Year CAGR (%)": cagr_3y,
             "Sharpe Ratio": sharpe,
-            "Sortino Ratio": sortino
+            "Sortino Ratio": sortino,
+            "Latest NAV": latest_nav
         }
     except Exception as e:
         return None
@@ -133,7 +137,7 @@ if query and not all_schemes.empty:
             code = int(matches[matches["schemeName"] == sel_fund]["schemeCode"].iloc[0])
             if code not in st.session_state["watchlist"]:
                 st.session_state["watchlist"].append(code)
-                save_watchlist(st.session_state["watchlist"])
+                save_json(WATCHLIST_FILE, st.session_state["watchlist"])
                 st.sidebar.success("Fund Added!")
                 st.rerun()
     else:
@@ -158,23 +162,17 @@ if st.session_state["watchlist"]:
             for f in funds_to_delete:
                 if delete_dict[f] in st.session_state["watchlist"]:
                     st.session_state["watchlist"].remove(delete_dict[f])
-            save_watchlist(st.session_state["watchlist"])
+            save_json(WATCHLIST_FILE, st.session_state["watchlist"])
             st.rerun()
 
-    if st.sidebar.button("🚨 Clear Entire Watchlist"):
-        st.session_state["watchlist"] = []
-        save_watchlist([])
-        st.rerun()
-
 # --- MAIN UI ---
-st.markdown("<h1 style='font-weight: 800; font-size: 2.2rem; color: #38bdf8;'>FUND TERMINAL</h1>", unsafe_allow_html=True)
-tab1, tab2 = st.tabs(["📊 Quant Dashboard", "🏢 Factsheet Parser"])
+st.markdown("<h1 style='font-weight: 800; font-size: 2.2rem; color: #38bdf8;'>APEX QUANTITATIVE TERMINAL</h1>", unsafe_allow_html=True)
+tab1, tab2, tab3 = st.tabs(["📊 Quant Dashboard", "🏢 Factsheet Parser", "💼 Paper Portfolio (LTCG/STCG)"])
 
 with tab1:
     if st.session_state["watchlist"]:
         st.write(f"**Tracking {len(st.session_state['watchlist'])} Funds** | *Live data fetching directly from AMFI API...*")
-        
-        with st.spinner("Calculating 1Y/3Y Returns, Sharpe & Sortino Ratios..."):
+        with st.spinner("Calculating Metrics..."):
             metrics_list = []
             for code in st.session_state["watchlist"]:
                 data = calculate_fund_metrics(code)
@@ -182,32 +180,22 @@ with tab1:
                     metrics_list.append(data)
             
             if metrics_list:
-                df_display = pd.DataFrame(metrics_list).drop(columns=["Code"])
+                df_display = pd.DataFrame(metrics_list).drop(columns=["Code", "Latest NAV"])
                 st.dataframe(df_display, use_container_width=True, hide_index=True)
-            else:
-                st.error("Failed to load metrics.")
     else:
         st.info("Watchlist is empty. Add funds from the sidebar on the left.")
 
 with tab2:
     st.markdown("### 📥 Smart Factsheet Parser")
     st.caption("Pitching ke liye AMC ki official website se downloaded Monthly Portfolio (.xlsx / .csv) upload karein.")
-    
     factsheet_file = st.file_uploader("Upload Official AMC Portfolio File", type=["xlsx", "xls", "csv"])
-    
     if factsheet_file is not None:
         try:
-            if factsheet_file.name.endswith(".csv"):
-                raw_df = pd.read_csv(factsheet_file)
-            else:
-                raw_df = pd.read_excel(factsheet_file)
-                
+            raw_df = pd.read_csv(factsheet_file) if factsheet_file.name.endswith(".csv") else pd.read_excel(factsheet_file)
             st.success(f"File '{factsheet_file.name}' loaded successfully!")
-            
             with st.expander("🔍 Inspect Raw Factsheet Data"):
                 st.dataframe(raw_df.head(15), use_container_width=True)
             
-            st.markdown("#### ⚙️ Map Columns for Accurate Pitch Data")
             col1, col2 = st.columns(2)
             company_col = col1.selectbox("Select 'Company Name' Column:", ["None"] + list(raw_df.columns))
             weight_col = col2.selectbox("Select 'Weight (%)' Column:", ["None"] + list(raw_df.columns))
@@ -218,27 +206,108 @@ with tab2:
                 clean_df = clean_df.dropna(subset=[company_col, weight_col])
                 clean_df = clean_df.sort_values(by=weight_col, ascending=False).head(10) 
                 
-                st.markdown("---")
-                st.markdown("### 🎯 Verified Top 10 Holdings")
-                
                 h1, h2 = st.columns([3, 2])
-                with h1:
-                    st.dataframe(clean_df, use_container_width=True, hide_index=True)
+                with h1: st.dataframe(clean_df, use_container_width=True, hide_index=True)
                 with h2:
-                    fig_h = px.pie(
-                        clean_df, 
-                        values=weight_col, 
-                        names=company_col, 
-                        hole=0.55, 
-                        color_discrete_sequence=px.colors.sequential.Electric
-                    )
-                    fig_h.update_layout(
-                        paper_bgcolor="rgba(0,0,0,0)", 
-                        plot_bgcolor="rgba(0,0,0,0)", 
-                        font=dict(color="#94a3b8"), 
-                        margin=dict(t=10, b=10, l=10, r=10)
-                    )
+                    fig_h = px.pie(clean_df, values=weight_col, names=company_col, hole=0.55, color_discrete_sequence=px.colors.sequential.Electric)
+                    fig_h.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(color="#94a3b8"), margin=dict(t=10, b=10, l=10, r=10))
                     st.plotly_chart(fig_h, use_container_width=True)
+        except:
+            st.error("Error reading file. Kripya ensure karein format sahi hai.")
+
+with tab3:
+    st.markdown("### 💼 Portfolio Ledger & Taxation Engine")
+    
+    # FIFO Calculation for LTCG/STCG
+    holdings = {}
+    for t in st.session_state["portfolio"]:
+        code = t['code']
+        if code not in holdings: holdings[code] = {'name': t['name'], 'lots': []}
         
-        except Exception as e:
-            st.error(f"Error reading file. Kripya ensure karein format sahi hai.")
+        if t['type'] in ['Buy', 'SIP']:
+            holdings[code]['lots'].append({'date': datetime.strptime(t['date'], '%Y-%m-%d'), 'units': t['units'], 'nav': t['nav']})
+        elif t['type'] == 'Sell':
+            units_to_sell = t['units']
+            for lot in holdings[code]['lots']:
+                if lot['units'] > 0:
+                    if lot['units'] >= units_to_sell:
+                        lot['units'] -= units_to_sell
+                        units_to_sell = 0
+                        break
+                    else:
+                        units_to_sell -= lot['units']
+                        lot['units'] = 0
+
+    today = datetime.today()
+    portfolio_rows = []
+    
+    for code, data in holdings.items():
+        total_units = 0
+        total_inv = 0
+        stcg_units = 0
+        ltcg_units = 0
+        
+        for lot in data['lots']:
+            if lot['units'] > 0:
+                total_units += lot['units']
+                total_inv += lot['units'] * lot['nav']
+                if (today - lot['date']).days > 365:
+                    ltcg_units += lot['units']
+                else:
+                    stcg_units += lot['units']
+                    
+        if total_units > 0.001: # Filter out fully sold funds
+            live_data = calculate_fund_metrics(code)
+            current_nav = live_data["Latest NAV"] if live_data else 0
+            current_value = total_units * current_nav
+            pnl = current_value - total_inv
+            
+            portfolio_rows.append({
+                "Fund Name": data['name'],
+                "Total Units": round(total_units, 3),
+                "Invested (₹)": round(total_inv, 2),
+                "Current Value (₹)": round(current_value, 2),
+                "P&L (₹)": round(pnl, 2),
+                "STCG Units (<1Y)": round(stcg_units, 3),
+                "LTCG Units (>1Y)": round(ltcg_units, 3)
+            })
+
+    if portfolio_rows:
+        st.dataframe(pd.DataFrame(portfolio_rows), use_container_width=True, hide_index=True)
+    else:
+        st.info("No active holdings found in portfolio.")
+
+    st.markdown("---")
+    with st.expander("➕ Execute Trade (Lumpsum / SIP / Sell)", expanded=True):
+        if st.session_state["watchlist"]:
+            f_dict = {}
+            for c in st.session_state["watchlist"]:
+                try:
+                    n = requests.get(f"https://api.mfapi.in/mf/{c}", timeout=3).json().get("meta", {}).get("scheme_name", str(c))
+                    f_dict[n] = c
+                except:
+                    f_dict[str(c)] = c
+                    
+            col1, col2, col3 = st.columns(3)
+            trade_fund = col1.selectbox("Select Target Scheme:", list(f_dict.keys()))
+            trade_type = col2.selectbox("Transaction Type:", ["Buy", "SIP", "Sell"])
+            trade_date = col3.date_input("Transaction Date", value=today)
+            
+            c_u, c_n, c_btn = st.columns(3)
+            trade_units = c_u.number_input("Number of Units", min_value=0.001, value=10.0, step=1.0)
+            trade_nav = c_n.number_input("NAV at execution (₹)", min_value=0.01, value=100.0, step=1.0)
+            
+            if c_btn.button("Commit Transaction"):
+                new_trade = {
+                    "code": f_dict[trade_fund],
+                    "name": trade_fund,
+                    "type": trade_type,
+                    "date": trade_date.strftime('%Y-%m-%d'),
+                    "units": float(trade_units),
+                    "nav": float(trade_nav)
+                }
+                st.session_state["portfolio"].append(new_trade)
+                save_json(PORTFOLIO_FILE, st.session_state["portfolio"])
+                st.rerun()
+        else:
+            st.warning("Please add funds to your Watchlist first to execute trades.")
