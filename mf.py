@@ -125,7 +125,7 @@ st.sidebar.markdown("### ❌ Remove Funds")
 if st.session_state["watchlist"]:
     delete_dict = {str(c): c for c in st.session_state["watchlist"]}
     funds_to_del = st.sidebar.multiselect("Select to remove:", list(delete_dict.keys()), key="unique_delete_funds_key")
-    if st.sidebar.button("🗑️ Remove"):
+   if st.sidebar.button("🗑️ Remove", key="unique_remove_button_key"):
         for f in funds_to_del: st.session_state["watchlist"].remove(delete_dict[f])
         save_json(WATCHLIST_FILE, st.session_state["watchlist"])
         st.rerun()
