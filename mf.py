@@ -18,7 +18,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 WATCHLIST_FILE = "tracked_funds.json"
-DEFAULT_WATCHLIST = [] # Add your final codes here later
+DEFAULT_WATCHLIST = [] 
 
 def load_watchlist():
     if os.path.exists(WATCHLIST_FILE):
@@ -53,7 +53,6 @@ def calculate_fund_metrics(code):
         name = res["meta"]["scheme_name"]
         category = res["meta"]["scheme_category"]
         
-        # Smart Benchmark Assignment
         cat_low = str(category).lower()
         if "large" in cat_low: bench = "NIFTY 100 TRI"
         elif "mid" in cat_low: bench = "NIFTY Midcap 150 TRI"
@@ -62,9 +61,8 @@ def calculate_fund_metrics(code):
         elif "elss" in cat_low: bench = "NIFTY 500 TRI"
         elif "index" in cat_low: bench = "NIFTY 50 TRI"
         elif "debt" in cat_low or "liquid" in cat_low: bench = "NIFTY Liquid Index"
-        else: bench = "NIFTY 500 TRI" # Fallback
+        else: bench = "NIFTY 500 TRI" 
         
-        # DataFrame Processing
         df = pd.DataFrame(res["data"])
         df['date'] = pd.to_datetime(df['date'], format='%d-%m-%Y')
         df['nav'] = df['nav'].astype(float)
@@ -86,7 +84,6 @@ def calculate_fund_metrics(code):
         ret_1y = round(((latest_nav / nav_1y) - 1) * 100, 2) if nav_1y else None
         cagr_3y = round((((latest_nav / nav_3y) ** (1/3)) - 1) * 100, 2) if nav_3y else None
         
-        # Risk Ratios (3 Year Window)
         risk_df = df[df['date'] >= latest_date - timedelta(days=1095)].copy()
         sharpe, sortino = None, None
         
@@ -96,7 +93,7 @@ def calculate_fund_metrics(code):
             
             mean_annual_ret = returns.mean() * 252
             std_dev_annual = returns.std() * np.sqrt(252)
-            rf = 0.065 # 6.5% Risk Free Rate
+            rf = 0.065 
             
             if std_dev_annual > 0:
                 sharpe = round((mean_annual_ret - rf) / std_dev_annual, 2)
@@ -123,7 +120,7 @@ def calculate_fund_metrics(code):
 
 all_schemes = get_all_schemes()
 
-# --- SIDEBAR (ADD & DELETE) ---
+# --- SIDEBAR (ADD & FAST DELETE) ---
 st.sidebar.markdown("### 🔍 Add New Fund")
 query = st.sidebar.text_input("Search Fund (e.g. Axis Bluechip):")
 
@@ -142,23 +139,33 @@ if query and not all_schemes.empty:
         st.sidebar.warning("No match found.")
 
 st.sidebar.markdown("---")
-st.sidebar.markdown("### ❌ Delete Existing Fund")
+st.sidebar.markdown("### ❌ Fast Bulk Delete")
 if st.session_state["watchlist"]:
-    # Quick fetch just for names to populate delete dropdown
+    # Fast internal mapping to prevent lag
     delete_dict = {}
     for c in st.session_state["watchlist"]:
-        # Getting basic name safely
-        try:
-            n = requests.get(f"https://api.mfapi.in/mf/{c}", timeout=3).json().get("meta", {}).get("scheme_name", str(c))
-            delete_dict[n] = c
-        except:
-            delete_dict[str(c)] = c
+        if not all_schemes.empty:
+            match = all_schemes[all_schemes["schemeCode"] == c]
+            if not match.empty:
+                delete_dict[match["schemeName"].iloc[0]] = c
+                continue
+        delete_dict[str(c)] = c
 
-    fund_to_delete = st.sidebar.selectbox("Select fund to remove:", list(delete_dict.keys()))
-    if st.sidebar.button("🗑️ Remove Fund"):
-        st.session_state["watchlist"].remove(delete_dict[fund_to_delete])
-        save_watchlist(st.session_state["watchlist"])
-        st.sidebar.success("Fund Removed!")
+    # Multi-select for deleting multiple funds at once
+    funds_to_delete = st.sidebar.multiselect("Select multiple funds to remove:", list(delete_dict.keys()))
+    
+    if st.sidebar.button("🗑️ Remove Selected Funds"):
+        if funds_to_delete:
+            for f in funds_to_delete:
+                if delete_dict[f] in st.session_state["watchlist"]:
+                    st.session_state["watchlist"].remove(delete_dict[f])
+            save_watchlist(st.session_state["watchlist"])
+            st.rerun()
+
+    # 1-Click Clear All Button
+    if st.sidebar.button("🚨 Clear Entire Watchlist"):
+        st.session_state["watchlist"] = []
+        save_watchlist([])
         st.rerun()
 
 # --- MAIN UI ---
