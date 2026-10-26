@@ -7,7 +7,7 @@ import json
 import os
 from datetime import datetime, timedelta
 
-st.set_page_config(page_title="APEX MF | Institutional Terminal", page_icon="⚡", layout="wide")
+st.set_page_config(page_title="Mutual Fund Terminal", page_icon="⚡", layout="wide")
 
 st.markdown("""
 <style>
