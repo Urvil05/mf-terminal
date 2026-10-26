@@ -151,7 +151,6 @@ with tab2:
     st.caption("Apni watchlist se fund select karein aur uski official AMC Excel/CSV file upload karein.")
     
     if st.session_state["watchlist"]:
-        # Watchlist se funds ke naam fetch karna
         f_dict = {}
         for c in st.session_state["watchlist"]:
             match = all_schemes[all_schemes["schemeCode"] == c] if not all_schemes.empty else pd.DataFrame()
@@ -160,11 +159,16 @@ with tab2:
             else: 
                 f_dict[str(c)] = c
                 
-        # Fund Selection Dropdown
         selected_fund_name = st.selectbox("🎯 Select Fund for Factsheet Analysis:", list(f_dict.keys()))
         
         st.markdown(f"#### Uploading data for: **{selected_fund_name}**")
-        f_file = st.file_uploader("Upload Official AMC Portfolio File", type=["xlsx", "xls", "csv"], key="factsheet_uploader")
+        
+        # DYNAMIC KEY ENGINE: Ab fund change karte hi uploader reset hokar fresh ho jayega
+        f_file = st.file_uploader(
+            "Upload Official AMC Portfolio File", 
+            type=["xlsx", "xls", "csv"], 
+            key=f"file_up_{f_dict[selected_fund_name]}"
+        )
         
         if f_file:
             try:
@@ -249,6 +253,7 @@ with tab2:
                 st.error(f"Error parsing file: {str(e)}")
     else:
         st.info("💡 Please add funds to your Watchlist from the sidebar to activate the Factsheet Parser.")
+
 with tab3:
     st.markdown("### 💼 Portfolio Ledger & Taxation Engine")
     holdings = {}
