@@ -219,7 +219,7 @@ with tab2:
                                 clean = df[[comp, w] + ([sec] if sec != "None" else [])].dropna(subset=[comp, w]).copy()
                                 clean[w] = pd.to_numeric(clean[w].astype(str).str.replace('%', '', regex=False).str.strip(), errors='coerce')
                                 clean = clean.dropna(subset=[w])
-                                clean = clean[~clean[comp].astype(str).str.lower().isin(['total','grand total','equity','debt','cash','portfolio'])]
+                                clean = clean[(clean[w] <= 100) & (~clean[comp].astype(str).str.lower().isin(['total','grand total','equity','debt','cash','portfolio']))]
                                 
                                 top10 = clean.sort_values(w, ascending=False).head(10)
                                 sec_df = clean.groupby(sec)[w].sum().reset_index() if sec != "None" else None
