@@ -214,20 +214,31 @@ with tab2:
                     st.plotly_chart(fig_h, use_container_width=True)
         except:
             st.error("Error reading file. Kripya ensure karein format sahi hai.")
-
 with tab3:
     st.markdown("### 💼 Portfolio Ledger & Taxation Engine")
     
-    # FIFO Calculation for LTCG/STCG
+    # FIFO Calculation for LTCG/STCG (Backward Compatible)
     holdings = {}
     for t in st.session_state["portfolio"]:
-        code = t['code']
-        if code not in holdings: holdings[code] = {'name': t['name'], 'lots': []}
+        code = t.get('code')
+        if not code: continue
         
-        if t['type'] in ['Buy', 'SIP']:
-            holdings[code]['lots'].append({'date': datetime.strptime(t['date'], '%Y-%m-%d'), 'units': t['units'], 'nav': t['nav']})
-        elif t['type'] == 'Sell':
-            units_to_sell = t['units']
+        if code not in holdings: holdings[code] = {'name': t.get('name', 'Unknown Fund'), 'lots': []}
+        
+        # Old JSON format compatibility
+        t_type = t.get('type', 'Buy')
+        t_date = t.get('date', t.get('buy_date', '2026-01-01'))
+        t_nav = t.get('nav', t.get('buy_nav', 0.0))
+        t_units = t.get('units', 0.0)
+        
+        if t_type in ['Buy', 'SIP']:
+            try:
+                dt_obj = datetime.strptime(t_date, '%Y-%m-%d')
+            except:
+                dt_obj = datetime.today()
+            holdings[code]['lots'].append({'date': dt_obj, 'units': t_units, 'nav': t_nav})
+        elif t_type == 'Sell':
+            units_to_sell = t_units
             for lot in holdings[code]['lots']:
                 if lot['units'] > 0:
                     if lot['units'] >= units_to_sell:
@@ -256,7 +267,7 @@ with tab3:
                 else:
                     stcg_units += lot['units']
                     
-        if total_units > 0.001: # Filter out fully sold funds
+        if total_units > 0.001: 
             live_data = calculate_fund_metrics(code)
             current_nav = live_data["Latest NAV"] if live_data else 0
             current_value = total_units * current_nav
@@ -278,6 +289,13 @@ with tab3:
         st.info("No active holdings found in portfolio.")
 
     st.markdown("---")
+    
+    # Fast Bulk Portfolio Clear (If JSON gets too messy)
+    if st.button("🚨 Clear Entire Portfolio JSON Cache"):
+        st.session_state["portfolio"] = []
+        save_json(PORTFOLIO_FILE, [])
+        st.rerun()
+
     with st.expander("➕ Execute Trade (Lumpsum / SIP / Sell)", expanded=True):
         if st.session_state["watchlist"]:
             f_dict = {}
