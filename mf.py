@@ -34,7 +34,6 @@ def load_json(filepath, default_val):
 def save_json(filepath, data):
     with open(filepath, "w") as f: json.dump(data, f)
 
-# Custom Factsheet loader to rebuild DataFrames from JSON
 def load_factsheet_cache():
     cache = load_json(FACTSHEET_FILE, {})
     for k, v in cache.items():
@@ -146,28 +145,6 @@ with tab1:
 
 with tab2:
     st.markdown("### 📥 Fund-Specific Factsheet Parser")
-        
-    if st.session_state["watchlist"]:
-        f_dict = {}
-        for c in st.session_state["watchlist"]:
-            match = all_schemes[all_schemes["schemeCode"] == c] if not all_schemes.empty else pd.DataFrame()
-            f_dict[match["schemeName"].iloc[0] if not match.empty else str(c)] = str(c)
-                
-        selected_fund_name = st.selectbox("🎯 Select Fund:", list(f_dict.keys()))
-        curr_code = f_dict[selected_fund_name]
-        
-        if curr_code in st.session_state["factsheet_cache"]:
-            st.success(f"✅ Data for {selected_fund_name} is permanently locked.")
-            cached = st.session_state["factsheet_cache"][curr_code]
-            top10, comp, w, sec, sec_df = cached["top10"], cached["comp"], cached["w"], cached["sec"], cached["sec_df"]
-            
-            st.markdown("---")
-            t1, t2 = st.columns([1, 1])
-            with t1:
-                st.markdown("##### Top 10 Holdings")
-                st.dataframe(top10.style.format({w: "{:.2f}%"}), use_container_width=True, hide_index=True)
-            with tab2:
-    st.markdown("### 📥 Fund-Specific Factsheet Parser")
     st.caption("Data is now permanently saved locally. Browser band hone par bhi delete nahi hoga.")
     
     if st.session_state["watchlist"]:
@@ -254,6 +231,7 @@ with tab2:
                             else: st.warning("Map Company and Weight columns.")
                 except Exception as e: st.error(f"Error: {str(e)}")
     else: st.info("Please add funds to Watchlist first.")
+
 with tab3:
     st.markdown("### 💼 Portfolio Ledger & Taxation Engine")
     holdings = {}
