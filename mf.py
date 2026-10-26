@@ -148,8 +148,7 @@ with tab1:
 
 with tab2:
     st.markdown("### 📥 Fund-Specific Factsheet Parser")
-    st.caption("Ek baar file upload karke save karein, data background me permanently lock ho jayega.")
-    
+       
     if "factsheet_cache" not in st.session_state:
         st.session_state["factsheet_cache"] = {}
         
