@@ -216,4 +216,29 @@ with tab2:
                 clean_df = raw_df[[company_col, weight_col]].copy()
                 clean_df[weight_col] = pd.to_numeric(clean_df[weight_col], errors='coerce')
                 clean_df = clean_df.dropna(subset=[company_col, weight_col])
-            
+                clean_df = clean_df.sort_values(by=weight_col, ascending=False).head(10) 
+                
+                st.markdown("---")
+                st.markdown("### 🎯 Verified Top 10 Holdings")
+                
+                h1, h2 = st.columns([3, 2])
+                with h1:
+                    st.dataframe(clean_df, use_container_width=True, hide_index=True)
+                with h2:
+                    fig_h = px.pie(
+                        clean_df, 
+                        values=weight_col, 
+                        names=company_col, 
+                        hole=0.55, 
+                        color_discrete_sequence=px.colors.sequential.Electric
+                    )
+                    fig_h.update_layout(
+                        paper_bgcolor="rgba(0,0,0,0)", 
+                        plot_bgcolor="rgba(0,0,0,0)", 
+                        font=dict(color="#94a3b8"), 
+                        margin=dict(t=10, b=10, l=10, r=10)
+                    )
+                    st.plotly_chart(fig_h, use_container_width=True)
+        
+        except Exception as e:
+            st.error(f"Error reading file. Kripya ensure karein format sahi hai.")
