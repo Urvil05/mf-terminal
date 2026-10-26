@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import plotly.express as px
 import requests
 import json
 import os
@@ -141,7 +142,6 @@ if query and not all_schemes.empty:
 st.sidebar.markdown("---")
 st.sidebar.markdown("### ❌ Fast Bulk Delete")
 if st.session_state["watchlist"]:
-    # Fast internal mapping to prevent lag
     delete_dict = {}
     for c in st.session_state["watchlist"]:
         if not all_schemes.empty:
@@ -151,7 +151,6 @@ if st.session_state["watchlist"]:
                 continue
         delete_dict[str(c)] = c
 
-    # Multi-select for deleting multiple funds at once
     funds_to_delete = st.sidebar.multiselect("Select multiple funds to remove:", list(delete_dict.keys()))
     
     if st.sidebar.button("🗑️ Remove Selected Funds"):
@@ -162,7 +161,6 @@ if st.session_state["watchlist"]:
             save_watchlist(st.session_state["watchlist"])
             st.rerun()
 
-    # 1-Click Clear All Button
     if st.sidebar.button("🚨 Clear Entire Watchlist"):
         st.session_state["watchlist"] = []
         save_watchlist([])
@@ -170,7 +168,7 @@ if st.session_state["watchlist"]:
 
 # --- MAIN UI ---
 st.markdown("<h1 style='font-weight: 800; font-size: 2.2rem; color: #38bdf8;'>APEX QUANTITATIVE TERMINAL</h1>", unsafe_allow_html=True)
-tab1, tab2, tab3 = st.tabs(["📊 Quant Dashboard", "💾 Make Watchlist Permanent", "🏢 Factsheet Parser"])
+tab1, tab2 = st.tabs(["📊 Quant Dashboard", "🏢 Factsheet Parser"])
 
 with tab1:
     if st.session_state["watchlist"]:
@@ -192,10 +190,30 @@ with tab1:
         st.info("Watchlist is empty. Add funds from the sidebar on the left.")
 
 with tab2:
-    st.markdown("### 🔒 Lock Your Funds Permanently")
-    st.write("Streamlit cloud resets every few days. Jab aapki final watchlist tayyar ho jaye, niche diye code ko `DEFAULT_WATCHLIST` me paste kar lena:")
-    st.code(f"DEFAULT_WATCHLIST = {st.session_state['watchlist']}", language="python")
-
-with tab3:
-    st.markdown("### 📥 Factsheet Engine")
-    st.write("*(Watchlist ready hone ke baad yahan Excel upload engine aayega)*")
+    st.markdown("### 📥 Smart Factsheet Parser")
+    st.caption("Pitching ke liye AMC ki official website se downloaded Monthly Portfolio (.xlsx / .csv) upload karein.")
+    
+    factsheet_file = st.file_uploader("Upload Official AMC Portfolio File", type=["xlsx", "xls", "csv"])
+    
+    if factsheet_file is not None:
+        try:
+            if factsheet_file.name.endswith(".csv"):
+                raw_df = pd.read_csv(factsheet_file)
+            else:
+                raw_df = pd.read_excel(factsheet_file)
+                
+            st.success(f"File '{factsheet_file.name}' loaded successfully!")
+            
+            with st.expander("🔍 Inspect Raw Factsheet Data"):
+                st.dataframe(raw_df.head(15), use_container_width=True)
+            
+            st.markdown("#### ⚙️ Map Columns for Accurate Pitch Data")
+            col1, col2 = st.columns(2)
+            company_col = col1.selectbox("Select 'Company Name' Column:", ["None"] + list(raw_df.columns))
+            weight_col = col2.selectbox("Select 'Weight (%)' Column:", ["None"] + list(raw_df.columns))
+            
+            if company_col != "None" and weight_col != "None":
+                clean_df = raw_df[[company_col, weight_col]].copy()
+                clean_df[weight_col] = pd.to_numeric(clean_df[weight_col], errors='coerce')
+                clean_df = clean_df.dropna(subset=[company_col, weight_col])
+                clean_
