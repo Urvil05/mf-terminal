@@ -60,7 +60,7 @@ def calculate_fund_metrics(code):
         elif "small" in cat_low: bench = "NIFTY Smallcap 250 TRI"
         elif "flexi" in cat_low or "multi" in cat_low: bench = "NIFTY 500 TRI"
         elif "elss" in cat_low: bench = "NIFTY 500 TRI"
-        elif "index" in cat_low: bench = "NIFTY 50 TRI"
+        elif "index" in cat_low: bench = "NIFTY INDIA DEFENCE TRI"
         elif "debt" in cat_low or "liquid" in cat_low: bench = "NIFTY Liquid Index"
         else: bench = "NIFTY 500 TRI" 
         
