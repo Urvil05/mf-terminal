@@ -21,154 +21,6 @@ st.markdown("""
 
 WATCHLIST_FILE = "tracked_funds.json"
 PORTFOLIO_FILE = "paper_portfolio.json"
-DEFAULT_WATCHLIST = [] 
-
-def load_json(filepath, default_val):
-    if os.path.exists(filepath):
-        try:
-            with open(filepath, "r") as f: return json.load(f)
-        except: pass
-    return default_val
-
-def save_json(filepath, data):
-    with open(filepath, "w") as f: json.dump(data, f)
-
-if "watchlist" not in st.session_state:
-    st.session_state["watchlist"] = load_json(WATCHLIST_FILE, DEFAULT_WATCHLIST)
-if "portfolio" not in st.session_state:
-    st.session_state["portfolio"] = load_json(PORTFOLIO_FILE, [])
-
-@st.cache_data(ttl=86400, show_spinner=False)
-def get_all_schemes():
-    try:
-        res = requests.get("https://api.mfapi.in/mf", timeout=10)
-        df = pd.DataFrame(res.json())
-        df["search_term"] = df["schemeName"].str.lower()
-        return df
-    except:
-        return pd.DataFrame()
-
-@st.cache_data(ttl=3600, show_spinner=False)
-def get_historical_nav(code):
-    try:
-        res = requests.get(f"https://api.mfapi.in/mf/{code}", timeout=10).json()
-        if "meta" not in res or "data" not in res or len(res["data"]) == 0: return None
-        
-        name = res["meta"]["scheme_name"]
-        df = pd.DataFrame(res["data"])
-        df['date'] = pd.to_datetime(df['date'], format='%d-%m-%Y')
-        df['nav'] = df['nav'].astype(float)
-        df = df.sort_values('date').reset_index(drop=True)
-        return {"name": name, "data": df}
-    except:
-        return None
-
-@st.cache_data(ttl=3600, show_spinner=False)
-def calculate_fund_metrics(code):
-    nav_data = get_historical_nav(code)
-    if not nav_data: return None
-    
-    df = nav_data["data"]
-    name = nav_data["name"]
-    
-    latest_nav = df.iloc[-1]['nav']
-    latest_date = df.iloc[-1]['date']
-    
-    def get_past_nav(days):
-        target = latest_date - timedelta(days=days)
-        past_df = df[df['date'] <= target]
-        return past_df.iloc[-1]['nav'] if not past_df.empty else None
-
-    nav_1m = get_past_nav(30)
-    nav_1y = get_past_nav(365)
-    nav_3y = get_past_nav(1095)
-    
-    ret_1y = round(((latest_nav / nav_1y) - 1) * 100, 2) if nav_1y else None
-    cagr_3y = round((((latest_nav / nav_3y) ** (1/3)) - 1) * 100, 2) if nav_3y else None
-    
-    risk_df = df[df['date'] >= latest_date - timedelta(days=1095)].copy()
-    sharpe = sortino = vol = None
-    if len(risk_df) > 200:
-        risk_df['ret'] = risk_df['nav'].pct_change()
-        returns = risk_df['ret'].dropna()
-        mean_ret = returns.mean() * 252
-        vol = returns.std() * np.sqrt(252)
-        rf = 0.065 
-        if vol > 0: sharpe = round((mean_ret - rf) / vol, 2)
-        downside = returns[returns < 0]
-        if len(downside) > 0:
-            down_vol = downside.std() * np.sqrt(252)
-            if down_vol > 0: sortino = round((mean_ret - rf) / down_vol, 2)
-                
-    return {
-        "Code": code, "Fund Name": name, "1-Year (%)": ret_1y, "3-Year CAGR (%)": cagr_3y,
-        "Sharpe": sharpe, "Sortino": sortino, "Volatility (%)": round(vol*100,2) if vol else None, "Latest NAV": latest_nav
-    }
-
-all_schemes = get_all_schemes()
-
-st.sidebar.markdown("### 🔍 Add New Fund")
-query = st.sidebar.text_input("Search Fund (e.g. Axis Bluechip):")
-if query and not all_schemes.empty:
-    matches = all_schemes[all_schemes["search_term"].str.contains(query.lower(), na=False)].head(20)
-    if not matches.empty:
-        sel_fund = st.sidebar.selectbox("Select:", matches["schemeName"].tolist())
-        if st.sidebar.button("➕ Add to Watchlist"):
-            code = int(matches[matches["schemeName"] == sel_fund]["schemeCode"].iloc[0])
-            if code not in st.session_state["watchlist"]:
-                st.session_state["watchlist"].append(code)
-                save_json(WATCHLIST_FILE, st.session_state["watchlist"])
-                st.rerun()
-
-st.sidebar.markdown("---")
-st.sidebar.markdown("### ❌ Remove Funds")
-if st.session_state["watchlist"]:
-    delete_dict = {str(c): c for c in st.session_state["watchlist"]}
-    funds_to_del = st.sidebar.multiselect("Select to remove:", list(delete_dict.keys()), key="unique_delete_funds_key")
-   if st.sidebar.button("🗑️ Remove", key="unique_remove_button_key"):
-        for f in funds_to_del: st.session_state["watchlist"].remove(delete_dict[f])
-        save_json(WATCHLIST_FILE, st.session_state["watchlist"])
-        st.rerun()
-        
-    if st.sidebar.button("🚨 Clear Entire Watchlist"):
-        st.session_state["watchlist"] = []
-        save_json(WATCHLIST_FILE, [])
-        st.rerun()
-
-st.markdown("<h1 style='font-weight: 800; font-size: 2.2rem; color: #38bdf8;'>APEX QUANTITATIVE TERMINAL</h1>", unsafe_allow_html=True)
-tab1, tab2, tab3, tab4 = st.tabs(["📊 Dashboard", "🏢 Factsheet", "💼 Portfolio", "📈 Advanced Analysis"])
-
-with tab1:
-    if st.session_state["watchlist"]:
-        with st.spinner("Loading metrics..."):
-            m_list = [calculate_fund_metrics(c) for c in st.session_state["watchlist"]]
-            valid_m = [m for m in m_list if m]
-            if valid_m: st.dataframe(pd.DataFrame(valid_m).drop(columns=["Code", "Latest NAV"]), use_container_width=True, hide_index=True)
-    else: st.info("Watchlist is empty. Add funds from the sidebar.")
-
-import streamlit as st
-import pandas as pd
-import numpy as np
-import plotly.express as px
-import plotly.graph_objects as go
-import requests
-import json
-import os
-from datetime import datetime, timedelta
-
-st.set_page_config(page_title="APEX MF | Institutional Terminal", page_icon="⚡", layout="wide")
-
-st.markdown("""
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
-    html, body, [class*="css"] { font-family: 'Plus Jakarta Sans', sans-serif; }
-    .stApp { background: radial-gradient(circle at top right, #0f172a 0%, #030712 100%); color: #f8fafc; }
-    div[data-testid="stDataFrame"] { border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; overflow: hidden; }
-</style>
-""", unsafe_allow_html=True)
-
-WATCHLIST_FILE = "tracked_funds.json"
-PORTFOLIO_FILE = "paper_portfolio.json"
 FACTSHEET_FILE = "factsheet_data.json"
 DEFAULT_WATCHLIST = [] 
 
@@ -271,10 +123,15 @@ st.sidebar.markdown("---")
 st.sidebar.markdown("### ❌ Remove Funds")
 if st.session_state["watchlist"]:
     delete_dict = {str(c): c for c in st.session_state["watchlist"]}
-    funds_to_del = st.sidebar.multiselect("Select to remove:", list(delete_dict.keys()))
-    if st.sidebar.button("🗑️ Remove"):
+    funds_to_del = st.sidebar.multiselect("Select to remove:", list(delete_dict.keys()), key="unique_delete_funds_key")
+    if st.sidebar.button("🗑️ Remove", key="unique_remove_button_key"):
         for f in funds_to_del: st.session_state["watchlist"].remove(delete_dict[f])
         save_json(WATCHLIST_FILE, st.session_state["watchlist"])
+        st.rerun()
+        
+    if st.sidebar.button("🚨 Clear Entire Watchlist"):
+        st.session_state["watchlist"] = []
+        save_json(WATCHLIST_FILE, [])
         st.rerun()
 
 st.markdown("<h1 style='font-weight: 800; font-size: 2.2rem; color: #38bdf8;'>APEX QUANTITATIVE TERMINAL</h1>", unsafe_allow_html=True)
@@ -285,7 +142,7 @@ with tab1:
         with st.spinner("Loading metrics..."):
             valid_m = [m for m in [calculate_fund_metrics(c) for c in st.session_state["watchlist"]] if m]
             if valid_m: st.dataframe(pd.DataFrame(valid_m).drop(columns=["Code", "Latest NAV"]), use_container_width=True, hide_index=True)
-    else: st.info("Watchlist is empty.")
+    else: st.info("Watchlist is empty. Add funds from the sidebar.")
 
 with tab2:
     st.markdown("### 📥 Fund-Specific Factsheet Parser")
@@ -374,90 +231,6 @@ with tab2:
                             else: st.warning("Map Company and Weight columns.")
                 except Exception as e: st.error(f"Error: {str(e)}")
     else: st.info("Please add funds to Watchlist first.")
-
-with tab3:
-    st.markdown("### 💼 Portfolio Ledger & Taxation Engine")
-    holdings = {}
-    for t in st.session_state["portfolio"]:
-        code = str(t.get('code'))
-        if code not in holdings: holdings[code] = {'name': t.get('name', 'Unknown Fund'), 'lots': []}
-        t_type, t_units = t.get('type', 'Buy'), float(t.get('units', 0.0))
-        
-        if t_type in ['Buy', 'SIP']:
-            try: dt_obj = datetime.strptime(t.get('date', '2026-01-01'), '%Y-%m-%d')
-            except: dt_obj = datetime.today()
-            holdings[code]['lots'].append({'date': dt_obj, 'units': t_units, 'nav': float(t.get('nav', 0.0))})
-        elif t_type == 'Sell':
-            for lot in holdings[code]['lots']:
-                if lot['units'] > 0:
-                    if lot['units'] >= t_units:
-                        lot['units'] -= t_units; break
-                    else:
-                        t_units -= lot['units']; lot['units'] = 0
-
-    today = datetime.today()
-    rows = []
-    for code, data in holdings.items():
-        t_u = t_inv = stcg = ltcg = 0
-        for lot in data['lots']:
-            if lot['units'] > 0:
-                t_u += lot['units']; t_inv += lot['units'] * lot['nav']
-                if (today - lot['date']).days > 365: ltcg += lot['units']
-                else: stcg += lot['units']
-                    
-        if t_u > 0.001: 
-            ld = calculate_fund_metrics(int(code)) if code.isdigit() else None
-            c_val = t_u * (ld["Latest NAV"] if ld else 0)
-            rows.append({"Fund": data['name'], "Units": round(t_u,3), "Invested": round(t_inv,2), "Value": round(c_val,2), "P&L": round(c_val - t_inv,2), "STCG": round(stcg,3), "LTCG": round(ltcg,3)})
-
-    if rows: st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
-    else: st.info("No active holdings.")
-
-    if st.button("🚨 Clear Portfolio Cache"):
-        st.session_state["portfolio"] = []; save_json(PORTFOLIO_FILE, []); st.rerun()
-
-    with st.expander("➕ Execute Trade"):
-        if st.session_state["watchlist"]:
-            f_dict = { (all_schemes[all_schemes["schemeCode"] == c]["schemeName"].iloc[0] if not all_schemes[all_schemes["schemeCode"] == c].empty else str(c)) : c for c in st.session_state["watchlist"] }
-            tf = st.selectbox("Select Fund:", list(f_dict.keys()))
-            c1, c2 = st.columns(2)
-            tt = c1.selectbox("Type:", ["Buy", "SIP", "Sell"])
-            td = c2.date_input("Date", value=today)
-            cu, cn = st.columns(2)
-            tu = cu.number_input("Units", min_value=0.001, value=10.0)
-            tnav = cn.number_input("NAV", min_value=0.01, value=100.0)
-            if st.button("Commit Trade"):
-                st.session_state["portfolio"].append({"code": f_dict[tf], "name": tf, "type": tt, "date": td.strftime('%Y-%m-%d'), "units": float(tu), "nav": float(tnav)})
-                save_json(PORTFOLIO_FILE, st.session_state["portfolio"])
-                st.rerun()
-
-with tab4:
-    st.markdown("### 📈 Analysis")
-    if st.session_state["watchlist"]:
-        f_dict = { (all_schemes[all_schemes["schemeCode"] == c]["schemeName"].iloc[0] if not all_schemes[all_schemes["schemeCode"] == c].empty else str(c)) : c for c in st.session_state["watchlist"] }
-        cf = st.multiselect("Compare Funds:", list(f_dict.keys()), default=list(f_dict.keys())[:2])
-        if cf:
-            with st.spinner("Crunching data..."):
-                h_data = {f: get_historical_nav(f_dict[f])['data'] for f in cf if get_historical_nav(f_dict[f])}
-                if h_data:
-                    c1, c2 = st.columns(2)
-                    with c1:
-                        fig_dd = go.Figure()
-                        for f, df in h_data.items():
-                            df = df.set_index('date')
-                            rmax = df['nav'].cummax()
-                            dd = (df['nav'] - rmax) / rmax * 100
-                            fig_dd.add_trace(go.Scatter(x=dd.index, y=dd, mode='lines', name=f[:20]))
-                        st.plotly_chart(fig_dd.update_layout(title="Max Drawdown", template="plotly_dark", margin=dict(t=30,b=0,l=0,r=0)), use_container_width=True)
-                    with c2:
-                        sc_data = [{"Fund": f[:25], "CAGR": m["3-Year CAGR (%)"], "Risk": m["Volatility (%)"]} for f in cf for m in [calculate_fund_metrics(f_dict[f])] if m and m["3-Year CAGR (%)"]]
-                        if sc_data: st.plotly_chart(px.scatter(pd.DataFrame(sc_data), x="Risk", y="CAGR", text="Fund", color="Fund").update_traces(textposition='top center').update_layout(title="Risk vs Reward", template="plotly_dark", margin=dict(t=30,b=0,l=0,r=0)), use_container_width=True)
-                    
-                    rs = []
-                    for f, df in h_data.items():
-                        cr = (df.set_index('date').sort_index()['nav'].pct_change(periods=252) * 100).dropna()
-                        if not cr.empty: rs.append({"Fund": f, "Avg 1Y": round(cr.mean(),2), "Max 1Y": round(cr.max(),2), "Min 1Y": round(cr.min(),2), "Neg Times %": round((len(cr[cr<0])/len(cr))*100,2)})
-                    if rs: st.dataframe(pd.DataFrame(rs), use_container_width=True, hide_index=True)
 
 with tab3:
     st.markdown("### 💼 Portfolio Ledger & Taxation Engine")
