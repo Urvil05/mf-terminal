@@ -169,7 +169,6 @@ with tab2:
             with t2:
                 st.markdown("##### Holdings Distribution")
                 st.plotly_chart(px.pie(top10, values=w, names=comp, hole=0.55).update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(t=0,b=0,l=0,r=0)), use_container_width=True)
-                
                 if sec != "None" and sec_df is not None:
                 st.markdown("##### 🏢 Sector Breakdown")
                 sec_df[sec] = sec_df[sec].fillna("Other").astype(str)
