@@ -216,4 +216,4 @@ with tab2:
                 clean_df = raw_df[[company_col, weight_col]].copy()
                 clean_df[weight_col] = pd.to_numeric(clean_df[weight_col], errors='coerce')
                 clean_df = clean_df.dropna(subset=[company_col, weight_col])
-                clean_
+            
