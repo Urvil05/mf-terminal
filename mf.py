@@ -170,10 +170,12 @@ with tab2:
                 st.markdown("##### Holdings Distribution")
                 st.plotly_chart(px.pie(top10, values=w, names=comp, hole=0.55).update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(t=0,b=0,l=0,r=0)), use_container_width=True)
                 
-            if sec != "None" and sec_df is not None:
+if sec != "None" and sec_df is not None:
                 st.markdown("##### 🏢 Sector Breakdown")
+                # BUG FIX: Force sector values to string & handle blanks to prevent Plotly sorting crash
+                sec_df[sec] = sec_df[sec].fillna("Other").astype(str)
                 st.plotly_chart(px.treemap(sec_df, path=[sec], values=w, color=w, color_continuous_scale='Electric').update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(t=10,b=10,l=10,r=10)), use_container_width=True)
-                
+            
             if st.button("🗑️ Delete & Re-upload"):
                 del st.session_state["factsheet_cache"][curr_code]
                 save_factsheet_cache(st.session_state["factsheet_cache"])
