@@ -146,8 +146,7 @@ with tab1:
 
 with tab2:
     st.markdown("### 📥 Fund-Specific Factsheet Parser")
-    st.caption("Data is now permanently saved locally. Browser band hone par bhi delete nahi hoga.")
-    
+        
     if st.session_state["watchlist"]:
         f_dict = {}
         for c in st.session_state["watchlist"]:
