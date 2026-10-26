@@ -148,8 +148,11 @@ with tab1:
 
 with tab2:
     st.markdown("### 📥 Fund-Specific Factsheet Parser")
-    st.caption("Apni watchlist se fund select karein aur uski official AMC Excel/CSV file upload karein.")
+    st.caption("Ek baar file upload karke save karein, data background me permanently lock ho jayega.")
     
+    if "factsheet_cache" not in st.session_state:
+        st.session_state["factsheet_cache"] = {}
+        
     if st.session_state["watchlist"]:
         f_dict = {}
         for c in st.session_state["watchlist"]:
@@ -160,97 +163,104 @@ with tab2:
                 f_dict[str(c)] = c
                 
         selected_fund_name = st.selectbox("🎯 Select Fund for Factsheet Analysis:", list(f_dict.keys()))
+        curr_code = f_dict[selected_fund_name]
         
-        st.markdown(f"#### Uploading data for: **{selected_fund_name}**")
-        
-        # DYNAMIC KEY ENGINE: Ab fund change karte hi uploader reset hokar fresh ho jayega
-        f_file = st.file_uploader(
-            "Upload Official AMC Portfolio File", 
-            type=["xlsx", "xls", "csv"], 
-            key=f"file_up_{f_dict[selected_fund_name]}"
-        )
-        
-        if f_file:
-            try:
-                if f_file.name.endswith(".csv"):
-                    df_raw = pd.read_csv(f_file)
-                    sheet_name = "CSV Data"
-                else:
-                    xls = pd.ExcelFile(f_file)
-                    sheet_name = st.selectbox("📂 Select Sheet (Multiple asset classes found):", xls.sheet_names)
-                    df_raw = pd.read_excel(xls, sheet_name=sheet_name, header=None)
+        if curr_code in st.session_state["factsheet_cache"]:
+            st.success(f"✅ Data for {selected_fund_name} is securely locked in memory.")
+            
+            cached_data = st.session_state["factsheet_cache"][curr_code]
+            top10, comp, w = cached_data["top10"], cached_data["comp"], cached_data["w"]
+            sec, sec_df = cached_data["sec"], cached_data["sec_df"]
+            
+            st.markdown("---")
+            st.markdown(f"### 🎯 Verified Portfolio Allocation: {selected_fund_name}")
+            
+            t1, t2 = st.columns([1, 1])
+            with t1:
+                st.markdown("##### Top 10 Holdings")
+                st.dataframe(top10.style.format({w: "{:.2f}%"}), use_container_width=True, hide_index=True)
                 
-                header_row = 0
-                for i in range(min(30, len(df_raw))):
-                    row_vals = [str(x).lower() for x in df_raw.iloc[i].values]
-                    if any("instrument" in r or "company" in r or "issuer" in r or "name" in r for r in row_vals) and any("asset" in r or "weight" in r or "%" in r for r in row_vals):
-                        header_row = i
-                        break
+            with t2:
+                st.markdown("##### Holdings Distribution")
+                fig_h = px.pie(top10, values=w, names=comp, hole=0.55, color_discrete_sequence=px.colors.sequential.Electric)
+                fig_h.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(t=0, b=0, l=0, r=0))
+                st.plotly_chart(fig_h, use_container_width=True)
                 
-                if f_file.name.endswith(".csv"):
-                    df = pd.read_csv(f_file, skiprows=header_row)
-                else:
-                    df = pd.read_excel(f_file, sheet_name=sheet_name, skiprows=header_row)
+            if sec != "None" and sec_df is not None:
+                st.markdown("##### 🏢 Sector Breakdown")
+                fig_sec = px.treemap(sec_df, path=[sec], values=w, color=w, color_continuous_scale='Electric')
+                fig_sec.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(t=10, b=10, l=10, r=10))
+                st.plotly_chart(fig_sec, use_container_width=True)
                 
-                df.columns = [str(c).strip() for c in df.columns]
-                st.success(f"File parsed for {selected_fund_name}! Real data detected from row {header_row + 1}.")
-                
-                with st.expander("🔍 Inspect Auto-Cleaned Data", expanded=False):
-                    st.dataframe(df.head(15), use_container_width=True)
-                
-                st.markdown("#### ⚙️ Map Columns for Analysis")
-                c1, c2, c3 = st.columns(3)
-                
-                def_comp = next((c for c in df.columns if "company" in c.lower() or "instrument" in c.lower() or "issuer" in c.lower() or "name" in c.lower()), "None")
-                def_sec = next((c for c in df.columns if "sector" in c.lower() or "industry" in c.lower() or "rating" in c.lower()), "None")
-                def_w = next((c for c in df.columns if "asset" in c.lower() or "%" in c.lower() or "weight" in c.lower() or "nav" in c.lower()), "None")
-                
-                comp_opts = ["None"] + list(df.columns)
-                comp = c1.selectbox("Company/Asset Column:", comp_opts, index=comp_opts.index(def_comp) if def_comp in comp_opts else 0)
-                sec = c2.selectbox("Sector/Industry Column (Optional):", comp_opts, index=comp_opts.index(def_sec) if def_sec in comp_opts else 0)
-                w = c3.selectbox("Weight (%) Column:", comp_opts, index=comp_opts.index(def_w) if def_w in comp_opts else 0)
-                
-                if st.button("🚀 Generate Pitch-Ready Insights", type="primary"):
-                    if comp != "None" and w != "None":
-                        analyze_cols = [comp, w]
-                        if sec != "None": analyze_cols.append(sec)
-                        
-                        clean = df[analyze_cols].dropna(subset=[comp, w]).copy()
-                        
-                        clean[w] = clean[w].astype(str).str.replace('%', '', regex=False).str.strip()
-                        clean[w] = pd.to_numeric(clean[w], errors='coerce')
-                        clean = clean.dropna(subset=[w])
-                        
-                        junk_keywords = ['total', 'grand total', 'equity', 'debt', 'cash', 'portfolio']
-                        clean = clean[~clean[comp].astype(str).str.lower().isin(junk_keywords)]
-                        
-                        top10 = clean.sort_values(w, ascending=False).head(10)
-                        
-                        st.markdown("---")
-                        st.markdown(f"### 🎯 Verified Portfolio Allocation: {selected_fund_name}")
-                        
-                        t1, t2 = st.columns([1, 1])
-                        with t1:
-                            st.markdown("##### Top 10 Holdings")
-                            st.dataframe(top10.style.format({w: "{:.2f}%"}), use_container_width=True, hide_index=True)
-                            
-                        with t2:
-                            st.markdown("##### Holdings Distribution")
-                            fig_h = px.pie(top10, values=w, names=comp, hole=0.55, color_discrete_sequence=px.colors.sequential.Electric)
-                            fig_h.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(t=0, b=0, l=0, r=0))
-                            st.plotly_chart(fig_h, use_container_width=True)
-                            
-                        if sec != "None":
-                            st.markdown("##### 🏢 Sector Breakdown")
-                            sec_df = clean.groupby(sec)[w].sum().reset_index()
-                            sec_df = sec_df[sec_df[w] > 0]
-                            fig_sec = px.treemap(sec_df, path=[sec], values=w, color=w, color_continuous_scale='Electric')
-                            fig_sec.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(t=10, b=10, l=10, r=10))
-                            st.plotly_chart(fig_sec, use_container_width=True)
+            if st.button("🗑️ Delete & Re-upload Data for this Fund"):
+                del st.session_state["factsheet_cache"][curr_code]
+                st.rerun()
+        else:
+            st.info(f"No data cached for {selected_fund_name}. Please upload the file below.")
+            f_file = st.file_uploader("Upload Official AMC Portfolio File", type=["xlsx", "xls", "csv"], key=f"up_{curr_code}")
+            
+            if f_file:
+                try:
+                    if f_file.name.endswith(".csv"):
+                        df_raw = pd.read_csv(f_file)
+                        sheet_name = "CSV Data"
                     else:
-                        st.warning("Please map both Company and Weight columns.")
-            except Exception as e: 
-                st.error(f"Error parsing file: {str(e)}")
+                        xls = pd.ExcelFile(f_file)
+                        sheet_name = st.selectbox("📂 Select Sheet:", xls.sheet_names)
+                        df_raw = pd.read_excel(xls, sheet_name=sheet_name, header=None)
+                    
+                    header_row = 0
+                    for i in range(min(30, len(df_raw))):
+                        row_vals = [str(x).lower() for x in df_raw.iloc[i].values]
+                        if any("instrument" in r or "company" in r or "issuer" in r or "name" in r for r in row_vals) and any("asset" in r or "weight" in r or "%" in r for r in row_vals):
+                            header_row = i
+                            break
+                    
+                    if f_file.name.endswith(".csv"):
+                        df = pd.read_csv(f_file, skiprows=header_row)
+                    else:
+                        df = pd.read_excel(f_file, sheet_name=sheet_name, skiprows=header_row)
+                    
+                    df.columns = [str(c).strip() for c in df.columns]
+                    
+                    with st.expander("🔍 Map Columns for Analysis", expanded=True):
+                        c1, c2, c3 = st.columns(3)
+                        def_comp = next((c for c in df.columns if "company" in c.lower() or "instrument" in c.lower() or "issuer" in c.lower() or "name" in c.lower()), "None")
+                        def_sec = next((c for c in df.columns if "sector" in c.lower() or "industry" in c.lower() or "rating" in c.lower()), "None")
+                        def_w = next((c for c in df.columns if "asset" in c.lower() or "%" in c.lower() or "weight" in c.lower() or "nav" in c.lower()), "None")
+                        
+                        comp_opts = ["None"] + list(df.columns)
+                        comp = c1.selectbox("Company/Asset Col:", comp_opts, index=comp_opts.index(def_comp) if def_comp in comp_opts else 0)
+                        sec = c2.selectbox("Sector Col (Opt):", comp_opts, index=comp_opts.index(def_sec) if def_sec in comp_opts else 0)
+                        w = c3.selectbox("Weight (%) Col:", comp_opts, index=comp_opts.index(def_w) if def_w in comp_opts else 0)
+                        
+                        if st.button("🚀 Lock Data & Generate Insights", type="primary"):
+                            if comp != "None" and w != "None":
+                                analyze_cols = [comp, w]
+                                if sec != "None": analyze_cols.append(sec)
+                                
+                                clean = df[analyze_cols].dropna(subset=[comp, w]).copy()
+                                clean[w] = clean[w].astype(str).str.replace('%', '', regex=False).str.strip()
+                                clean[w] = pd.to_numeric(clean[w], errors='coerce')
+                                clean = clean.dropna(subset=[w])
+                                
+                                junk_kw = ['total', 'grand total', 'equity', 'debt', 'cash', 'portfolio']
+                                clean = clean[~clean[comp].astype(str).str.lower().isin(junk_kw)]
+                                
+                                top10 = clean.sort_values(w, ascending=False).head(10)
+                                sec_df = None
+                                if sec != "None":
+                                    sec_df = clean.groupby(sec)[w].sum().reset_index()
+                                    sec_df = sec_df[sec_df[w] > 0]
+                                    
+                                st.session_state["factsheet_cache"][curr_code] = {
+                                    "top10": top10, "comp": comp, "w": w, "sec": sec, "sec_df": sec_df
+                                }
+                                st.rerun()
+                            else:
+                                st.warning("Map Company and Weight columns first.")
+                except Exception as e: 
+                    st.error(f"Error parsing file: {str(e)}")
     else:
         st.info("💡 Please add funds to your Watchlist from the sidebar to activate the Factsheet Parser.")
 
