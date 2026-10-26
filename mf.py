@@ -225,7 +225,6 @@ with tab3:
         
         if code not in holdings: holdings[code] = {'name': t.get('name', 'Unknown Fund'), 'lots': []}
         
-        # Old JSON format compatibility
         t_type = t.get('type', 'Buy')
         t_date = t.get('date', t.get('buy_date', '2026-01-01'))
         t_nav = t.get('nav', t.get('buy_nav', 0.0))
@@ -236,9 +235,9 @@ with tab3:
                 dt_obj = datetime.strptime(t_date, '%Y-%m-%d')
             except:
                 dt_obj = datetime.today()
-            holdings[code]['lots'].append({'date': dt_obj, 'units': t_units, 'nav': t_nav})
+            holdings[code]['lots'].append({'date': dt_obj, 'units': float(t_units), 'nav': float(t_nav)})
         elif t_type == 'Sell':
-            units_to_sell = t_units
+            units_to_sell = float(t_units)
             for lot in holdings[code]['lots']:
                 if lot['units'] > 0:
                     if lot['units'] >= units_to_sell:
@@ -289,8 +288,6 @@ with tab3:
         st.info("No active holdings found in portfolio.")
 
     st.markdown("---")
-    
-    # Fast Bulk Portfolio Clear (If JSON gets too messy)
     if st.button("🚨 Clear Entire Portfolio JSON Cache"):
         st.session_state["portfolio"] = []
         save_json(PORTFOLIO_FILE, [])
@@ -298,24 +295,27 @@ with tab3:
 
     with st.expander("➕ Execute Trade (Lumpsum / SIP / Sell)", expanded=True):
         if st.session_state["watchlist"]:
+            # FAST INTERNAL MAPPING (Bypasses API Lag)
             f_dict = {}
             for c in st.session_state["watchlist"]:
-                try:
-                    n = requests.get(f"https://api.mfapi.in/mf/{c}", timeout=3).json().get("meta", {}).get("scheme_name", str(c))
-                    f_dict[n] = c
-                except:
+                match = all_schemes[all_schemes["schemeCode"] == c] if not all_schemes.empty else pd.DataFrame()
+                if not match.empty:
+                    f_dict[match["schemeName"].iloc[0]] = c
+                else:
                     f_dict[str(c)] = c
-                    
-            col1, col2, col3 = st.columns(3)
-            trade_fund = col1.selectbox("Select Target Scheme:", list(f_dict.keys()))
-            trade_type = col2.selectbox("Transaction Type:", ["Buy", "SIP", "Sell"])
-            trade_date = col3.date_input("Transaction Date", value=today)
             
-            c_u, c_n, c_btn = st.columns(3)
+            st.markdown("#### Record New Transaction")
+            trade_fund = st.selectbox("Select Target Scheme:", list(f_dict.keys()))
+            
+            col1, col2 = st.columns(2)
+            trade_type = col1.selectbox("Transaction Type:", ["Buy", "SIP", "Sell"])
+            trade_date = col2.date_input("Transaction Date", value=today)
+            
+            c_u, c_n = st.columns(2)
             trade_units = c_u.number_input("Number of Units", min_value=0.001, value=10.0, step=1.0)
             trade_nav = c_n.number_input("NAV at execution (₹)", min_value=0.01, value=100.0, step=1.0)
             
-            if c_btn.button("Commit Transaction"):
+            if st.button("Commit Transaction", type="primary"):
                 new_trade = {
                     "code": f_dict[trade_fund],
                     "name": trade_fund,
@@ -328,4 +328,4 @@ with tab3:
                 save_json(PORTFOLIO_FILE, st.session_state["portfolio"])
                 st.rerun()
         else:
-            st.warning("Please add funds to your Watchlist first to execute trades.")
+            st.warning("Please add funds to your Watchlist from the sidebar first to execute trades.")
