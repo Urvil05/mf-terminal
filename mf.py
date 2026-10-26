@@ -147,97 +147,108 @@ with tab1:
     else: st.info("Watchlist is empty. Add funds from the sidebar.")
 
 with tab2:
-    st.markdown("### 📥 Advanced Institutional Factsheet Parser")
-    st.caption("Upload messy official AMC Monthly Portfolios (.xlsx). The engine will auto-clean headers, detect sheets, and extract Top Holdings & Sectors.")
+    st.markdown("### 📥 Fund-Specific Factsheet Parser")
+    st.caption("Apni watchlist se fund select karein aur uski official AMC Excel/CSV file upload karein.")
     
-    f_file = st.file_uploader("Upload Official AMC Portfolio File", type=["xlsx", "xls", "csv"])
-    if f_file:
-        try:
-            # 1. Handle Multi-Sheet Excel files
-            if f_file.name.endswith(".csv"):
-                df_raw = pd.read_csv(f_file)
-                sheet_name = "CSV Data"
-            else:
-                xls = pd.ExcelFile(f_file)
-                sheet_name = st.selectbox("📂 Select Sheet (Multiple funds/asset classes found):", xls.sheet_names)
-                df_raw = pd.read_excel(xls, sheet_name=sheet_name, header=None)
-            
-            # 2. Smart Header Detection Engine (Scans first 30 rows to find actual headers)
-            header_row = 0
-            for i in range(min(30, len(df_raw))):
-                row_vals = [str(x).lower() for x in df_raw.iloc[i].values]
-                if any("instrument" in r or "company" in r or "issuer" in r or "name" in r for r in row_vals) and any("asset" in r or "weight" in r or "%" in r for r in row_vals):
-                    header_row = i
-                    break
-            
-            # Re-read with the correct dynamic header
-            if f_file.name.endswith(".csv"):
-                df = pd.read_csv(f_file, skiprows=header_row)
-            else:
-                df = pd.read_excel(f_file, sheet_name=sheet_name, skiprows=header_row)
-            
-            df.columns = [str(c).strip() for c in df.columns]
-            st.success(f"File parsed! Auto-detected real data starting from row {header_row + 1}.")
-            
-            with st.expander("🔍 Inspect Auto-Cleaned Data", expanded=False):
-                st.dataframe(df.head(15), use_container_width=True)
-            
-            st.markdown("#### ⚙️ Map Columns for Analysis")
-            c1, c2, c3 = st.columns(3)
-            
-            # 3. Auto-Guess Columns based on standard AMC naming conventions
-            def_comp = next((c for c in df.columns if "company" in c.lower() or "instrument" in c.lower() or "issuer" in c.lower() or "name" in c.lower()), "None")
-            def_sec = next((c for c in df.columns if "sector" in c.lower() or "industry" in c.lower() or "rating" in c.lower()), "None")
-            def_w = next((c for c in df.columns if "asset" in c.lower() or "%" in c.lower() or "weight" in c.lower() or "nav" in c.lower()), "None")
-            
-            comp_opts = ["None"] + list(df.columns)
-            comp = c1.selectbox("Company/Asset Column:", comp_opts, index=comp_opts.index(def_comp) if def_comp in comp_opts else 0)
-            sec = c2.selectbox("Sector/Industry Column (Optional):", comp_opts, index=comp_opts.index(def_sec) if def_sec in comp_opts else 0)
-            w = c3.selectbox("Weight (%) Column:", comp_opts, index=comp_opts.index(def_w) if def_w in comp_opts else 0)
-            
-            if st.button("🚀 Generate Pitch-Ready Insights", type="primary"):
-                if comp != "None" and w != "None":
-                    analyze_cols = [comp, w]
-                    if sec != "None": analyze_cols.append(sec)
-                    
-                    clean = df[analyze_cols].dropna(subset=[comp, w]).copy()
-                    
-                    # Clean percentage strings and messy numeric data
-                    clean[w] = clean[w].astype(str).str.replace('%', '', regex=False).str.strip()
-                    clean[w] = pd.to_numeric(clean[w], errors='coerce')
-                    clean = clean.dropna(subset=[w])
-                    
-                    # Filter out AMC junk rows (Totals, headers repeating)
-                    junk_keywords = ['total', 'grand total', 'equity', 'debt', 'cash', 'portfolio']
-                    clean = clean[~clean[comp].astype(str).str.lower().isin(junk_keywords)]
-                    
-                    top10 = clean.sort_values(w, ascending=False).head(10)
-                    
-                    st.markdown("---")
-                    st.markdown("### 🎯 Verified Portfolio Allocation")
-                    
-                    t1, t2 = st.columns([1, 1])
-                    with t1:
-                        st.markdown("##### Top 10 Holdings")
-                        st.dataframe(top10.style.format({w: "{:.2f}%"}), use_container_width=True, hide_index=True)
-                        
-                    with t2:
-                        st.markdown("##### Holdings Distribution")
-                        fig_h = px.pie(top10, values=w, names=comp, hole=0.55, color_discrete_sequence=px.colors.sequential.Electric)
-                        fig_h.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(t=0, b=0, l=0, r=0))
-                        st.plotly_chart(fig_h, use_container_width=True)
-                        
-                    if sec != "None":
-                        st.markdown("##### 🏢 Sector Breakdown")
-                        sec_df = clean.groupby(sec)[w].sum().reset_index()
-                        sec_df = sec_df[sec_df[w] > 0]
-                        fig_sec = px.treemap(sec_df, path=[sec], values=w, color=w, color_continuous_scale='Electric')
-                        fig_sec.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(t=10, b=10, l=10, r=10))
-                        st.plotly_chart(fig_sec, use_container_width=True)
+    if st.session_state["watchlist"]:
+        # Watchlist se funds ke naam fetch karna
+        f_dict = {}
+        for c in st.session_state["watchlist"]:
+            match = all_schemes[all_schemes["schemeCode"] == c] if not all_schemes.empty else pd.DataFrame()
+            if not match.empty: 
+                f_dict[match["schemeName"].iloc[0]] = c
+            else: 
+                f_dict[str(c)] = c
+                
+        # Fund Selection Dropdown
+        selected_fund_name = st.selectbox("🎯 Select Fund for Factsheet Analysis:", list(f_dict.keys()))
+        
+        st.markdown(f"#### Uploading data for: **{selected_fund_name}**")
+        f_file = st.file_uploader("Upload Official AMC Portfolio File", type=["xlsx", "xls", "csv"], key="factsheet_uploader")
+        
+        if f_file:
+            try:
+                if f_file.name.endswith(".csv"):
+                    df_raw = pd.read_csv(f_file)
+                    sheet_name = "CSV Data"
                 else:
-                    st.warning("Please map both Company and Weight columns.")
-        except Exception as e: 
-            st.error(f"Error parsing file: {str(e)}")
+                    xls = pd.ExcelFile(f_file)
+                    sheet_name = st.selectbox("📂 Select Sheet (Multiple asset classes found):", xls.sheet_names)
+                    df_raw = pd.read_excel(xls, sheet_name=sheet_name, header=None)
+                
+                header_row = 0
+                for i in range(min(30, len(df_raw))):
+                    row_vals = [str(x).lower() for x in df_raw.iloc[i].values]
+                    if any("instrument" in r or "company" in r or "issuer" in r or "name" in r for r in row_vals) and any("asset" in r or "weight" in r or "%" in r for r in row_vals):
+                        header_row = i
+                        break
+                
+                if f_file.name.endswith(".csv"):
+                    df = pd.read_csv(f_file, skiprows=header_row)
+                else:
+                    df = pd.read_excel(f_file, sheet_name=sheet_name, skiprows=header_row)
+                
+                df.columns = [str(c).strip() for c in df.columns]
+                st.success(f"File parsed for {selected_fund_name}! Real data detected from row {header_row + 1}.")
+                
+                with st.expander("🔍 Inspect Auto-Cleaned Data", expanded=False):
+                    st.dataframe(df.head(15), use_container_width=True)
+                
+                st.markdown("#### ⚙️ Map Columns for Analysis")
+                c1, c2, c3 = st.columns(3)
+                
+                def_comp = next((c for c in df.columns if "company" in c.lower() or "instrument" in c.lower() or "issuer" in c.lower() or "name" in c.lower()), "None")
+                def_sec = next((c for c in df.columns if "sector" in c.lower() or "industry" in c.lower() or "rating" in c.lower()), "None")
+                def_w = next((c for c in df.columns if "asset" in c.lower() or "%" in c.lower() or "weight" in c.lower() or "nav" in c.lower()), "None")
+                
+                comp_opts = ["None"] + list(df.columns)
+                comp = c1.selectbox("Company/Asset Column:", comp_opts, index=comp_opts.index(def_comp) if def_comp in comp_opts else 0)
+                sec = c2.selectbox("Sector/Industry Column (Optional):", comp_opts, index=comp_opts.index(def_sec) if def_sec in comp_opts else 0)
+                w = c3.selectbox("Weight (%) Column:", comp_opts, index=comp_opts.index(def_w) if def_w in comp_opts else 0)
+                
+                if st.button("🚀 Generate Pitch-Ready Insights", type="primary"):
+                    if comp != "None" and w != "None":
+                        analyze_cols = [comp, w]
+                        if sec != "None": analyze_cols.append(sec)
+                        
+                        clean = df[analyze_cols].dropna(subset=[comp, w]).copy()
+                        
+                        clean[w] = clean[w].astype(str).str.replace('%', '', regex=False).str.strip()
+                        clean[w] = pd.to_numeric(clean[w], errors='coerce')
+                        clean = clean.dropna(subset=[w])
+                        
+                        junk_keywords = ['total', 'grand total', 'equity', 'debt', 'cash', 'portfolio']
+                        clean = clean[~clean[comp].astype(str).str.lower().isin(junk_keywords)]
+                        
+                        top10 = clean.sort_values(w, ascending=False).head(10)
+                        
+                        st.markdown("---")
+                        st.markdown(f"### 🎯 Verified Portfolio Allocation: {selected_fund_name}")
+                        
+                        t1, t2 = st.columns([1, 1])
+                        with t1:
+                            st.markdown("##### Top 10 Holdings")
+                            st.dataframe(top10.style.format({w: "{:.2f}%"}), use_container_width=True, hide_index=True)
+                            
+                        with t2:
+                            st.markdown("##### Holdings Distribution")
+                            fig_h = px.pie(top10, values=w, names=comp, hole=0.55, color_discrete_sequence=px.colors.sequential.Electric)
+                            fig_h.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(t=0, b=0, l=0, r=0))
+                            st.plotly_chart(fig_h, use_container_width=True)
+                            
+                        if sec != "None":
+                            st.markdown("##### 🏢 Sector Breakdown")
+                            sec_df = clean.groupby(sec)[w].sum().reset_index()
+                            sec_df = sec_df[sec_df[w] > 0]
+                            fig_sec = px.treemap(sec_df, path=[sec], values=w, color=w, color_continuous_scale='Electric')
+                            fig_sec.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(t=10, b=10, l=10, r=10))
+                            st.plotly_chart(fig_sec, use_container_width=True)
+                    else:
+                        st.warning("Please map both Company and Weight columns.")
+            except Exception as e: 
+                st.error(f"Error parsing file: {str(e)}")
+    else:
+        st.info("💡 Please add funds to your Watchlist from the sidebar to activate the Factsheet Parser.")
 with tab3:
     st.markdown("### 💼 Portfolio Ledger & Taxation Engine")
     holdings = {}
