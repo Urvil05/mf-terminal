@@ -607,28 +607,76 @@ with tab1:
         v_df.columns = ["Scheme Name", "Category", "Benchmark", "Latest NAV (₹)", "1D Change (%)", "🔮 Tomorrow Projected NAV", "3Y CAGR (%)", "5Y CAGR (%)", "Sharpe (3Y)", "As of Date"]
         st.dataframe(v_df, use_container_width=True)
 
-# TAB 2
+# TAB 2: INSTITUTIONAL HOLDINGS & FACTSHEET PARSER
 with tab2:
-    if not df_display.empty:
-        sel_detail_fund = st.selectbox("Select Target Scheme:", df_display["name"].tolist())
-        target_f = df_display[df_display["name"] == sel_detail_fund].iloc[0]
+    st.markdown("### 📥 100% Authentic AMC Factsheet Parser")
+    st.caption("Pitching ke liye AMC ki official website se downloaded Monthly Portfolio (.xlsx) upload karein.")
+    
+    # 1. Factsheet Upload Section
+    factsheet_file = st.file_uploader("Upload Official AMC Monthly Portfolio (.xlsx)", type=["xlsx", "xls", "csv"])
+    
+    if factsheet_file is not None:
+        try:
+            # Read the uploaded file
+            if factsheet_file.name.endswith(".csv"):
+                raw_df = pd.read_csv(factsheet_file)
+            else:
+                raw_df = pd.read_excel(factsheet_file)
+                
+            st.success(f"File '{factsheet_file.name}' loaded successfully!")
+            
+            # Show raw data preview so you can see where the actual data starts
+            with st.expander("🔍 Inspect Raw Factsheet Data"):
+                st.dataframe(raw_df.head(15), use_container_width=True)
+            
+            # 2. Smart Column Mapper for Pitching
+            st.markdown("#### ⚙️ Map Columns for Accurate Pitch Data")
+            col1, col2, col3 = st.columns(3)
+            
+            # Provide options to map exactly which column has what
+            company_col = col1.selectbox("Select 'Company Name' Column:", ["None"] + list(raw_df.columns))
+            sector_col = col2.selectbox("Select 'Sector' Column:", ["None"] + list(raw_df.columns))
+            weight_col = col3.selectbox("Select 'Weight (%)' Column:", ["None"] + list(raw_df.columns))
+            
+            if company_col != "None" and weight_col != "None":
+                # Clean the data
+                clean_df = raw_df[[company_col, weight_col]].copy()
+                if sector_col != "None":
+                    clean_df[sector_col] = raw_df[sector_col]
+                    
+                # Convert weights to numeric and drop NaN
+                clean_df[weight_col] = pd.to_numeric(clean_df[weight_col], errors='coerce')
+                clean_df = clean_df.dropna(subset=[company_col, weight_col])
+                clean_df = clean_df.sort_values(by=weight_col, ascending=False).head(10) # Top 10 holdings
+                
+                # 3. Render Pitch-Perfect Charts
+                st.markdown("---")
+                st.markdown("### 🎯 Verified Top 10 Holdings")
+                
+                h1, h2 = st.columns([3, 2])
+                with h1:
+                    st.dataframe(clean_df, use_container_width=True)
+                with h2:
+                    fig_h = px.pie(
+                        clean_df, 
+                        values=weight_col, 
+                        names=company_col, 
+                        hole=0.55, 
+                        color_discrete_sequence=px.colors.sequential.Electric
+                    )
+                    fig_h.update_layout(
+                        paper_bgcolor="rgba(0,0,0,0)", 
+                        plot_bgcolor="rgba(0,0,0,0)", 
+                        font=dict(color="#94a3b8"), 
+                        margin=dict(t=10, b=10, l=10, r=10)
+                    )
+                    st.plotly_chart(fig_h, use_container_width=True)
         
-        c1, c2, c3, c4 = st.columns(4)
-        c1.metric("PORTFOLIO LEAD", target_f.get("fund_manager", "N/A"))
-        c2.metric("SCHEME AUM", target_f.get("aum_cr", "N/A"))
-        c3.metric("INCEPTION DATE", target_f.get("inception_date", "N/A"))
-        c4.metric("MAX DRAWDOWN", f"{target_f.get('max_drawdown', 0.0)}%")
-
-        st.markdown("<div style='height: 15px;'></div>", unsafe_allow_html=True)
-        th_df = pd.DataFrame(target_f.get("top_holdings", []))
-        if not th_df.empty:
-            h1, h2 = st.columns([3, 2])
-            with h1:
-                st.dataframe(th_df, use_container_width=True)
-            with h2:
-                fig_h = px.pie(th_df, values="Weight (%)", names="Company", hole=0.55, color_discrete_sequence=px.colors.sequential.Electric)
-                fig_h.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(color="#94a3b8"), margin=dict(t=10, b=10, l=10, r=10))
-                st.plotly_chart(fig_h, use_container_width=True)
+        except Exception as e:
+            st.error(f"Error reading file: {e}. Please ensure it's a valid Excel/CSV file.")
+            
+    else:
+        st.info("Kripya 100% accurate data ke liye Tab 6 se AMC ki original Factsheet download karke yahan upload karein.")
 
 # TAB 3
 with tab3:
