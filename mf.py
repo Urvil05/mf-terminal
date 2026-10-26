@@ -1,9 +1,7 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
-import os
+import requests
 
-# --- 1. PAGE SETUP & CSS ---
 st.set_page_config(page_title="APEX MF | Institutional Terminal", page_icon="⚡", layout="wide")
 
 st.markdown("""
@@ -15,9 +13,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- 2. PERMANENT 25 FUNDS (CRASH PROOF) ---
-# Ye 25 codes top schemes ke hain (Parag, Nippon, Motilal, Quant etc.) 
-# Ye kabhi delete nahi honge chahe server reboot ho jaye.
 PERMANENT_25_FUNDS = [
     122639, 118778, 120716, 108466, 119062, 119598, 125497, 120586, 118989, 119800, 
     120465, 118756, 120505, 120821, 118764, 118985, 120173, 119775, 119286, 119106,
@@ -27,27 +22,40 @@ PERMANENT_25_FUNDS = [
 if "watchlist" not in st.session_state:
     st.session_state["watchlist"] = PERMANENT_25_FUNDS.copy()
 
-# --- 3. HEADER ---
+@st.cache_data(ttl=3600, show_spinner=False)
+def fetch_fund_names(codes):
+    data = []
+    for code in codes:
+        try:
+            res = requests.get(f"https://api.mfapi.in/mf/{code}", timeout=5).json()
+            if "meta" in res:
+                data.append({
+                    "Scheme Code": code,
+                    "Fund Name": res["meta"]["scheme_name"],
+                    "Fund House": res["meta"]["fund_house"]
+                })
+        except:
+            pass
+    return pd.DataFrame(data)
+
 st.markdown('<div class="terminal-badge">● APEX CORE V2.0 ACTIVE</div>', unsafe_allow_html=True)
 st.markdown("<h1 style='margin-top: -10px; font-weight: 800; font-size: 2.2rem; background: linear-gradient(90deg, #38bdf8 0%, #818cf8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>APEX QUANTITATIVE TERMINAL</h1>", unsafe_allow_html=True)
 st.markdown("---")
 
-# --- 4. TABS SETUP ---
-tab1, tab2, tab3 = st.tabs([
-    "📊 Quant Dashboard", 
-    "🏢 Institutional Factsheet Parser", 
-    "💼 Paper Portfolio"
-])
+tab1, tab2, tab3 = st.tabs(["📊 Quant Dashboard", "🏢 Institutional Factsheet Parser", "💼 Paper Portfolio"])
 
 with tab1:
-    st.info(f"🟢 System Active. Tracking {len(st.session_state['watchlist'])} Core Funds permanently.")
-    st.write("*(Live AMFI Data Engine yahan aayega Phase 2 mein)*")
+    st.info(f"🟢 Tracking {len(st.session_state['watchlist'])} Core Funds permanently.")
+    with st.spinner("Fetching verified names from AMFI..."):
+        df_funds = fetch_fund_names(st.session_state["watchlist"])
+        if not df_funds.empty:
+            st.dataframe(df_funds, use_container_width=True, hide_index=True)
+        else:
+            st.warning("AMFI connection failed. Retrying...")
 
 with tab2:
     st.markdown("### 📥 100% Accurate Factsheet Parser")
     st.caption("No dummy data. Upload official AMC .xlsx files here for pitching.")
-    # Factsheet logic aage add karenge
 
 with tab3:
     st.markdown("### 💼 Virtual Portfolio & PNL")
-    st.write("*(Tax Planning and Portfolio Engine yahan aayega)*")
