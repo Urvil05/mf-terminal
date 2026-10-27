@@ -46,7 +46,10 @@ def save_json(filepath, data):
             except:
                 repo.create_file(filepath, f"APEX Auto-Sync: Create {filepath}", content_str)
         except Exception as e:
-            st.sidebar.error(f"GitHub Sync Failed: {e}")
+            if "404" in str(e):
+                st.sidebar.error("GitHub Sync Failed: Repo Not Found. Streamlit Secrets me REPO_NAME check karein ('UrvilGolakiya/repo-name' hona chahiye).")
+            else:
+                st.sidebar.error(f"GitHub Sync Failed: {e}")
 
 st.set_page_config(page_title="APEX MF | Institutional Terminal", page_icon="⚡", layout="wide")
 
@@ -417,11 +420,13 @@ with tab3:
                             for _, row in df_b.iterrows():
                                 raw_name = str(row[map_name]).strip()
                                 
-                                # FIX 1: Ignore Blank (NaN), Total, and Note rows
+                                # FIX 1: Ignore Blank, Total, and Note rows
                                 if raw_name.lower() in ["nan", "none", "", "null"] or "total" in raw_name.lower() or "note" in raw_name.lower():
                                     continue
                                 
-                                match = all_schemes[all_schemes['search_term'].str.contains(raw_name.lower(), regex=False, na=False)]
+                                # FIX 2: Smart Fund Name Matching (Broker names like "- Gr" ko hatakar exact search)
+                                clean_name = raw_name.split('-')[0].strip().lower()
+                                match = all_schemes[all_schemes['search_term'].str.contains(clean_name, regex=False, na=False)]
                                 
                                 if not match.empty:
                                     sc_code = int(match.iloc[0]['schemeCode'])
@@ -430,11 +435,16 @@ with tab3:
                                     if sc_code not in st.session_state["watchlist"]:
                                         st.session_state["watchlist"].append(sc_code)
                                     
-                                    try: dt_parsed = pd.to_datetime(row[map_date]).strftime('%Y-%m-%d')
-                                    except: dt_parsed = datetime.today().strftime('%Y-%m-%d')
+                                    # FIX 3: Safe Date Handling (Agar sheet me Date column nahi hai ya 'None' mapped hai)
+                                    try: 
+                                        if map_date != "None" and pd.notna(row[map_date]):
+                                            dt_parsed = pd.to_datetime(row[map_date]).strftime('%Y-%m-%d')
+                                        else:
+                                            dt_parsed = datetime.today().strftime('%Y-%m-%d')
+                                    except: 
+                                        dt_parsed = datetime.today().strftime('%Y-%m-%d')
                                     
                                     try:
-                                        # FIX 2: Ensure valid numerical data
                                         r_units = float(row[map_unit])
                                         r_nav = float(row[map_nav])
                                         if pd.isna(r_units) or pd.isna(r_nav) or r_units <= 0:
@@ -462,10 +472,12 @@ with tab3:
                             if success_count > 0:
                                 st.success(f"✅ Successfully imported {success_count} valid trades!")
                                 if failed_funds:
-                                    st.warning(f"Could not match: {', '.join(list(failed_funds)[:5])}")
+                                    st.warning(f"Could not match these funds with AMFI DB: {', '.join(list(failed_funds)[:5])}...")
                                 st.rerun()
                             else:
-                                st.error("No valid trades imported. Please check your file data.")
+                                st.error("No valid trades imported.")
+                                if failed_funds:
+                                    st.info(f"Failed to match these funds: {', '.join(list(failed_funds)[:10])}")
             except Exception as e:
                 st.error(f"Error reading file: {str(e)}")
 
