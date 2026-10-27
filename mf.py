@@ -373,7 +373,7 @@ with tab3:
         st.info("No active holdings found in portfolio.")
 
     st.markdown("---")
-    if st.button("🚨 Clear Entire Portfolio JSON Cache"):
+    if st.button("🚨 Clear Entire Portfolio"):
         st.session_state["portfolio"] = []
         save_json(PORTFOLIO_FILE, [])
         st.rerun()
