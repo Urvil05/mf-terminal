@@ -7,6 +7,46 @@ import requests
 import json
 import os
 from datetime import datetime, timedelta
+from github import Github
+
+# Streamlit secrets se secure credentials fetch karna
+GITHUB_TOKEN = st.secrets.get("GITHUB_TOKEN", None)
+REPO_NAME = st.secrets.get("REPO_NAME", None)
+
+def load_json(filepath, default_val):
+    if GITHUB_TOKEN and REPO_NAME:
+        try:
+            g = Github(GITHUB_TOKEN)
+            repo = g.get_repo(REPO_NAME)
+            file_content = repo.get_contents(filepath)
+            return json.loads(file_content.decoded_content.decode("utf-8"))
+        except:
+            pass # Agar file GitHub par pehli baar nahi bani hai toh aage badhega
+            
+    if os.path.exists(filepath):
+        try:
+            with open(filepath, "r") as f: return json.load(f)
+        except: pass
+    return default_val
+
+def save_json(filepath, data):
+    # 1. Local system me turant save karna (UI fast rakhne ke liye)
+    with open(filepath, "w") as f: json.dump(data, f)
+    
+    # 2. GitHub repo me background commit karna (Permanent storage)
+    if GITHUB_TOKEN and REPO_NAME:
+        try:
+            g = Github(GITHUB_TOKEN)
+            repo = g.get_repo(REPO_NAME)
+            content_str = json.dumps(data, indent=4)
+            
+            try:
+                contents = repo.get_contents(filepath)
+                repo.update_file(contents.path, f"APEX Auto-Sync: Update {filepath}", content_str, contents.sha)
+            except:
+                repo.create_file(filepath, f"APEX Auto-Sync: Create {filepath}", content_str)
+        except Exception as e:
+            st.sidebar.error(f"GitHub Sync Failed: {e}")
 
 st.set_page_config(page_title="APEX MF | Institutional Terminal", page_icon="⚡", layout="wide")
 
