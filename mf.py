@@ -399,23 +399,28 @@ with tab3:
                     def_t = next((c for c in df_b.columns if any(k in c.lower() for k in ["type", "tran", "action"])), "None")
                     def_d = next((c for c in df_b.columns if any(k in c.lower() for k in ["date", "time"])), "None")
                     def_u = next((c for c in df_b.columns if any(k in c.lower() for k in ["unit", "qty", "quantity"])), "None")
-                    def_nav = next((c for c in df_b.columns if any(k in c.lower() for k in ["nav", "price", "rate"])), "None")
+                    def_nav = next((c for c in df_b.columns if any(k in c.lower() for k in ["nav", "price", "rate", "amt", "amount"])), "None")
                     
                     map_name = c1.selectbox("Fund Name", cols, index=cols.index(def_n) if def_n in cols else 0)
                     map_type = c2.selectbox("Type", cols, index=cols.index(def_t) if def_t in cols else 0)
                     map_date = c3.selectbox("Date", cols, index=cols.index(def_d) if def_d in cols else 0)
                     map_unit = c4.selectbox("Units", cols, index=cols.index(def_u) if def_u in cols else 0)
-                    map_nav = c5.selectbox("NAV/Price", cols, index=cols.index(def_nav) if def_nav in cols else 0)
+                    map_nav = c5.selectbox("NAV or Inv Amount", cols, index=cols.index(def_nav) if def_nav in cols else 0)
                     
                     if st.form_submit_button("🚀 Process & Import Trades"):
-                        if "None" in [map_name, map_type, map_date, map_unit, map_nav]:
-                            st.warning("Please map all 5 columns to proceed.")
+                        if "None" in [map_name, map_unit, map_nav]:
+                            st.warning("Please map at least Fund Name, Units, and NAV/Amount to proceed.")
                         else:
                             success_count = 0
                             failed_funds = set()
                             
                             for _, row in df_b.iterrows():
                                 raw_name = str(row[map_name]).strip()
+                                
+                                # FIX 1: Ignore Blank (NaN), Total, and Note rows
+                                if raw_name.lower() in ["nan", "none", "", "null"] or "total" in raw_name.lower() or "note" in raw_name.lower():
+                                    continue
+                                
                                 match = all_schemes[all_schemes['search_term'].str.contains(raw_name.lower(), regex=False, na=False)]
                                 
                                 if not match.empty:
@@ -429,14 +434,25 @@ with tab3:
                                     except: dt_parsed = datetime.today().strftime('%Y-%m-%d')
                                     
                                     try:
+                                        # FIX 2: Ensure valid numerical data
+                                        r_units = float(row[map_unit])
+                                        r_nav = float(row[map_nav])
+                                        if pd.isna(r_units) or pd.isna(r_nav) or r_units <= 0:
+                                            continue
+                                            
+                                        # Smart detection: Agar NAV field me Total investment (Inv. Amt.) daal diya ho
+                                        if r_nav > 5000 and (r_nav / r_units) < 5000:
+                                            r_nav = round(r_nav / r_units, 4)
+                                            
                                         new_trade = {
                                             "code": sc_code, "name": sc_name, 
-                                            "type": "Sell" if "sell" in str(row[map_type]).lower() else "Buy",
-                                            "date": dt_parsed, "units": float(row[map_unit]), "nav": float(row[map_nav])
+                                            "type": "Sell" if map_type != "None" and "sell" in str(row[map_type]).lower() else "Buy",
+                                            "date": dt_parsed, "units": r_units, "nav": r_nav
                                         }
                                         st.session_state["portfolio"].append(new_trade)
                                         success_count += 1
-                                    except: pass
+                                    except Exception: 
+                                        pass
                                 else:
                                     failed_funds.add(raw_name)
                             
@@ -444,12 +460,12 @@ with tab3:
                             save_json(PORTFOLIO_FILE, st.session_state["portfolio"])
                             
                             if success_count > 0:
-                                st.success(f"✅ Successfully imported {success_count} trades!")
+                                st.success(f"✅ Successfully imported {success_count} valid trades!")
                                 if failed_funds:
-                                    st.warning(f"Could not automatically match funds for: {', '.join(list(failed_funds)[:5])}...")
+                                    st.warning(f"Could not match: {', '.join(list(failed_funds)[:5])}")
                                 st.rerun()
                             else:
-                                st.error("No valid trades imported. Please check fund names and numeric values.")
+                                st.error("No valid trades imported. Please check your file data.")
             except Exception as e:
                 st.error(f"Error reading file: {str(e)}")
 
