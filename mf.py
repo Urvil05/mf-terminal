@@ -186,7 +186,6 @@ with tab1:
         with st.spinner("Loading metrics..."):
             valid_m = [m for m in [calculate_fund_metrics(c) for c in st.session_state["watchlist"]] if m]
             if valid_m: 
-                # Removed 'Latest NAV' from drop so the new Current NAV, Prev NAV & Change show up
                 st.dataframe(pd.DataFrame(valid_m).drop(columns=["Code"]), use_container_width=True, hide_index=True)
     else: st.info("Watchlist is empty. Add funds from the sidebar.")
 
@@ -321,7 +320,6 @@ with tab3:
                     
         if total_units > 0.001: 
             live_data = calculate_fund_metrics(code)
-            # Updated to fetch "Current NAV" instead of "Latest NAV"
             current_nav = live_data["Current NAV"] if live_data else 0
             current_value = total_units * current_nav
             pnl = current_value - total_inv
@@ -336,8 +334,27 @@ with tab3:
                 "LTCG Units (>1Y)": round(ltcg_units, 3)
             })
 
-    if portfolio_rows: st.dataframe(pd.DataFrame(portfolio_rows), use_container_width=True, hide_index=True)
-    else: st.info("No active holdings found in portfolio.")
+    if portfolio_rows:
+        df_port = pd.DataFrame(portfolio_rows)
+        
+        # Grand Total Calculations
+        tot_inv = df_port["Invested (₹)"].sum()
+        tot_cur = df_port["Current Value (₹)"].sum()
+        tot_pnl = df_port["P&L (₹)"].sum()
+        tot_pnl_pct = (tot_pnl / tot_inv * 100) if tot_inv > 0 else 0
+        
+        # Portfolio Summary Metric Cards
+        st.markdown("#### 📊 Overall Portfolio Summary")
+        c1, c2, c3, c4 = st.columns(4)
+        c1.metric("Total Invested", f"₹ {tot_inv:,.2f}")
+        c2.metric("Current Value", f"₹ {tot_cur:,.2f}")
+        c3.metric("Total P&L (₹)", f"₹ {tot_pnl:,.2f}")
+        c4.metric("Total P&L (%)", f"{tot_pnl_pct:.2f} %")
+        
+        st.markdown("---")
+        st.dataframe(df_port, use_container_width=True, hide_index=True)
+    else: 
+        st.info("No active holdings found in portfolio.")
 
     st.markdown("---")
     if st.button("🚨 Clear Entire Portfolio JSON Cache"):
