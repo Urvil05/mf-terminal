@@ -114,7 +114,6 @@ def calculate_fund_metrics(code):
     df, name = nav_data["data"], nav_data["name"]
     latest_nav, latest_date = df.iloc[-1]['nav'], df.iloc[-1]['date']
     
-    # Extract Previous Day NAV & Calculate 1D Change
     prev_nav = df.iloc[-2]['nav'] if len(df) > 1 else latest_nav
     day_change = round(((latest_nav / prev_nav) - 1) * 100, 2) if prev_nav else 0.0
     
@@ -136,16 +135,9 @@ def calculate_fund_metrics(code):
         if down_vol > 0: sortino = round((mean_ret - 0.065) / down_vol, 2)
                 
     return {
-        "Code": code, 
-        "Fund Name": name, 
-        "Current NAV": latest_nav, 
-        "Prev NAV": prev_nav, 
-        "1D Change (%)": day_change, 
-        "1-Year (%)": ret_1y, 
-        "3-Year CAGR (%)": cagr_3y, 
-        "Sharpe": sharpe, 
-        "Sortino": sortino, 
-        "Volatility (%)": round(vol*100,2) if vol else None
+        "Code": code, "Fund Name": name, "Current NAV": latest_nav, "Prev NAV": prev_nav, 
+        "1D Change (%)": day_change, "1-Year (%)": ret_1y, "3-Year CAGR (%)": cagr_3y, 
+        "Sharpe": sharpe, "Sortino": sortino, "Volatility (%)": round(vol*100,2) if vol else None
     }
 
 all_schemes = get_all_schemes()
@@ -337,13 +329,11 @@ with tab3:
     if portfolio_rows:
         df_port = pd.DataFrame(portfolio_rows)
         
-        # Grand Total Calculations
         tot_inv = df_port["Invested (₹)"].sum()
         tot_cur = df_port["Current Value (₹)"].sum()
         tot_pnl = df_port["P&L (₹)"].sum()
         tot_pnl_pct = (tot_pnl / tot_inv * 100) if tot_inv > 0 else 0
         
-        # Portfolio Summary Metric Cards
         st.markdown("#### 📊 Overall Portfolio Summary")
         c1, c2, c3, c4 = st.columns(4)
         c1.metric("Total Invested", f"₹ {tot_inv:,.2f}")
@@ -362,7 +352,7 @@ with tab3:
         save_json(PORTFOLIO_FILE, [])
         st.rerun()
 
-    with st.expander("➕ Execute Trade (Lumpsum / SIP / Sell)", expanded=True):
+    with st.expander("➕ Execute Manual Trade", expanded=False):
         if st.session_state["watchlist"]:
             f_dict = {}
             for c in st.session_state["watchlist"]:
@@ -388,6 +378,80 @@ with tab3:
                 save_json(PORTFOLIO_FILE, st.session_state["portfolio"])
                 st.rerun()
         else: st.warning("Please add funds to your Watchlist first.")
+
+    with st.expander("📁 Bulk Import Trades (CSV/Excel)", expanded=False):
+        st.markdown("Upload your broker's trade report. **Required columns: Fund Name, Type (Buy/Sell), Date, Units, NAV**")
+        bulk_file = st.file_uploader("Upload Trades File", type=["csv", "xlsx", "xls"], key="bulk_port_up")
+        
+        if bulk_file:
+            try:
+                if bulk_file.name.endswith(".csv"): df_b = pd.read_csv(bulk_file)
+                else: df_b = pd.read_excel(bulk_file)
+                
+                df_b.columns = [str(c).strip() for c in df_b.columns]
+                
+                with st.form("bulk_map_form"):
+                    st.write("🔗 Map your CSV columns to APEX fields:")
+                    c1, c2, c3, c4, c5 = st.columns(5)
+                    cols = ["None"] + list(df_b.columns)
+                    
+                    def_n = next((c for c in df_b.columns if any(k in c.lower() for k in ["name", "fund", "scheme"])), "None")
+                    def_t = next((c for c in df_b.columns if any(k in c.lower() for k in ["type", "tran", "action"])), "None")
+                    def_d = next((c for c in df_b.columns if any(k in c.lower() for k in ["date", "time"])), "None")
+                    def_u = next((c for c in df_b.columns if any(k in c.lower() for k in ["unit", "qty", "quantity"])), "None")
+                    def_nav = next((c for c in df_b.columns if any(k in c.lower() for k in ["nav", "price", "rate"])), "None")
+                    
+                    map_name = c1.selectbox("Fund Name", cols, index=cols.index(def_n) if def_n in cols else 0)
+                    map_type = c2.selectbox("Type", cols, index=cols.index(def_t) if def_t in cols else 0)
+                    map_date = c3.selectbox("Date", cols, index=cols.index(def_d) if def_d in cols else 0)
+                    map_unit = c4.selectbox("Units", cols, index=cols.index(def_u) if def_u in cols else 0)
+                    map_nav = c5.selectbox("NAV/Price", cols, index=cols.index(def_nav) if def_nav in cols else 0)
+                    
+                    if st.form_submit_button("🚀 Process & Import Trades"):
+                        if "None" in [map_name, map_type, map_date, map_unit, map_nav]:
+                            st.warning("Please map all 5 columns to proceed.")
+                        else:
+                            success_count = 0
+                            failed_funds = set()
+                            
+                            for _, row in df_b.iterrows():
+                                raw_name = str(row[map_name]).strip()
+                                match = all_schemes[all_schemes['search_term'].str.contains(raw_name.lower(), regex=False, na=False)]
+                                
+                                if not match.empty:
+                                    sc_code = int(match.iloc[0]['schemeCode'])
+                                    sc_name = match.iloc[0]['schemeName']
+                                    
+                                    if sc_code not in st.session_state["watchlist"]:
+                                        st.session_state["watchlist"].append(sc_code)
+                                    
+                                    try: dt_parsed = pd.to_datetime(row[map_date]).strftime('%Y-%m-%d')
+                                    except: dt_parsed = datetime.today().strftime('%Y-%m-%d')
+                                    
+                                    try:
+                                        new_trade = {
+                                            "code": sc_code, "name": sc_name, 
+                                            "type": "Sell" if "sell" in str(row[map_type]).lower() else "Buy",
+                                            "date": dt_parsed, "units": float(row[map_unit]), "nav": float(row[map_nav])
+                                        }
+                                        st.session_state["portfolio"].append(new_trade)
+                                        success_count += 1
+                                    except: pass
+                                else:
+                                    failed_funds.add(raw_name)
+                            
+                            save_json(WATCHLIST_FILE, st.session_state["watchlist"])
+                            save_json(PORTFOLIO_FILE, st.session_state["portfolio"])
+                            
+                            if success_count > 0:
+                                st.success(f"✅ Successfully imported {success_count} trades!")
+                                if failed_funds:
+                                    st.warning(f"Could not automatically match funds for: {', '.join(list(failed_funds)[:5])}...")
+                                st.rerun()
+                            else:
+                                st.error("No valid trades imported. Please check fund names and numeric values.")
+            except Exception as e:
+                st.error(f"Error reading file: {str(e)}")
 
 with tab4:
     st.markdown("### 📈 Institutional Fund Analysis")
