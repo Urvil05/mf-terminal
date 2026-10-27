@@ -64,16 +64,6 @@ PORTFOLIO_FILE = "paper_portfolio.json"
 FACTSHEET_FILE = "factsheet_data.json"
 DEFAULT_WATCHLIST = [] 
 
-def load_json(filepath, default_val):
-    if os.path.exists(filepath):
-        try:
-            with open(filepath, "r") as f: return json.load(f)
-        except: pass
-    return default_val
-
-def save_json(filepath, data):
-    with open(filepath, "w") as f: json.dump(data, f)
-
 def load_factsheet_cache():
     cache = load_json(FACTSHEET_FILE, {})
     for k, v in cache.items():
@@ -124,6 +114,10 @@ def calculate_fund_metrics(code):
     df, name = nav_data["data"], nav_data["name"]
     latest_nav, latest_date = df.iloc[-1]['nav'], df.iloc[-1]['date']
     
+    # Extract Previous Day NAV & Calculate 1D Change
+    prev_nav = df.iloc[-2]['nav'] if len(df) > 1 else latest_nav
+    day_change = round(((latest_nav / prev_nav) - 1) * 100, 2) if prev_nav else 0.0
+    
     def get_past_nav(days):
         past_df = df[df['date'] <= (latest_date - timedelta(days=days))]
         return past_df.iloc[-1]['nav'] if not past_df.empty else None
@@ -141,7 +135,18 @@ def calculate_fund_metrics(code):
         down_vol = returns[returns < 0].std() * np.sqrt(252)
         if down_vol > 0: sortino = round((mean_ret - 0.065) / down_vol, 2)
                 
-    return {"Code": code, "Fund Name": name, "1-Year (%)": ret_1y, "3-Year CAGR (%)": cagr_3y, "Sharpe": sharpe, "Sortino": sortino, "Volatility (%)": round(vol*100,2) if vol else None, "Latest NAV": latest_nav}
+    return {
+        "Code": code, 
+        "Fund Name": name, 
+        "Current NAV": latest_nav, 
+        "Prev NAV": prev_nav, 
+        "1D Change (%)": day_change, 
+        "1-Year (%)": ret_1y, 
+        "3-Year CAGR (%)": cagr_3y, 
+        "Sharpe": sharpe, 
+        "Sortino": sortino, 
+        "Volatility (%)": round(vol*100,2) if vol else None
+    }
 
 all_schemes = get_all_schemes()
 
@@ -180,7 +185,9 @@ with tab1:
     if st.session_state["watchlist"]:
         with st.spinner("Loading metrics..."):
             valid_m = [m for m in [calculate_fund_metrics(c) for c in st.session_state["watchlist"]] if m]
-            if valid_m: st.dataframe(pd.DataFrame(valid_m).drop(columns=["Code", "Latest NAV"]), use_container_width=True, hide_index=True)
+            if valid_m: 
+                # Removed 'Latest NAV' from drop so the new Current NAV, Prev NAV & Change show up
+                st.dataframe(pd.DataFrame(valid_m).drop(columns=["Code"]), use_container_width=True, hide_index=True)
     else: st.info("Watchlist is empty. Add funds from the sidebar.")
 
 with tab2:
@@ -314,7 +321,8 @@ with tab3:
                     
         if total_units > 0.001: 
             live_data = calculate_fund_metrics(code)
-            current_nav = live_data["Latest NAV"] if live_data else 0
+            # Updated to fetch "Current NAV" instead of "Latest NAV"
+            current_nav = live_data["Current NAV"] if live_data else 0
             current_value = total_units * current_nav
             pnl = current_value - total_inv
             
