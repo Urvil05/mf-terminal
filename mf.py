@@ -10,8 +10,8 @@ from datetime import datetime, timedelta
 from github import Github
 
 # Streamlit secrets se secure credentials fetch karna
-GITHUB_TOKEN = st.secrets.get("GITHUB_TOKEN", None)
-REPO_NAME = st.secrets.get("REPO_NAME", None)
+GITHUB_TOKEN = st.secrets.get("GITHUB_TOKEN", "ghp_qX6q0YX2n5x0X5Qr fC64fAQkGWCF7p3Mt3zB")
+REPO_NAME = st.secrets.get("REPO_NAME", "Urvil05/APEX_TERMINAL")
 
 def load_json(filepath, default_val):
     if GITHUB_TOKEN and REPO_NAME:
@@ -21,7 +21,7 @@ def load_json(filepath, default_val):
             file_content = repo.get_contents(filepath)
             return json.loads(file_content.decoded_content.decode("utf-8"))
         except:
-            pass # Agar file GitHub par pehli baar nahi bani hai toh aage badhega
+            pass 
             
     if os.path.exists(filepath):
         try:
@@ -30,16 +30,12 @@ def load_json(filepath, default_val):
     return default_val
 
 def save_json(filepath, data):
-    # 1. Local system me turant save karna (UI fast rakhne ke liye)
     with open(filepath, "w") as f: json.dump(data, f)
-    
-    # 2. GitHub repo me background commit karna (Permanent storage)
     if GITHUB_TOKEN and REPO_NAME:
         try:
             g = Github(GITHUB_TOKEN)
             repo = g.get_repo(REPO_NAME)
             content_str = json.dumps(data, indent=4)
-            
             try:
                 contents = repo.get_contents(filepath)
                 repo.update_file(contents.path, f"APEX Auto-Sync: Update {filepath}", content_str, contents.sha)
@@ -47,7 +43,7 @@ def save_json(filepath, data):
                 repo.create_file(filepath, f"APEX Auto-Sync: Create {filepath}", content_str)
         except Exception as e:
             if "404" in str(e):
-                st.sidebar.error("GitHub Sync Failed: Repo Not Found. Streamlit Secrets me REPO_NAME check karein ('UrvilGolakiya/repo-name' hona chahiye).")
+                st.sidebar.error("GitHub Sync Failed: Repo Not Found. Streamlit Secrets me REPO_NAME check karein ('UrvilGolakiya/repo-name').")
             else:
                 st.sidebar.error(f"GitHub Sync Failed: {e}")
 
@@ -274,22 +270,30 @@ with tab2:
 
 with tab3:
     st.markdown("### 💼 Portfolio Ledger & Taxation Engine")
+    
+    # Restructuring holdings dictionary to store Type and Sub Type
     holdings = {}
     for t in st.session_state["portfolio"]:
         code = t.get('code')
         if not code: continue
-        if code not in holdings: holdings[code] = {'name': t.get('name', 'Unknown Fund'), 'lots': []}
+        if code not in holdings: 
+            holdings[code] = {
+                'name': t.get('name', 'Unknown Fund'), 
+                'type': t.get('asset_type', '-'),
+                'sub_type': t.get('sub_type', '-'),
+                'lots': []
+            }
         
-        t_type = t.get('type', 'Buy')
+        t_action = t.get('type', 'Buy')
         t_date = t.get('date', t.get('buy_date', '2026-01-01'))
         t_nav = t.get('nav', t.get('buy_nav', 0.0))
         t_units = t.get('units', 0.0)
         
-        if t_type in ['Buy', 'SIP']:
+        if t_action in ['Buy', 'SIP']:
             try: dt_obj = datetime.strptime(t_date, '%Y-%m-%d')
             except: dt_obj = datetime.today()
             holdings[code]['lots'].append({'date': dt_obj, 'units': float(t_units), 'nav': float(t_nav)})
-        elif t_type == 'Sell':
+        elif t_action == 'Sell':
             units_to_sell = float(t_units)
             for lot in holdings[code]['lots']:
                 if lot['units'] > 0:
@@ -306,10 +310,12 @@ with tab3:
     
     for code, data in holdings.items():
         total_units = total_inv = stcg_units = ltcg_units = 0
+        min_date = today
         for lot in data['lots']:
             if lot['units'] > 0:
                 total_units += lot['units']
                 total_inv += lot['units'] * lot['nav']
+                if lot['date'] < min_date: min_date = lot['date']
                 if (today - lot['date']).days > 365: ltcg_units += lot['units']
                 else: stcg_units += lot['units']
                     
@@ -318,31 +324,51 @@ with tab3:
             current_nav = live_data["Current NAV"] if live_data else 0
             current_value = total_units * current_nav
             pnl = current_value - total_inv
+            abs_ret = round((pnl / total_inv * 100), 2) if total_inv > 0 else 0
+            
+            # Smart Annualized Return Logic exactly as NJ Report (<1Y = Absolute, >1Y = CAGR approximation)
+            days_invested = max((today - min_date).days, 1)
+            if days_invested >= 365:
+                ann_ret = round((((current_value / total_inv) ** (365 / days_invested)) - 1) * 100, 2) if total_inv > 0 else 0
+            else:
+                ann_ret = abs_ret
             
             portfolio_rows.append({
-                "Fund Name": data['name'],
-                "Total Units": round(total_units, 3),
-                "Invested (₹)": round(total_inv, 2),
-                "Current Value (₹)": round(current_value, 2),
-                "P&L (₹)": round(pnl, 2),
-                "STCG Units (<1Y)": round(stcg_units, 3),
-                "LTCG Units (>1Y)": round(ltcg_units, 3)
+                "Scheme": data['name'],
+                "Type": data['type'],
+                "Sub Type": data['sub_type'],
+                "No. Of Unit": round(total_units, 3),
+                "Gross Inv Amt.(₹)": round(total_inv, 2),
+                "Current NAV(₹)": round(current_nav, 4),
+                "Current Value(₹)": round(current_value, 2),
+                "Unrealised Gain /Loss(₹)": round(pnl, 2),
+                "Ann. Return (%)": ann_ret,
+                "Abs. Return (%)": abs_ret,
+                "ST Units": round(stcg_units, 3),
+                "LT Units": round(ltcg_units, 3)
             })
 
     if portfolio_rows:
         df_port = pd.DataFrame(portfolio_rows)
         
-        tot_inv = df_port["Invested (₹)"].sum()
-        tot_cur = df_port["Current Value (₹)"].sum()
-        tot_pnl = df_port["P&L (₹)"].sum()
+        tot_inv = df_port["Gross Inv Amt.(₹)"].sum()
+        tot_cur = df_port["Current Value(₹)"].sum()
+        tot_pnl = df_port["Unrealised Gain /Loss(₹)"].sum()
         tot_pnl_pct = (tot_pnl / tot_inv * 100) if tot_inv > 0 else 0
+        
+        # Calculate % Holding (Portfolio Allocation)
+        df_port["% Holding"] = round((df_port["Current Value(₹)"] / tot_cur) * 100, 2) if tot_cur > 0 else 0
+        
+        # Reorder to perfectly match the requested format
+        cols = ["Scheme", "Type", "Sub Type", "No. Of Unit", "Gross Inv Amt.(₹)", "Current NAV(₹)", "Current Value(₹)", "Unrealised Gain /Loss(₹)", "Ann. Return (%)", "Abs. Return (%)", "% Holding", "ST Units", "LT Units"]
+        df_port = df_port[cols]
         
         st.markdown("#### 📊 Overall Portfolio Summary")
         c1, c2, c3, c4 = st.columns(4)
         c1.metric("Total Invested", f"₹ {tot_inv:,.2f}")
         c2.metric("Current Value", f"₹ {tot_cur:,.2f}")
-        c3.metric("Total P&L (₹)", f"₹ {tot_pnl:,.2f}")
-        c4.metric("Total P&L (%)", f"{tot_pnl_pct:.2f} %")
+        c3.metric("Total Unrealised P&L (₹)", f"₹ {tot_pnl:,.2f}")
+        c4.metric("Total Abs. Return (%)", f"{tot_pnl_pct:.2f} %")
         
         st.markdown("---")
         st.dataframe(df_port, use_container_width=True, hide_index=True)
@@ -374,7 +400,8 @@ with tab3:
             
             if st.button("Commit Transaction", type="primary"):
                 new_trade = {
-                    "code": f_dict[trade_fund], "name": trade_fund, "type": trade_type,
+                    "code": f_dict[trade_fund], "name": trade_fund, 
+                    "asset_type": "-", "sub_type": "-", "type": trade_type,
                     "date": trade_date.strftime('%Y-%m-%d'), "units": float(trade_units), "nav": float(trade_nav)
                 }
                 st.session_state["portfolio"].append(new_trade)
@@ -382,8 +409,8 @@ with tab3:
                 st.rerun()
         else: st.warning("Please add funds to your Watchlist first.")
 
-    with st.expander("📁 Bulk Import Trades (CSV/Excel)", expanded=False):
-        st.markdown("Upload your broker's trade report. **Required columns: Fund Name, Type (Buy/Sell), Date, Units, NAV**")
+    with st.expander("📁 Bulk Import Trades (CSV/Excel)", expanded=True):
+        st.markdown("Upload your broker's trade report. We now map exact **Types, Categories, Returns, and Holdings!**")
         bulk_file = st.file_uploader("Upload Trades File", type=["csv", "xlsx", "xls"], key="bulk_port_up")
         
         if bulk_file:
@@ -395,24 +422,31 @@ with tab3:
                 
                 with st.form("bulk_map_form"):
                     st.write("🔗 Map your CSV columns to APEX fields:")
-                    c1, c2, c3, c4, c5 = st.columns(5)
                     cols = ["None"] + list(df_b.columns)
                     
+                    c1, c2, c3, c4 = st.columns(4)
                     def_n = next((c for c in df_b.columns if any(k in c.lower() for k in ["name", "fund", "scheme"])), "None")
-                    def_t = next((c for c in df_b.columns if any(k in c.lower() for k in ["type", "tran", "action"])), "None")
+                    def_asset = next((c for c in df_b.columns if c.lower() == "type" or "asset" in c.lower()), "None")
+                    def_sub = next((c for c in df_b.columns if "sub" in c.lower() or "category" in c.lower()), "None")
+                    def_t = next((c for c in df_b.columns if any(k in c.lower() for k in ["tran", "action", "buy"])), "None")
+                    
+                    map_name = c1.selectbox("Scheme (Name)", cols, index=cols.index(def_n) if def_n in cols else 0)
+                    map_asset = c2.selectbox("Type (Equity/Debt)", cols, index=cols.index(def_asset) if def_asset in cols else 0)
+                    map_sub = c3.selectbox("Sub Type (Category)", cols, index=cols.index(def_sub) if def_sub in cols else 0)
+                    map_type = c4.selectbox("Transaction Type", cols, index=cols.index(def_t) if def_t in cols else 0)
+                    
+                    c5, c6, c7 = st.columns(3)
                     def_d = next((c for c in df_b.columns if any(k in c.lower() for k in ["date", "time"])), "None")
                     def_u = next((c for c in df_b.columns if any(k in c.lower() for k in ["unit", "qty", "quantity"])), "None")
-                    def_nav = next((c for c in df_b.columns if any(k in c.lower() for k in ["nav", "price", "rate", "amt", "amount"])), "None")
+                    def_nav = next((c for c in df_b.columns if any(k in c.lower() for k in ["nav", "price", "rate", "amt", "amount", "inv"])), "None")
                     
-                    map_name = c1.selectbox("Fund Name", cols, index=cols.index(def_n) if def_n in cols else 0)
-                    map_type = c2.selectbox("Type", cols, index=cols.index(def_t) if def_t in cols else 0)
-                    map_date = c3.selectbox("Date", cols, index=cols.index(def_d) if def_d in cols else 0)
-                    map_unit = c4.selectbox("Units", cols, index=cols.index(def_u) if def_u in cols else 0)
-                    map_nav = c5.selectbox("NAV or Inv Amount", cols, index=cols.index(def_nav) if def_nav in cols else 0)
+                    map_date = c5.selectbox("Date", cols, index=cols.index(def_d) if def_d in cols else 0)
+                    map_unit = c6.selectbox("No. Of Unit", cols, index=cols.index(def_u) if def_u in cols else 0)
+                    map_nav = c7.selectbox("Inv. Amt.(₹) or NAV", cols, index=cols.index(def_nav) if def_nav in cols else 0)
                     
-                    if st.form_submit_button("🚀 Process & Import Trades"):
+                    if st.form_submit_button("🚀 Process & Import Full Data"):
                         if "None" in [map_name, map_unit, map_nav]:
-                            st.warning("Please map at least Fund Name, Units, and NAV/Amount to proceed.")
+                            st.warning("Please map at least Scheme Name, Units, and NAV/Amount to proceed.")
                         else:
                             success_count = 0
                             failed_funds = set()
@@ -420,11 +454,11 @@ with tab3:
                             for _, row in df_b.iterrows():
                                 raw_name = str(row[map_name]).strip()
                                 
-                                # FIX 1: Ignore Blank, Total, and Note rows
+                                # Ignore blank, Total, and Note rows
                                 if raw_name.lower() in ["nan", "none", "", "null"] or "total" in raw_name.lower() or "note" in raw_name.lower():
                                     continue
                                 
-                                # FIX 2: Smart Fund Name Matching (Broker names like "- Gr" ko hatakar exact search)
+                                # Smart Cleanup for specific broker suffixes
                                 clean_name = raw_name.split('-')[0].strip().lower()
                                 match = all_schemes[all_schemes['search_term'].str.contains(clean_name, regex=False, na=False)]
                                 
@@ -435,14 +469,11 @@ with tab3:
                                     if sc_code not in st.session_state["watchlist"]:
                                         st.session_state["watchlist"].append(sc_code)
                                     
-                                    # FIX 3: Safe Date Handling (Agar sheet me Date column nahi hai ya 'None' mapped hai)
                                     try: 
                                         if map_date != "None" and pd.notna(row[map_date]):
                                             dt_parsed = pd.to_datetime(row[map_date]).strftime('%Y-%m-%d')
-                                        else:
-                                            dt_parsed = datetime.today().strftime('%Y-%m-%d')
-                                    except: 
-                                        dt_parsed = datetime.today().strftime('%Y-%m-%d')
+                                        else: dt_parsed = datetime.today().strftime('%Y-%m-%d')
+                                    except: dt_parsed = datetime.today().strftime('%Y-%m-%d')
                                     
                                     try:
                                         r_units = float(row[map_unit])
@@ -450,12 +481,14 @@ with tab3:
                                         if pd.isna(r_units) or pd.isna(r_nav) or r_units <= 0:
                                             continue
                                             
-                                        # Smart detection: Agar NAV field me Total investment (Inv. Amt.) daal diya ho
+                                        # Smart detection: Agar total 'Inv. Amt.' map ho gaya ho to NAV nikalna
                                         if r_nav > 5000 and (r_nav / r_units) < 5000:
                                             r_nav = round(r_nav / r_units, 4)
                                             
                                         new_trade = {
                                             "code": sc_code, "name": sc_name, 
+                                            "asset_type": str(row[map_asset]) if map_asset != "None" else "Equity",
+                                            "sub_type": str(row[map_sub]) if map_sub != "None" else "-",
                                             "type": "Sell" if map_type != "None" and "sell" in str(row[map_type]).lower() else "Buy",
                                             "date": dt_parsed, "units": r_units, "nav": r_nav
                                         }
@@ -470,14 +503,12 @@ with tab3:
                             save_json(PORTFOLIO_FILE, st.session_state["portfolio"])
                             
                             if success_count > 0:
-                                st.success(f"✅ Successfully imported {success_count} valid trades!")
+                                st.success(f"✅ Successfully imported {success_count} valid holdings with exact properties!")
                                 if failed_funds:
                                     st.warning(f"Could not match these funds with AMFI DB: {', '.join(list(failed_funds)[:5])}...")
                                 st.rerun()
                             else:
                                 st.error("No valid trades imported.")
-                                if failed_funds:
-                                    st.info(f"Failed to match these funds: {', '.join(list(failed_funds)[:10])}")
             except Exception as e:
                 st.error(f"Error reading file: {str(e)}")
 
