@@ -13,6 +13,7 @@ from github import Github
 GITHUB_TOKEN = st.secrets.get("GITHUB_TOKEN", "ghp_qX6q0YX2n5x0X5Qr fC64fAQkGWCF7p3Mt3zB")
 REPO_NAME = st.secrets.get("REPO_NAME", "Urvil05/APEX_TERMINAL")
 
+
 def load_json(filepath, default_val):
     if GITHUB_TOKEN and REPO_NAME:
         try:
@@ -271,7 +272,6 @@ with tab2:
 with tab3:
     st.markdown("### 💼 Portfolio Ledger & Taxation Engine")
     
-    # Restructuring holdings dictionary to store Type and Sub Type
     holdings = {}
     for t in st.session_state["portfolio"]:
         code = t.get('code')
@@ -326,7 +326,6 @@ with tab3:
             pnl = current_value - total_inv
             abs_ret = round((pnl / total_inv * 100), 2) if total_inv > 0 else 0
             
-            # Smart Annualized Return Logic exactly as NJ Report (<1Y = Absolute, >1Y = CAGR approximation)
             days_invested = max((today - min_date).days, 1)
             if days_invested >= 365:
                 ann_ret = round((((current_value / total_inv) ** (365 / days_invested)) - 1) * 100, 2) if total_inv > 0 else 0
@@ -356,10 +355,8 @@ with tab3:
         tot_pnl = df_port["Unrealised Gain /Loss(₹)"].sum()
         tot_pnl_pct = (tot_pnl / tot_inv * 100) if tot_inv > 0 else 0
         
-        # Calculate % Holding (Portfolio Allocation)
         df_port["% Holding"] = round((df_port["Current Value(₹)"] / tot_cur) * 100, 2) if tot_cur > 0 else 0
         
-        # Reorder to perfectly match the requested format
         cols = ["Scheme", "Type", "Sub Type", "No. Of Unit", "Gross Inv Amt.(₹)", "Current NAV(₹)", "Current Value(₹)", "Unrealised Gain /Loss(₹)", "Ann. Return (%)", "Abs. Return (%)", "% Holding", "ST Units", "LT Units"]
         df_port = df_port[cols]
         
@@ -453,16 +450,28 @@ with tab3:
                             
                             for _, row in df_b.iterrows():
                                 raw_name = str(row[map_name]).strip()
+                                raw_lower = raw_name.lower()
                                 
-                                # Ignore blank, Total, and Note rows
-                                if raw_name.lower() in ["nan", "none", "", "null"] or "total" in raw_name.lower() or "note" in raw_name.lower():
+                                if raw_lower in ["nan", "none", "", "null"] or "total" in raw_lower or "note" in raw_lower:
                                     continue
                                 
-                                # Smart Cleanup for specific broker suffixes
                                 clean_name = raw_name.split('-')[0].strip().lower()
                                 match = all_schemes[all_schemes['search_term'].str.contains(clean_name, regex=False, na=False)]
                                 
                                 if not match.empty:
+                                    # 🔹 SMART FILTER: IDCW vs Growth & Direct vs Regular 🔹
+                                    if "idcw" not in raw_lower and "div" not in raw_lower:
+                                        no_idcw = match[~match['search_term'].str.contains("idcw|dividend|payout|reinvestment", regex=True)]
+                                        if not no_idcw.empty: match = no_idcw
+                                        
+                                    if "gr" in raw_lower or "growth" in raw_lower:
+                                        gr_match = match[match['search_term'].str.contains("growth", regex=False)]
+                                        if not gr_match.empty: match = gr_match
+                                        
+                                    if "dir" not in raw_lower and "direct" not in raw_lower:
+                                        reg_match = match[match['search_term'].str.contains("regular", regex=False)]
+                                        if not reg_match.empty: match = reg_match
+                                    
                                     sc_code = int(match.iloc[0]['schemeCode'])
                                     sc_name = match.iloc[0]['schemeName']
                                     
@@ -481,7 +490,6 @@ with tab3:
                                         if pd.isna(r_units) or pd.isna(r_nav) or r_units <= 0:
                                             continue
                                             
-                                        # Smart detection: Agar total 'Inv. Amt.' map ho gaya ho to NAV nikalna
                                         if r_nav > 5000 and (r_nav / r_units) < 5000:
                                             r_nav = round(r_nav / r_units, 4)
                                             
@@ -503,7 +511,7 @@ with tab3:
                             save_json(PORTFOLIO_FILE, st.session_state["portfolio"])
                             
                             if success_count > 0:
-                                st.success(f"✅ Successfully imported {success_count} valid holdings with exact properties!")
+                                st.success(f"✅ Successfully imported {success_count} valid holdings with exact Growth/Regular match!")
                                 if failed_funds:
                                     st.warning(f"Could not match these funds with AMFI DB: {', '.join(list(failed_funds)[:5])}...")
                                 st.rerun()
