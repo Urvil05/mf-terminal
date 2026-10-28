@@ -9,10 +9,9 @@ import os
 from datetime import datetime, timedelta
 from github import Github
 
-# Streamlit secrets se secure credentials fetch karna
-GITHUB_TOKEN = st.secrets.get("GITHUB_TOKEN", "ghp_qX6q0YX2n5x0X5Qr fC64fAQkGWCF7p3Mt3zB")
+# --- 1. GitHub API Setup (Permanent Storage) ---
+GITHUB_TOKEN = st.secrets.get("GITHUB_TOKEN", "ghp_qX6q0YX2n5x0X5QrfC64fAQkGWCF7p3Mt3zB")
 REPO_NAME = st.secrets.get("REPO_NAME", "Urvil05/APEX_TERMINAL")
-
 
 def load_json(filepath, default_val):
     if GITHUB_TOKEN and REPO_NAME:
@@ -22,7 +21,7 @@ def load_json(filepath, default_val):
             file_content = repo.get_contents(filepath)
             return json.loads(file_content.decoded_content.decode("utf-8"))
         except:
-            pass 
+            pass # File nahi mili toh local search karega
             
     if os.path.exists(filepath):
         try:
@@ -31,7 +30,10 @@ def load_json(filepath, default_val):
     return default_val
 
 def save_json(filepath, data):
+    # Local Save (UI fast ke liye)
     with open(filepath, "w") as f: json.dump(data, f)
+    
+    # GitHub Cloud Save (Permanent Storage)
     if GITHUB_TOKEN and REPO_NAME:
         try:
             g = Github(GITHUB_TOKEN)
@@ -44,7 +46,7 @@ def save_json(filepath, data):
                 repo.create_file(filepath, f"APEX Auto-Sync: Create {filepath}", content_str)
         except Exception as e:
             if "404" in str(e):
-                st.sidebar.error("GitHub Sync Failed: Repo Not Found. Streamlit Secrets me REPO_NAME check karein ('UrvilGolakiya/repo-name').")
+                st.sidebar.error("GitHub Sync Failed: Repo Not Found. Streamlit Secrets me REPO_NAME check karein ('Username/RepoName').")
             else:
                 st.sidebar.error(f"GitHub Sync Failed: {e}")
 
@@ -373,7 +375,7 @@ with tab3:
         st.info("No active holdings found in portfolio.")
 
     st.markdown("---")
-    if st.button("🚨 Clear Entire Portfolio"):
+    if st.button("🚨 Clear Entire Portfolio JSON Cache"):
         st.session_state["portfolio"] = []
         save_json(PORTFOLIO_FILE, [])
         st.rerun()
