@@ -10,8 +10,8 @@ from datetime import datetime, timedelta
 from github import Github
 
 # --- 1. GitHub API Setup (Permanent Storage) ---
-GITHUB_TOKEN = st.secrets.get("GITHUB_TOKEN", "ghp_qX6q0YX2n5x0X5QrfC64fAQkGWCF7p3Mt3zB")
-REPO_NAME = st.secrets.get("REPO_NAME", "Urvil05/APEX_TERMINAL")
+GITHUB_TOKEN = st.secrets.get("GITHUB_TOKEN", "ghp_qX6q0Yx2n5x0X5QrFC64fAQkGWCF7p3Mt3zB")
+REPO_NAME = st.secrets.get("REPO_NAME", "Urvil05/mf-terminal")
 
 def load_json(filepath, default_val):
     if GITHUB_TOKEN and REPO_NAME:
