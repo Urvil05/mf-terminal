@@ -21,7 +21,7 @@ def load_json(filepath, default_val):
             file_content = repo.get_contents(filepath)
             return json.loads(file_content.decoded_content.decode("utf-8"))
         except:
-            pass # File nahi mili toh local search karega
+            pass 
             
     if os.path.exists(filepath):
         try:
@@ -30,10 +30,7 @@ def load_json(filepath, default_val):
     return default_val
 
 def save_json(filepath, data):
-    # Local Save (UI fast ke liye)
     with open(filepath, "w") as f: json.dump(data, f)
-    
-    # GitHub Cloud Save (Permanent Storage)
     if GITHUB_TOKEN and REPO_NAME:
         try:
             g = Github(GITHUB_TOKEN)
@@ -46,7 +43,7 @@ def save_json(filepath, data):
                 repo.create_file(filepath, f"APEX Auto-Sync: Create {filepath}", content_str)
         except Exception as e:
             if "404" in str(e):
-                st.sidebar.error("GitHub Sync Failed: Repo Not Found. Streamlit Secrets me REPO_NAME check karein ('Username/RepoName').")
+                st.sidebar.error("GitHub Sync Failed: Repo Not Found. Streamlit Secrets me REPO_NAME check karein ('Urvil05/mf-terminal').")
             else:
                 st.sidebar.error(f"GitHub Sync Failed: {e}")
 
@@ -323,7 +320,13 @@ with tab3:
                     
         if total_units > 0.001: 
             live_data = calculate_fund_metrics(code)
-            current_nav = live_data["Current NAV"] if live_data else 0
+            
+            # 🔹 SMART API FALLBACK: Agar AMFI fail ho jaye, toh 0 dikhane ke bajaye Average Buy NAV use karein
+            if live_data and live_data.get("Current NAV") and live_data["Current NAV"] > 0:
+                current_nav = live_data["Current NAV"]
+            else:
+                current_nav = (total_inv / total_units) if total_units > 0 else 0
+                
             current_value = total_units * current_nav
             pnl = current_value - total_inv
             abs_ret = round((pnl / total_inv * 100), 2) if total_inv > 0 else 0
@@ -461,7 +464,6 @@ with tab3:
                                 match = all_schemes[all_schemes['search_term'].str.contains(clean_name, regex=False, na=False)]
                                 
                                 if not match.empty:
-                                    # 🔹 SMART FILTER: IDCW vs Growth & Direct vs Regular 🔹
                                     if "idcw" not in raw_lower and "div" not in raw_lower:
                                         no_idcw = match[~match['search_term'].str.contains("idcw|dividend|payout|reinvestment", regex=True)]
                                         if not no_idcw.empty: match = no_idcw
