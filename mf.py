@@ -174,11 +174,12 @@ def fetch_live_prices(ticker_list):
                 else: close_series = data['Close'].dropna()
                 
                 if len(close_series) >= 2:
-                    last_price = float(close_series.iloc[-1])
-                    prev_price = float(close_series.iloc[-2])
+                    # Yahan raw output ko strongly 2 decimals me round kar diya gaya hai
+                    last_price = round(float(close_series.iloc[-1]), 2)
+                    prev_price = round(float(close_series.iloc[-2]), 2)
                     change = round(((last_price / prev_price) - 1) * 100, 2)
                 elif len(close_series) == 1:
-                    last_price = float(close_series.iloc[-1])
+                    last_price = round(float(close_series.iloc[-1]), 2)
                     prev_price = last_price
                     change = 0.0
                 else:
@@ -259,15 +260,16 @@ with tab2:
                     tickers_to_fetch = [t for t in disp_df['Ticker'].tolist() if "UNKNOWN" not in str(t).upper()]
                     live_data = fetch_live_prices(tickers_to_fetch)
                     
-                    disp_df['Prev Price (₹)'] = disp_df['Ticker'].map(lambda x: live_data.get(x, {}).get('prev') if live_data.get(x) else None).fillna("-")
-                    disp_df['Live Price (₹)'] = disp_df['Ticker'].map(lambda x: live_data.get(x, {}).get('live') if live_data.get(x) else None).fillna("Not Traded")
-                    disp_df['% Change'] = disp_df['Ticker'].map(lambda x: live_data.get(x, {}).get('change') if live_data.get(x) else None).fillna("-")
+                    # 🔹 FIX: Removed .fillna("-") to keep column STRICTLY NUMERIC
+                    disp_df['Prev Price (₹)'] = disp_df['Ticker'].map(lambda x: live_data.get(x, {}).get('prev') if live_data.get(x) else None)
+                    disp_df['Live Price (₹)'] = disp_df['Ticker'].map(lambda x: live_data.get(x, {}).get('live') if live_data.get(x) else None)
+                    disp_df['% Change'] = disp_df['Ticker'].map(lambda x: live_data.get(x, {}).get('change') if live_data.get(x) else None)
                 
                 m_data = calculate_fund_metrics(curr_code)
                 last_official_nav = m_data["Current NAV"] if m_data else 0.0
                 
                 if last_official_nav > 0:
-                    valid_changes = pd.to_numeric(disp_df['% Change'].replace("-", 0), errors='coerce').fillna(0)
+                    valid_changes = pd.to_numeric(disp_df['% Change'], errors='coerce').fillna(0)
                     weights = pd.to_numeric(disp_df[w], errors='coerce').fillna(0) / 100
                     
                     total_tracked_weight = weights.sum()
@@ -282,7 +284,6 @@ with tab2:
                     st.markdown("### 🔮 Alpha Predictive Engine (Live iNAV)")
                     colA, colB, colC = st.columns(3)
                     with colA:
-                        # Sirf 2 decimal (%.2f) display hoga
                         st.markdown("<div class='nav-box'><h5>Today's Base NAV (T-1)</h5><h2 style='color:#94a3b8;'>₹ {:.2f}</h2></div>".format(last_official_nav), unsafe_allow_html=True)
                     with colB:
                         pred_color = "#22c55e" if normalized_est_change >= 0 else "#ef4444"
@@ -296,10 +297,10 @@ with tab2:
                 disabled_cols = [c for c in disp_df.columns if c != 'Ticker']
                 edited_df = st.data_editor(
                     disp_df,
-                    # Yaha par humne columns me 2 decimals restrict kiye
                     column_config={
                         w: st.column_config.NumberColumn(format="%.2f%%"),
                         '% Change': st.column_config.NumberColumn(format="%.2f%%"),
+                        # Ab numeric column pe Streamlit rule perfect chalega
                         'Prev Price (₹)': st.column_config.NumberColumn(format="₹ %.2f"),
                         'Live Price (₹)': st.column_config.NumberColumn(format="₹ %.2f")
                     },
@@ -469,7 +470,6 @@ with tab3:
         c4.metric("Total Abs. Return (%)", f"{tot_pnl_pct:.2f} %")
         st.markdown("---")
         
-        # Portfolio table me sab kuch strictly 2 decimals format
         st.dataframe(
             df_port[cols], 
             use_container_width=True, 
