@@ -174,12 +174,11 @@ def fetch_live_prices(ticker_list):
                 else: close_series = data['Close'].dropna()
                 
                 if len(close_series) >= 2:
-                    # Yahan raw output ko strongly 2 decimals me round kar diya gaya hai
-                    last_price = round(float(close_series.iloc[-1]), 2)
-                    prev_price = round(float(close_series.iloc[-2]), 2)
+                    last_price = float(close_series.iloc[-1])
+                    prev_price = float(close_series.iloc[-2])
                     change = round(((last_price / prev_price) - 1) * 100, 2)
                 elif len(close_series) == 1:
-                    last_price = round(float(close_series.iloc[-1]), 2)
+                    last_price = float(close_series.iloc[-1])
                     prev_price = last_price
                     change = 0.0
                 else:
@@ -260,10 +259,10 @@ with tab2:
                     tickers_to_fetch = [t for t in disp_df['Ticker'].tolist() if "UNKNOWN" not in str(t).upper()]
                     live_data = fetch_live_prices(tickers_to_fetch)
                     
-                    # 🔹 FIX: Removed .fillna("-") to keep column STRICTLY NUMERIC
-                    disp_df['Prev Price (₹)'] = disp_df['Ticker'].map(lambda x: live_data.get(x, {}).get('prev') if live_data.get(x) else None)
-                    disp_df['Live Price (₹)'] = disp_df['Ticker'].map(lambda x: live_data.get(x, {}).get('live') if live_data.get(x) else None)
-                    disp_df['% Change'] = disp_df['Ticker'].map(lambda x: live_data.get(x, {}).get('change') if live_data.get(x) else None)
+                    # 🔹 BULLETPROOF FIX: pd.to_numeric se explicitly float banaya taaki formatting kaam kare 🔹
+                    disp_df['Prev Price (₹)'] = pd.to_numeric(disp_df['Ticker'].map(lambda x: live_data.get(x, {}).get('prev') if live_data.get(x) else None), errors='coerce')
+                    disp_df['Live Price (₹)'] = pd.to_numeric(disp_df['Ticker'].map(lambda x: live_data.get(x, {}).get('live') if live_data.get(x) else None), errors='coerce')
+                    disp_df['% Change'] = pd.to_numeric(disp_df['Ticker'].map(lambda x: live_data.get(x, {}).get('change') if live_data.get(x) else None), errors='coerce')
                 
                 m_data = calculate_fund_metrics(curr_code)
                 last_official_nav = m_data["Current NAV"] if m_data else 0.0
@@ -300,7 +299,6 @@ with tab2:
                     column_config={
                         w: st.column_config.NumberColumn(format="%.2f%%"),
                         '% Change': st.column_config.NumberColumn(format="%.2f%%"),
-                        # Ab numeric column pe Streamlit rule perfect chalega
                         'Prev Price (₹)': st.column_config.NumberColumn(format="₹ %.2f"),
                         'Live Price (₹)': st.column_config.NumberColumn(format="₹ %.2f")
                     },
