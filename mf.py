@@ -84,12 +84,10 @@ def clean_stock_name(name):
 def load_factsheet_cache():
     cache = load_json(FACTSHEET_FILE, {})
     for k, v in cache.items():
-        # 🔹 OLD CACHE FIX: Agar purani file me top10 hai to usko top20 man lega taaki crash na ho
         if "top20" in v: 
             v["top20"] = pd.DataFrame(v["top20"])
         elif "top10" in v: 
             v["top20"] = pd.DataFrame(v["top10"])
-            
         if "sec_df" in v and v["sec_df"] is not None: 
             v["sec_df"] = pd.DataFrame(v["sec_df"])
     return cache
@@ -171,7 +169,6 @@ def fetch_live_prices(ticker_list):
             try:
                 if len(ticker_list) > 1: last_price = data[t]['Close'].iloc[-1]
                 else: last_price = data['Close'].iloc[-1]
-                
                 if not pd.isna(last_price): prices[t] = float(last_price)
             except: prices[t] = None
     except: pass
@@ -234,24 +231,45 @@ with tab2:
             st.success(f"✅ Data for {selected_fund_name} is permanently locked.")
             cached = st.session_state["factsheet_cache"][curr_code]
             
-            # Safe Fetch:
             top20 = cached.get("top20", pd.DataFrame())
             comp, w, sec, sec_df = cached.get("comp", ""), cached.get("w", ""), cached.get("sec", "None"), cached.get("sec_df", None)
             
             if not top20.empty:
                 st.markdown("#### 🟢 Live Market Heatmap (Approx 70% AUM)")
+                
+                # Agar Ticker column nahi hai to banao
+                if 'Ticker' not in top20.columns:
+                    top20['Ticker'] = top20[comp].apply(clean_stock_name)
+                
+                # Live Price fetch karo current Tickers ke basis par
                 with st.spinner("Fetching Live Prices from Yahoo Finance..."):
-                    if 'Ticker' not in top20.columns:
-                        top20['Ticker'] = top20[comp].apply(clean_stock_name)
-                    
-                    tickers_to_fetch = [t for t in top20['Ticker'].tolist() if "UNKNOWN" not in t]
+                    tickers_to_fetch = [t for t in top20['Ticker'].tolist() if "UNKNOWN" not in str(t).upper()]
                     live_prices = fetch_live_prices(tickers_to_fetch)
-                    
                     top20['Live Price (₹)'] = top20['Ticker'].map(live_prices).fillna("Not Traded/Debt")
-                    
-                    st.dataframe(top20.style.format({w: "{:.2f}%"}), use_container_width=True, hide_index=True)
-                    total_equity_tracked = top20[w].sum()
-                    st.info(f"💡 Tracking Stocks representing **{total_equity_tracked:.2f}%** of the total fund AUM.")
+                
+                # --- EDITABLE DATAFRAME SECTION ---
+                st.info("✏️ **Manual Override:** 'Ticker' column me double-click karke galat ticker ko sahi NSE Ticker (e.g. `ZOMATO.NS`) se replace karein aur **Enter** dabayein. Price auto-update ho jayega!")
+                
+                # Sirf Ticker column edit karne do, baaki columns lock kar do
+                disabled_cols = [c for c in top20.columns if c != 'Ticker']
+                
+                edited_top20 = st.data_editor(
+                    top20,
+                    column_config={w: st.column_config.NumberColumn(format="%.2f%%")},
+                    disabled=disabled_cols,
+                    use_container_width=True,
+                    hide_index=True,
+                    key=f"edit_top20_{curr_code}"
+                )
+                
+                # Agar user ne Ticker change kiya hai, toh save karke page refresh karo
+                if not edited_top20.equals(top20):
+                    st.session_state["factsheet_cache"][curr_code]["top20"] = edited_top20
+                    save_factsheet_cache(st.session_state["factsheet_cache"])
+                    st.rerun()
+
+                total_equity_tracked = edited_top20[w].sum()
+                st.info(f"💡 Tracking Stocks representing **{total_equity_tracked:.2f}%** of the total fund AUM.")
 
                 st.markdown("---")
                 t1, t2 = st.columns([1, 1])
