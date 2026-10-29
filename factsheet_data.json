@@ -1619,52 +1619,62 @@
             {
                 "Name of the Instrument": "Sai Life Sciences Limited",
                 "% to Net Assets": 5.14,
-                "Industry*": "Pharmaceuticals & Biotechnology"
+                "Industry*": "Pharmaceuticals & Biotechnology",
+                "Ticker": "SAILIFE.NS"
             },
             {
                 "Name of the Instrument": "Eternal Limited",
                 "% to Net Assets": 4.38,
-                "Industry*": "Retailing"
+                "Industry*": "Retailing",
+                "Ticker": "ETERNAL.NS"
             },
             {
                 "Name of the Instrument": "Aditya Infotech Limited",
                 "% to Net Assets": 3.98,
-                "Industry*": "Industrial Manufacturing"
+                "Industry*": "Industrial Manufacturing",
+                "Ticker": "CPPLUS.NS"
             },
             {
                 "Name of the Instrument": "Amber Enterprises India Limited",
                 "% to Net Assets": 3.69,
-                "Industry*": "Consumer Durables"
+                "Industry*": "Consumer Durables",
+                "Ticker": "AMBER.NS"
             },
             {
                 "Name of the Instrument": "Krishna Institute Of Medical Sciences Limited",
                 "% to Net Assets": 3.42,
-                "Industry*": "Healthcare Services"
+                "Industry*": "Healthcare Services",
+                "Ticker": "KIMS.NS"
             },
             {
                 "Name of the Instrument": "InterGlobe Aviation Limited",
                 "% to Net Assets": 3.08,
-                "Industry*": "Transport Services"
+                "Industry*": "Transport Services",
+                "Ticker": "INDIGO.NS"
             },
             {
                 "Name of the Instrument": "Max Healthcare Institute Limited",
                 "% to Net Assets": 2.98,
-                "Industry*": "Healthcare Services"
+                "Industry*": "Healthcare Services",
+                "Ticker": "MAXHEALTH.NS"
             },
             {
                 "Name of the Instrument": "Prestige Estates Projects Limited",
                 "% to Net Assets": 2.73,
-                "Industry*": "Realty"
+                "Industry*": "Realty",
+                "Ticker": "PRESTIGE.NS"
             },
             {
                 "Name of the Instrument": "Paradeep Phosphates Limited",
                 "% to Net Assets": 2.44,
-                "Industry*": "Fertilizers & Agrochemicals"
+                "Industry*": "Fertilizers & Agrochemicals",
+                "Ticker": "PARADEEP.NS"
             },
             {
                 "Name of the Instrument": "Craftsman Automation Limited",
                 "% to Net Assets": 2.34,
-                "Industry*": "Auto Components"
+                "Industry*": "Auto Components",
+                "Ticker": "CRAFTSMAN.NS"
             }
         ],
         "comp": "Name of the Instrument",
