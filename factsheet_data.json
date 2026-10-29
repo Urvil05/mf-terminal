@@ -6452,5 +6452,328 @@
                 "% to NAV": 2.25
             }
         ]
+    },
+    "101262": {
+        "top35": [
+            {
+                "Name of the Instrument": "Reliance Industries Limited",
+                "% to NAV": 7.03,
+                "Industry / Rating": "Petroleum Products",
+                "Ticker": "RELIANCE.NS"
+            },
+            {
+                "Name of the Instrument": "Larsen & Toubro Limited",
+                "% to NAV": 5.33,
+                "Industry / Rating": "Construction",
+                "Ticker": "LT.NS"
+            },
+            {
+                "Name of the Instrument": "NTPC Limited",
+                "% to NAV": 5.17,
+                "Industry / Rating": "Power",
+                "Ticker": "NTPC.NS"
+            },
+            {
+                "Name of the Instrument": "NTPC Green Energy Limited",
+                "% to NAV": 4.29,
+                "Industry / Rating": "Power",
+                "Ticker": "NTPC.NS"
+            },
+            {
+                "Name of the Instrument": "Bharat Heavy Electricals Limited",
+                "% to NAV": 3.38,
+                "Industry / Rating": "Electrical Equipment",
+                "Ticker": "BHEL.NS"
+            },
+            {
+                "Name of the Instrument": "Power Finance Corporation Limited",
+                "% to NAV": 2.7199999999999998,
+                "Industry / Rating": "Finance",
+                "Ticker": "PFC.NS"
+            },
+            {
+                "Name of the Instrument": "Carborundum Universal Limited",
+                "% to NAV": 2.39,
+                "Industry / Rating": "Industrial Products",
+                "Ticker": "CARBORUNIV.NS"
+            },
+            {
+                "Name of the Instrument": "Bharti Airtel Limited",
+                "% to NAV": 2.3,
+                "Industry / Rating": "Telecom - Services",
+                "Ticker": "BHARTIARTL.NS"
+            },
+            {
+                "Name of the Instrument": "Hindustan Aeronautics Limited",
+                "% to NAV": 2.1999999999999997,
+                "Industry / Rating": "Aerospace & Defense",
+                "Ticker": "HAL.NS"
+            },
+            {
+                "Name of the Instrument": "Acme Solar Holdings Ltd",
+                "% to NAV": 2.18,
+                "Industry / Rating": "Power",
+                "Ticker": "ACME.NS"
+            },
+            {
+                "Name of the Instrument": "Triveni Turbine Limited",
+                "% to NAV": 2.13,
+                "Industry / Rating": "Electrical Equipment",
+                "Ticker": "TRIVENI.NS"
+            },
+            {
+                "Name of the Instrument": "Ambuja Cements Limited",
+                "% to NAV": 1.9900000000000002,
+                "Industry / Rating": "Cement & Cement Products",
+                "Ticker": "AMBUJA.NS"
+            },
+            {
+                "Name of the Instrument": "Samvardhana Motherson International Limited",
+                "% to NAV": 1.97,
+                "Industry / Rating": "Auto Components",
+                "Ticker": "MOTHERSON.NS"
+            },
+            {
+                "Name of the Instrument": "UltraTech Cement Limited",
+                "% to NAV": 1.95,
+                "Industry / Rating": "Cement & Cement Products",
+                "Ticker": "ULTRACEMCO.NS"
+            },
+            {
+                "Name of the Instrument": "Cyient Dlm Ltd",
+                "% to NAV": 1.8499999999999999,
+                "Industry / Rating": "Aerospace & Defense",
+                "Ticker": "CYIENT.NS"
+            },
+            {
+                "Name of the Instrument": "Tata Power Company Limited",
+                "% to NAV": 1.73,
+                "Industry / Rating": "Power",
+                "Ticker": "TATAPOWER.NS"
+            },
+            {
+                "Name of the Instrument": "TD Power Systems Limited",
+                "% to NAV": 1.6,
+                "Industry / Rating": "Electrical Equipment",
+                "Ticker": "TDPOWERSYS.NS"
+            },
+            {
+                "Name of the Instrument": "CG Power and Industrial Solutions Limited",
+                "% to NAV": 1.49,
+                "Industry / Rating": "Electrical Equipment",
+                "Ticker": "CG.NS"
+            },
+            {
+                "Name of the Instrument": "Kaynes Technology India Limited",
+                "% to NAV": 1.4200000000000002,
+                "Industry / Rating": "Industrial Manufacturing",
+                "Ticker": "KAYNES.NS"
+            },
+            {
+                "Name of the Instrument": "JSW Energy Limited",
+                "% to NAV": 1.38,
+                "Industry / Rating": "Power",
+                "Ticker": "JSW.NS"
+            },
+            {
+                "Name of the Instrument": "JSW Infrastructure Ltd",
+                "% to NAV": 1.37,
+                "Industry / Rating": "Transport Infrastructure",
+                "Ticker": "JSW.NS"
+            },
+            {
+                "Name of the Instrument": "HDFC Bank Limited",
+                "% to NAV": 1.35,
+                "Industry / Rating": "Banks",
+                "Ticker": "HDFCBANK.NS"
+            },
+            {
+                "Name of the Instrument": "Voltas Limited",
+                "% to NAV": 1.3,
+                "Industry / Rating": "Consumer Durables",
+                "Ticker": "VOLTAS.NS"
+            },
+            {
+                "Name of the Instrument": "Sona BLW Precision Forgings Limited",
+                "% to NAV": 1.27,
+                "Industry / Rating": "Auto Components",
+                "Ticker": "SONA.NS"
+            },
+            {
+                "Name of the Instrument": "Cummins India Limited",
+                "% to NAV": 1.27,
+                "Industry / Rating": "Industrial Products",
+                "Ticker": "CUMMINS.NS"
+            },
+            {
+                "Name of the Instrument": "Apar Industries Limited",
+                "% to NAV": 1.25,
+                "Industry / Rating": "Electrical Equipment",
+                "Ticker": "APARINDS.NS"
+            },
+            {
+                "Name of the Instrument": "Adani Ports and Special Economic Zone Limited",
+                "% to NAV": 1.17,
+                "Industry / Rating": "Transport Infrastructure",
+                "Ticker": "ADANI.NS"
+            },
+            {
+                "Name of the Instrument": "Bharat Forge Limited",
+                "% to NAV": 1.16,
+                "Industry / Rating": "Auto Components",
+                "Ticker": "BHARATFORG.NS"
+            },
+            {
+                "Name of the Instrument": "Amber Enterprises India Limited",
+                "% to NAV": 1.15,
+                "Industry / Rating": "Consumer Durables",
+                "Ticker": "AMBER.NS"
+            },
+            {
+                "Name of the Instrument": "Saatvik Green Energy Limited",
+                "% to NAV": 0.98,
+                "Industry / Rating": "Electrical Equipment",
+                "Ticker": "SAATVIK.NS"
+            },
+            {
+                "Name of the Instrument": "The Phoenix Mills Limited",
+                "% to NAV": 0.9400000000000001,
+                "Industry / Rating": "Realty",
+                "Ticker": "THE.NS"
+            },
+            {
+                "Name of the Instrument": "CESC Limited",
+                "% to NAV": 0.9299999999999999,
+                "Industry / Rating": "Power",
+                "Ticker": "CESC.NS"
+            },
+            {
+                "Name of the Instrument": "JSW Cement Limited",
+                "% to NAV": 0.9199999999999999,
+                "Industry / Rating": "Cement & Cement Products",
+                "Ticker": "JSW.NS"
+            },
+            {
+                "Name of the Instrument": "Siemens Energy India Limited",
+                "% to NAV": 0.9199999999999999,
+                "Industry / Rating": "Electrical Equipment",
+                "Ticker": "SIEMENS.NS"
+            },
+            {
+                "Name of the Instrument": "Bharat Dynamics Limited",
+                "% to NAV": 0.91,
+                "Industry / Rating": "Aerospace & Defense",
+                "Ticker": "BDL.NS"
+            }
+        ],
+        "comp": "Name of the Instrument",
+        "w": "% to NAV",
+        "sec": "Industry / Rating",
+        "sec_df": [
+            {
+                "Industry / Rating": "Aerospace & Defense",
+                "% to NAV": 5.4399999999999995
+            },
+            {
+                "Industry / Rating": "Agricultural, Commercial & Construction Vehicles",
+                "% to NAV": 0.38
+            },
+            {
+                "Industry / Rating": "Auto Components",
+                "% to NAV": 7.57
+            },
+            {
+                "Industry / Rating": "Automobiles",
+                "% to NAV": 0.86
+            },
+            {
+                "Industry / Rating": "Banks",
+                "% to NAV": 1.35
+            },
+            {
+                "Industry / Rating": "Capital Markets",
+                "% to NAV": 0.84
+            },
+            {
+                "Industry / Rating": "Cement & Cement Products",
+                "% to NAV": 5.37
+            },
+            {
+                "Industry / Rating": "Construction",
+                "% to NAV": 6.97
+            },
+            {
+                "Industry / Rating": "Consumable Fuels",
+                "% to NAV": 0.69
+            },
+            {
+                "Industry / Rating": "Consumer Durables",
+                "% to NAV": 2.87
+            },
+            {
+                "Industry / Rating": "Electrical Equipment",
+                "% to NAV": 15.18
+            },
+            {
+                "Industry / Rating": "Ferrous Metals",
+                "% to NAV": 0.47000000000000003
+            },
+            {
+                "Industry / Rating": "Finance",
+                "% to NAV": 4.01
+            },
+            {
+                "Industry / Rating": "Gas",
+                "% to NAV": 0.69
+            },
+            {
+                "Industry / Rating": "Healthcare Services",
+                "% to NAV": 1.4
+            },
+            {
+                "Industry / Rating": "Industrial Manufacturing",
+                "% to NAV": 2.41
+            },
+            {
+                "Industry / Rating": "Industrial Products",
+                "% to NAV": 6.33
+            },
+            {
+                "Industry / Rating": "Leisure Services",
+                "% to NAV": 1.25
+            },
+            {
+                "Industry / Rating": "Non - Ferrous Metals",
+                "% to NAV": 0.83
+            },
+            {
+                "Industry / Rating": "Petroleum Products",
+                "% to NAV": 7.03
+            },
+            {
+                "Industry / Rating": "Power",
+                "% to NAV": 18.28
+            },
+            {
+                "Industry / Rating": "Realty",
+                "% to NAV": 1.8
+            },
+            {
+                "Industry / Rating": "Telecom - Services",
+                "% to NAV": 2.71
+            },
+            {
+                "Industry / Rating": "Textiles & Apparels",
+                "% to NAV": 0.21
+            },
+            {
+                "Industry / Rating": "Transport Infrastructure",
+                "% to NAV": 2.54
+            },
+            {
+                "Industry / Rating": "Transport Services",
+                "% to NAV": 1.75
+            }
+        ]
     }
 }
