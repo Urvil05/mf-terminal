@@ -176,7 +176,7 @@ def fetch_live_prices(ticker_list):
                 if len(close_series) >= 2:
                     last_price = float(close_series.iloc[-1])
                     prev_price = float(close_series.iloc[-2])
-                    change = round(((last_price / prev_price) - 1) * 100, 2)
+                    change = ((last_price / prev_price) - 1) * 100
                 elif len(close_series) == 1:
                     last_price = float(close_series.iloc[-1])
                     prev_price = last_price
@@ -259,16 +259,22 @@ with tab2:
                     tickers_to_fetch = [t for t in disp_df['Ticker'].tolist() if "UNKNOWN" not in str(t).upper()]
                     live_data = fetch_live_prices(tickers_to_fetch)
                     
-                    # 🔹 BULLETPROOF FIX: pd.to_numeric se explicitly float banaya taaki formatting kaam kare 🔹
-                    disp_df['Prev Price (₹)'] = pd.to_numeric(disp_df['Ticker'].map(lambda x: live_data.get(x, {}).get('prev') if live_data.get(x) else None), errors='coerce')
-                    disp_df['Live Price (₹)'] = pd.to_numeric(disp_df['Ticker'].map(lambda x: live_data.get(x, {}).get('live') if live_data.get(x) else None), errors='coerce')
-                    disp_df['% Change'] = pd.to_numeric(disp_df['Ticker'].map(lambda x: live_data.get(x, {}).get('change') if live_data.get(x) else None), errors='coerce')
+                    # 🔹 100% FOOLPROOF FIX: Core python formatting for guaranteed 2 decimals 🔹
+                    prev_raw = disp_df['Ticker'].map(lambda x: live_data.get(x, {}).get('prev') if live_data.get(x) else None)
+                    live_raw = disp_df['Ticker'].map(lambda x: live_data.get(x, {}).get('live') if live_data.get(x) else None)
+                    change_raw = disp_df['Ticker'].map(lambda x: live_data.get(x, {}).get('change') if live_data.get(x) else None)
+                    
+                    disp_df['Prev Price (₹)'] = pd.to_numeric(prev_raw, errors='coerce').apply(lambda x: f"₹ {x:.2f}" if pd.notna(x) else "-")
+                    disp_df['Live Price (₹)'] = pd.to_numeric(live_raw, errors='coerce').apply(lambda x: f"₹ {x:.2f}" if pd.notna(x) else "Not Traded")
+                    disp_df['% Change'] = pd.to_numeric(change_raw, errors='coerce').apply(lambda x: f"{x:.2f}%" if pd.notna(x) else "-")
                 
                 m_data = calculate_fund_metrics(curr_code)
                 last_official_nav = m_data["Current NAV"] if m_data else 0.0
                 
                 if last_official_nav > 0:
-                    valid_changes = pd.to_numeric(disp_df['% Change'], errors='coerce').fillna(0)
+                    # Fixing math parsing for the new string formatted columns
+                    valid_changes_series = disp_df['% Change'].astype(str).str.replace('%', '', regex=False).str.replace('-', '0', regex=False)
+                    valid_changes = pd.to_numeric(valid_changes_series, errors='coerce').fillna(0)
                     weights = pd.to_numeric(disp_df[w], errors='coerce').fillna(0) / 100
                     
                     total_tracked_weight = weights.sum()
@@ -297,10 +303,8 @@ with tab2:
                 edited_df = st.data_editor(
                     disp_df,
                     column_config={
-                        w: st.column_config.NumberColumn(format="%.2f%%"),
-                        '% Change': st.column_config.NumberColumn(format="%.2f%%"),
-                        'Prev Price (₹)': st.column_config.NumberColumn(format="₹ %.2f"),
-                        'Live Price (₹)': st.column_config.NumberColumn(format="₹ %.2f")
+                        w: st.column_config.NumberColumn(format="%.2f%%")
+                        # Yahan se Price ke configs hata diye kyunki wo already hardcoded strings hain
                     },
                     disabled=disabled_cols,
                     use_container_width=True,
@@ -335,7 +339,7 @@ with tab2:
                     st.markdown("##### Holdings Distribution")
                     st.plotly_chart(px.pie(edited_df, values=w, names=comp, hole=0.55).update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(t=0,b=0,l=0,r=0)), use_container_width=True)
                     
-            if st.button("🗑️ Delete & Re-upload (Recommended for 35 Stocks)"):
+            if st.button("🗑️ Delete & Re-upload"):
                 del st.session_state["factsheet_cache"][curr_code]
                 save_factsheet_cache(st.session_state["factsheet_cache"])
                 st.rerun()
