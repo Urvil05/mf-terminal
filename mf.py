@@ -52,13 +52,14 @@ st.markdown("""
     html, body, [class*="css"] { font-family: 'Plus Jakarta Sans', sans-serif; }
     .stApp { background: radial-gradient(circle at top right, #0f172a 0%, #030712 100%); color: #f8fafc; }
     div[data-testid="stDataFrame"] { border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; overflow: hidden; }
+    .nav-box { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; text-align: center; }
 </style>
 """, unsafe_allow_html=True)
 
 WATCHLIST_FILE = "tracked_funds.json"
 PORTFOLIO_FILE = "paper_portfolio.json"
 FACTSHEET_FILE = "factsheet_data.json"
-CUSTOM_TICKERS_FILE = "custom_tickers.json" # Naya File jo user-edits ko yaad rakhega
+CUSTOM_TICKERS_FILE = "custom_tickers.json"
 
 TICKER_MAP = {
     "hdfc bank ltd.": "HDFCBANK.NS", "hdfc bank limited": "HDFCBANK.NS",
@@ -77,11 +78,8 @@ if "custom_tickers" not in st.session_state: st.session_state["custom_tickers"] 
 
 def clean_stock_name(name):
     raw = str(name).lower().strip()
-    
-    # Sabse pehle Custom Learned Tickers check karega
     if raw in st.session_state["custom_tickers"]: return st.session_state["custom_tickers"][raw]
     if raw in TICKER_MAP: return TICKER_MAP[raw]
-    
     clean = raw.replace('ltd.', '').replace('limited', '').replace('co.', '').replace('company', '')
     clean = clean.replace('&', '').replace('-', ' ').replace(',', '')
     words = clean.split()
@@ -162,14 +160,12 @@ def calculate_fund_metrics(code):
         "Sharpe": sharpe, "Sortino": sortino, "Volatility (%)": round(vol*100,2) if vol else None
     }
 
-# 🔹 NAYA ADVANCED PRICE FETCHER 🔹
 @st.cache_data(ttl=300, show_spinner=False)
 def fetch_live_prices(ticker_list):
     prices = {}
     if not ticker_list: return prices
     try:
         tickers_str = " ".join(ticker_list)
-        # 5 din ka data mangwayenge taaki previous close accurately mile
         data = yf.download(tickers_str, period="5d", group_by="ticker", threads=True, progress=False)
         for t in ticker_list:
             try:
@@ -187,8 +183,7 @@ def fetch_live_prices(ticker_list):
                 else:
                     last_price, prev_price, change = None, None, None
                 
-                if pd.notna(last_price): 
-                    prices[t] = {'live': last_price, 'prev': prev_price, 'change': change}
+                if pd.notna(last_price): prices[t] = {'live': last_price, 'prev': prev_price, 'change': change}
             except: prices[t] = {'live': None, 'prev': None, 'change': None}
     except: pass
     return prices
@@ -224,7 +219,7 @@ if st.session_state["watchlist"]:
         st.rerun()
 
 st.markdown("<h1 style='font-weight: 800; font-size: 2.2rem; color: #38bdf8;'>APEX QUANTITATIVE TERMINAL</h1>", unsafe_allow_html=True)
-tab1, tab2, tab3, tab4 = st.tabs(["📊 Dashboard", "🏢 Factsheet (Live)", "💼 Portfolio", "📈 Advanced Analysis"])
+tab1, tab2, tab3, tab4 = st.tabs(["📊 Dashboard", "🏢 Factsheet & Predictor", "💼 Portfolio", "📈 Advanced Analysis"])
 
 with tab1:
     if st.session_state["watchlist"]:
@@ -235,7 +230,7 @@ with tab1:
     else: st.info("Watchlist is empty. Add funds from the sidebar.")
 
 with tab2:
-    st.markdown("### 📥 Fund-Specific Factsheet & Forecast Parser")
+    st.markdown("### 📥 Factsheet Parser & Live Prediction Engine")
     
     if st.session_state["watchlist"]:
         f_dict = {}
@@ -254,23 +249,48 @@ with tab2:
             comp, w, sec, sec_df = cached.get("comp", ""), cached.get("w", ""), cached.get("sec", "None"), cached.get("sec_df", None)
             
             if not top20.empty:
-                st.markdown("#### 🟢 Live Market Heatmap (Approx 70% AUM)")
-                
                 if 'Ticker' not in top20.columns:
                     top20['Ticker'] = top20[comp].apply(clean_stock_name)
                 
                 disp_df = top20.copy()
                 
-                with st.spinner("Fetching Advanced Price Data from Yahoo Finance..."):
+                with st.spinner("Fetching Live Market Data & Running Prediction Model..."):
                     tickers_to_fetch = [t for t in disp_df['Ticker'].tolist() if "UNKNOWN" not in str(t).upper()]
                     live_data = fetch_live_prices(tickers_to_fetch)
                     
-                    # Naye columns populate honge map se
                     disp_df['Prev Price (₹)'] = disp_df['Ticker'].map(lambda x: live_data.get(x, {}).get('prev') if live_data.get(x) else None).fillna("-")
                     disp_df['Live Price (₹)'] = disp_df['Ticker'].map(lambda x: live_data.get(x, {}).get('live') if live_data.get(x) else None).fillna("Not Traded")
                     disp_df['% Change'] = disp_df['Ticker'].map(lambda x: live_data.get(x, {}).get('change') if live_data.get(x) else None).fillna("-")
                 
-                st.info("✏️ **Smart AI Override:** Ek baar galat 'Ticker' ko sahi NSE Ticker (jaise `ZOMATO.NS`) se replace kijiye. System use hamesha ke liye yaad kar lega!")
+                # 🔹 PREDICTION ENGINE MATH 🔹
+                m_data = calculate_fund_metrics(curr_code)
+                last_official_nav = m_data["Current NAV"] if m_data else 0.0
+                
+                if last_official_nav > 0:
+                    valid_changes = pd.to_numeric(disp_df['% Change'].replace("-", 0), errors='coerce').fillna(0)
+                    weights = pd.to_numeric(disp_df[w], errors='coerce').fillna(0) / 100
+                    
+                    total_tracked_weight = weights.sum()
+                    if total_tracked_weight > 0:
+                        weighted_sum = (valid_changes * weights).sum()
+                        normalized_est_change = weighted_sum / total_tracked_weight
+                        predicted_nav = last_official_nav * (1 + (normalized_est_change / 100))
+                        expected_pnl = predicted_nav - last_official_nav
+                    else:
+                        normalized_est_change, predicted_nav, expected_pnl = 0, last_official_nav, 0
+                    
+                    st.markdown("### 🔮 Alpha Predictive Engine (Live iNAV)")
+                    colA, colB, colC = st.columns(3)
+                    with colA:
+                        st.markdown("<div class='nav-box'><h5>Today's Base NAV (T-1)</h5><h2 style='color:#94a3b8;'>₹ {:.4f}</h2></div>".format(last_official_nav), unsafe_allow_html=True)
+                    with colB:
+                        pred_color = "#22c55e" if normalized_est_change >= 0 else "#ef4444"
+                        st.markdown("<div class='nav-box'><h5>⚡ Predicted Tonight's NAV</h5><h2 style='color:{};'>₹ {:.4f}</h2><span style='color:{}; font-weight:bold;'>{:.2f}%</span></div>".format(pred_color, predicted_nav, pred_color, normalized_est_change), unsafe_allow_html=True)
+                    with colC:
+                        st.markdown("<div class='nav-box'><h5>Est. Value Change</h5><h2 style='color:{};'>₹ {:+.4f}</h2></div>".format(pred_color, expected_pnl), unsafe_allow_html=True)
+                
+                st.markdown("#### 🟢 Live Market Heatmap")
+                st.info("✏️ **Smart AI Override:** Galat 'Ticker' ko sahi NSE Ticker se replace karein. System use hamesha ke liye yaad kar lega!")
                 
                 disabled_cols = [c for c in disp_df.columns if c != 'Ticker']
                 edited_df = st.data_editor(
@@ -285,16 +305,15 @@ with tab2:
                     key=f"edit_top20_{curr_code}"
                 )
                 
-                # 🔹 PERMANENT TICKER MEMORY LOGIC 🔹
                 if not edited_df['Ticker'].equals(disp_df['Ticker']):
                     for idx in disp_df.index:
                         old_t = disp_df.at[idx, 'Ticker']
                         new_t = edited_df.at[idx, 'Ticker']
                         if old_t != new_t:
                             raw_name = str(disp_df.at[idx, comp]).lower().strip()
-                            st.session_state["custom_tickers"][raw_name] = new_t # Dictionary update
+                            st.session_state["custom_tickers"][raw_name] = new_t
                     
-                    save_json(CUSTOM_TICKERS_FILE, st.session_state["custom_tickers"]) # GitHub pe hamesha ke liye save
+                    save_json(CUSTOM_TICKERS_FILE, st.session_state["custom_tickers"])
                     st.session_state["factsheet_cache"][curr_code]["top20"]['Ticker'] = edited_df['Ticker']
                     save_factsheet_cache(st.session_state["factsheet_cache"])
                     st.rerun()
@@ -313,7 +332,7 @@ with tab2:
                     st.markdown("##### Holdings Distribution")
                     st.plotly_chart(px.pie(edited_df, values=w, names=comp, hole=0.55).update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(t=0,b=0,l=0,r=0)), use_container_width=True)
                     
-            if st.button("🗑️ Delete & Re-upload (Recommended)"):
+            if st.button("🗑️ Delete & Re-upload"):
                 del st.session_state["factsheet_cache"][curr_code]
                 save_factsheet_cache(st.session_state["factsheet_cache"])
                 st.rerun()
@@ -322,9 +341,7 @@ with tab2:
             f_file = st.file_uploader("Upload Official AMC Portfolio File", type=["xlsx", "xls", "csv"], key=f"up_{curr_code}")
             if f_file:
                 try:
-                    if f_file.name.endswith(".csv"):
-                        df_raw = pd.read_csv(f_file)
-                        sheet_name = "CSV Data"
+                    if f_file.name.endswith(".csv"): df_raw = pd.read_csv(f_file)
                     else:
                         xls = pd.ExcelFile(f_file)
                         sheet_name = st.selectbox("📂 Select Sheet:", xls.sheet_names)
@@ -358,7 +375,7 @@ with tab2:
                                 clean = clean[(clean[w] <= 100) & (~clean[comp].astype(str).str.lower().isin(['total','grand total','equity','debt','cash','portfolio']))]
                                 
                                 top20 = clean.sort_values(w, ascending=False).head(20)
-                                top20['Ticker'] = top20[comp].apply(clean_stock_name) # Naya file mapping use hoga
+                                top20['Ticker'] = top20[comp].apply(clean_stock_name)
                                 
                                 sec_df = clean.groupby(sec)[w].sum().reset_index() if sec != "None" else None
                                 if sec_df is not None: sec_df = sec_df[sec_df[w] > 0]
