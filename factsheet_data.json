@@ -7231,5 +7231,328 @@
                 "% to Net\n Assets": 0.9400000000000001
             }
         ]
+    },
+    "101314": {
+        "top35": [
+            {
+                "Name of the Instrument / Issuer": "HDFC Bank Limited",
+                "% to AUM": 0.103776660515655,
+                "Industry^ / Rating": "Banks",
+                "Ticker": "HDFCBANK.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "ICICI Bank Limited",
+                "% to AUM": 0.0905034821246958,
+                "Industry^ / Rating": "Banks",
+                "Ticker": "ICICIBANK.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Reliance Industries Limited",
+                "% to AUM": 0.0758226566983073,
+                "Industry^ / Rating": "Petroleum Products",
+                "Ticker": "RELIANCE.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Bharti Airtel Limited",
+                "% to AUM": 0.0510459184600455,
+                "Industry^ / Rating": "Telecom - Services",
+                "Ticker": "BHARTIARTL.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Larsen & Toubro Limited",
+                "% to AUM": 0.0420444499297396,
+                "Industry^ / Rating": "Construction",
+                "Ticker": "LT.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "State Bank of India",
+                "% to AUM": 0.0378831861099855,
+                "Industry^ / Rating": "Banks",
+                "Ticker": "SBIN.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Axis Bank Limited",
+                "% to AUM": 0.0336718263069223,
+                "Industry^ / Rating": "Banks",
+                "Ticker": "AXISBANK.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Infosys Limited",
+                "% to AUM": 0.0335415599506664,
+                "Industry^ / Rating": "IT - Software",
+                "Ticker": "INFY.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Kotak Mahindra Bank Limited",
+                "% to AUM": 0.0293353788784226,
+                "Industry^ / Rating": "Banks",
+                "Ticker": "KOTAKBANK.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Mahindra & Mahindra Limited",
+                "% to AUM": 0.0251793302181324,
+                "Industry^ / Rating": "Automobiles",
+                "Ticker": "M&M.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Bajaj Finance Limited",
+                "% to AUM": 0.0250093353099281,
+                "Industry^ / Rating": "Finance",
+                "Ticker": "BAJFINANCE.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "ITC Limited",
+                "% to AUM": 0.0241999745975959,
+                "Industry^ / Rating": "Diversified FMCG",
+                "Ticker": "ITC.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Eternal Limited",
+                "% to AUM": 0.0221522058160389,
+                "Industry^ / Rating": "Retailing",
+                "Ticker": "ETERNAL.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Tata Consultancy Services Limited",
+                "% to AUM": 0.0199998753838655,
+                "Industry^ / Rating": "IT - Software",
+                "Ticker": "TATA.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Sun Pharmaceutical Industries Limited",
+                "% to AUM": 0.0183767018538955,
+                "Industry^ / Rating": "Pharmaceuticals & Biotechnology",
+                "Ticker": "SUN.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Titan Company Limited",
+                "% to AUM": 0.0181105571404164,
+                "Industry^ / Rating": "Consumer Durables",
+                "Ticker": "TITAN.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Hindustan Unilever Limited",
+                "% to AUM": 0.0159279664429109,
+                "Industry^ / Rating": "Diversified FMCG",
+                "Ticker": "HINDUSTAN.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Maruti Suzuki India Limited",
+                "% to AUM": 0.0148665960826076,
+                "Industry^ / Rating": "Automobiles",
+                "Ticker": "MARUTI.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "NTPC Limited",
+                "% to AUM": 0.0146524574432214,
+                "Industry^ / Rating": "Power",
+                "Ticker": "NTPC.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Tata Steel Limited",
+                "% to AUM": 0.0146087354884316,
+                "Industry^ / Rating": "Ferrous Metals",
+                "Ticker": "TATASTEEL.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Adani Ports and Special Economic Zone Limited",
+                "% to AUM": 0.013463415616695,
+                "Industry^ / Rating": "Transport Infrastructure",
+                "Ticker": "ADANIPORTS.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Bharat Electronics Limited",
+                "% to AUM": 0.0132855417775991,
+                "Industry^ / Rating": "Aerospace & Defense",
+                "Ticker": "BEL.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Shriram Finance Limited",
+                "% to AUM": 0.0131508437493815,
+                "Industry^ / Rating": "Finance",
+                "Ticker": "SHRIRAMFIN.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Hindalco Industries Limited",
+                "% to AUM": 0.0130261981996224,
+                "Industry^ / Rating": "Non - Ferrous Metals",
+                "Ticker": "HINDALCO.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Ultratech Cement Limited",
+                "% to AUM": 0.0123884807052267,
+                "Industry^ / Rating": "Cement & Cement Products",
+                "Ticker": "ULTRACEMCO.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "HCL Technologies Limited",
+                "% to AUM": 0.0123802653156207,
+                "Industry^ / Rating": "IT - Software",
+                "Ticker": "HCL.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "BSE Limited",
+                "% to AUM": 0.0120698478255029,
+                "Industry^ / Rating": "Capital Markets",
+                "Ticker": "BSE.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "JSW Steel Limited",
+                "% to AUM": 0.0115279373557489,
+                "Industry^ / Rating": "Ferrous Metals",
+                "Ticker": "JSW.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Bajaj Auto Limited",
+                "% to AUM": 0.0113344098677461,
+                "Industry^ / Rating": "Automobiles",
+                "Ticker": "BAJAJ-AUTO.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Power Grid Corporation of India Limited",
+                "% to AUM": 0.0112690975697685,
+                "Industry^ / Rating": "Power",
+                "Ticker": "POWERGRID.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Grasim Industries Limited",
+                "% to AUM": 0.0110391539893564,
+                "Industry^ / Rating": "Cement & Cement Products",
+                "Ticker": "GRASIM.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Interglobe Aviation Limited",
+                "% to AUM": 0.0107779267971579,
+                "Industry^ / Rating": "Transport Services",
+                "Ticker": "INDIGO.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Asian Paints Limited",
+                "% to AUM": 0.0103738102188931,
+                "Industry^ / Rating": "Consumer Durables",
+                "Ticker": "ASIANPAINT.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Coal India Limited",
+                "% to AUM": 0.0097265415755914,
+                "Industry^ / Rating": "Consumable Fuels",
+                "Ticker": "COALINDIA.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Bajaj Finserv Limited",
+                "% to AUM": 0.00961295328010952,
+                "Industry^ / Rating": "Finance",
+                "Ticker": "BAJAJFINSV.NS"
+            }
+        ],
+        "comp": "Name of the Instrument / Issuer",
+        "w": "% to AUM",
+        "sec": "Industry^ / Rating",
+        "sec_df": [
+            {
+                "Industry^ / Rating": "Aerospace & Defense",
+                "% to AUM": 0.0132855417775991
+            },
+            {
+                "Industry^ / Rating": "Agricultural Food & other Products",
+                "% to AUM": 0.00590686025826735
+            },
+            {
+                "Industry^ / Rating": "Automobiles",
+                "% to AUM": 0.06647082155024535
+            },
+            {
+                "Industry^ / Rating": "Banks",
+                "% to AUM": 0.2951705339356812
+            },
+            {
+                "Industry^ / Rating": "Capital Markets",
+                "% to AUM": 0.0120698478255029
+            },
+            {
+                "Industry^ / Rating": "Cement & Cement Products",
+                "% to AUM": 0.023427634694583102
+            },
+            {
+                "Industry^ / Rating": "Construction",
+                "% to AUM": 0.0420444499297396
+            },
+            {
+                "Industry^ / Rating": "Consumable Fuels",
+                "% to AUM": 0.0097265415755914
+            },
+            {
+                "Industry^ / Rating": "Consumer Durables",
+                "% to AUM": 0.028484367359309502
+            },
+            {
+                "Industry^ / Rating": "Diversified FMCG",
+                "% to AUM": 0.0401279410405068
+            },
+            {
+                "Industry^ / Rating": "Ferrous Metals",
+                "% to AUM": 0.0261366728441805
+            },
+            {
+                "Industry^ / Rating": "Finance",
+                "% to AUM": 0.05457363918914778
+            },
+            {
+                "Industry^ / Rating": "Food Products",
+                "% to AUM": 0.00897355062752224
+            },
+            {
+                "Industry^ / Rating": "Healthcare Services",
+                "% to AUM": 0.01463870532651871
+            },
+            {
+                "Industry^ / Rating": "IT - Software",
+                "% to AUM": 0.07516995260913613
+            },
+            {
+                "Industry^ / Rating": "Insurance",
+                "% to AUM": 0.01264087542930049
+            },
+            {
+                "Industry^ / Rating": "Metals & Minerals Trading",
+                "% to AUM": 0.0094045091264997
+            },
+            {
+                "Industry^ / Rating": "Non - Ferrous Metals",
+                "% to AUM": 0.0130261981996224
+            },
+            {
+                "Industry^ / Rating": "Oil",
+                "% to AUM": 0.00837877218251045
+            },
+            {
+                "Industry^ / Rating": "Petroleum Products",
+                "% to AUM": 0.0758226566983073
+            },
+            {
+                "Industry^ / Rating": "Pharmaceuticals & Biotechnology",
+                "% to AUM": 0.03279753571976713
+            },
+            {
+                "Industry^ / Rating": "Power",
+                "% to AUM": 0.0259215550129899
+            },
+            {
+                "Industry^ / Rating": "Retailing",
+                "% to AUM": 0.030484664879143163
+            },
+            {
+                "Industry^ / Rating": "Telecom - Services",
+                "% to AUM": 0.0510459184600455
+            },
+            {
+                "Industry^ / Rating": "Transport Infrastructure",
+                "% to AUM": 0.013463415616695
+            },
+            {
+                "Industry^ / Rating": "Transport Services",
+                "% to AUM": 0.0107779267971579
+            }
+        ]
     }
 }
