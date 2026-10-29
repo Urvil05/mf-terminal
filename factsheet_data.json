@@ -5188,5 +5188,312 @@
                 "% to NAV": 0.22
             }
         ]
+    },
+    "152602": {
+        "top35": [
+            {
+                "Name Of the Instrument": "Divis Laboratories Ltd.",
+                "% to NAV": 6.01,
+                "Industry+ /Rating": "Pharmaceuticals & Biotechnology",
+                "Ticker": "DIVIS.NS"
+            },
+            {
+                "Name Of the Instrument": "Reliance Industries Ltd.",
+                "% to NAV": 4.5,
+                "Industry+ /Rating": "Petroleum Products",
+                "Ticker": "RELIANCE.NS"
+            },
+            {
+                "Name Of the Instrument": "Mahindra & Mahindra Ltd.",
+                "% to NAV": 3.5,
+                "Industry+ /Rating": "Automobiles",
+                "Ticker": "M&M.NS"
+            },
+            {
+                "Name Of the Instrument": "Maruti Suzuki India Limited",
+                "% to NAV": 3.33,
+                "Industry+ /Rating": "Automobiles",
+                "Ticker": "MARUTI.NS"
+            },
+            {
+                "Name Of the Instrument": "JSW Steel Ltd.",
+                "% to NAV": 3.29,
+                "Industry+ /Rating": "Ferrous Metals",
+                "Ticker": "JSW.NS"
+            },
+            {
+                "Name Of the Instrument": "Tata Motors Limited",
+                "% to NAV": 2.87,
+                "Industry+ /Rating": "Agricultural, Commercial & Construction Vehicles",
+                "Ticker": "TMCV.NS"
+            },
+            {
+                "Name Of the Instrument": "Bharat Electronics Ltd.",
+                "% to NAV": 2.42,
+                "Industry+ /Rating": "Aerospace & Defense",
+                "Ticker": "BEL.NS"
+            },
+            {
+                "Name Of the Instrument": "Hindustan Aeronautics Limited",
+                "% to NAV": 2.38,
+                "Industry+ /Rating": "Aerospace & Defense",
+                "Ticker": "HAL.NS"
+            },
+            {
+                "Name Of the Instrument": "Bajaj Auto Limited",
+                "% to NAV": 2.22,
+                "Industry+ /Rating": "Automobiles",
+                "Ticker": "BAJAJ.NS"
+            },
+            {
+                "Name Of the Instrument": "Cummins India Ltd.",
+                "% to NAV": 2.06,
+                "Industry+ /Rating": "Industrial Products",
+                "Ticker": "CUMMINS.NS"
+            },
+            {
+                "Name Of the Instrument": "Cyient DLM Limited",
+                "% to NAV": 2.02,
+                "Industry+ /Rating": "Aerospace & Defense",
+                "Ticker": "CYIENT.NS"
+            },
+            {
+                "Name Of the Instrument": "Tata Motors Passenger Vehicles Limited",
+                "% to NAV": 1.99,
+                "Industry+ /Rating": "Automobiles",
+                "Ticker": "TATA.NS"
+            },
+            {
+                "Name Of the Instrument": "Sun Pharmaceutical Industries Ltd.",
+                "% to NAV": 1.9,
+                "Industry+ /Rating": "Pharmaceuticals & Biotechnology",
+                "Ticker": "SUNPHARMA.NS"
+            },
+            {
+                "Name Of the Instrument": "Dixon Technologies (India) Ltd.",
+                "% to NAV": 1.85,
+                "Industry+ /Rating": "Consumer Durables",
+                "Ticker": "DIXON.NS"
+            },
+            {
+                "Name Of the Instrument": "Hindustan Petroleum Corp. Ltd.",
+                "% to NAV": 1.83,
+                "Industry+ /Rating": "Petroleum Products",
+                "Ticker": "HINDUSTAN.NS"
+            },
+            {
+                "Name Of the Instrument": "Ambuja Cements Ltd.",
+                "% to NAV": 1.78,
+                "Industry+ /Rating": "Cement & Cement Products",
+                "Ticker": "AMBUJA.NS"
+            },
+            {
+                "Name Of the Instrument": "Lupin Ltd.",
+                "% to NAV": 1.78,
+                "Industry+ /Rating": "Pharmaceuticals & Biotechnology",
+                "Ticker": "LUPIN.NS"
+            },
+            {
+                "Name Of the Instrument": "Bharat Petroleum Corporation Ltd.",
+                "% to NAV": 1.68,
+                "Industry+ /Rating": "Petroleum Products",
+                "Ticker": "BHARAT.NS"
+            },
+            {
+                "Name Of the Instrument": "Spectrum Electrical Industries Limited.",
+                "% to NAV": 1.68,
+                "Industry+ /Rating": "Industrial Manufacturing",
+                "Ticker": "SPECTRUM.NS"
+            },
+            {
+                "Name Of the Instrument": "Hyundai Motor India Limited",
+                "% to NAV": 1.66,
+                "Industry+ /Rating": "Automobiles",
+                "Ticker": "HYUNDAI.NS"
+            },
+            {
+                "Name Of the Instrument": "Vedanta Aluminium Metal Limited",
+                "% to NAV": 1.65,
+                "Industry+ /Rating": "Non - Ferrous Metals",
+                "Ticker": "VAML.NS"
+            },
+            {
+                "Name Of the Instrument": "CG Power and Industrial Solutions Ltd.",
+                "% to NAV": 1.58,
+                "Industry+ /Rating": "Electrical Equipment",
+                "Ticker": "CG.NS"
+            },
+            {
+                "Name Of the Instrument": "Bharat Forge Ltd.",
+                "% to NAV": 1.57,
+                "Industry+ /Rating": "Auto Components",
+                "Ticker": "BHARATFORG.NS"
+            },
+            {
+                "Name Of the Instrument": "Gland Pharma Ltd.",
+                "% to NAV": 1.44,
+                "Industry+ /Rating": "Pharmaceuticals & Biotechnology",
+                "Ticker": "GLAND.NS"
+            },
+            {
+                "Name Of the Instrument": "KAYNES TECHNOLOGY INDIA LIMITED",
+                "% to NAV": 1.4,
+                "Industry+ /Rating": "Industrial Manufacturing",
+                "Ticker": "KAYNES.NS"
+            },
+            {
+                "Name Of the Instrument": "Archean Chemical Industries Limited",
+                "% to NAV": 1.37,
+                "Industry+ /Rating": "Chemicals & Petrochemicals",
+                "Ticker": "ARCHEAN.NS"
+            },
+            {
+                "Name Of the Instrument": "PEARL GLOBAL INDUSTRIES LIMITED",
+                "% to NAV": 1.37,
+                "Industry+ /Rating": "Textiles & Apparels",
+                "Ticker": "PEARL.NS"
+            },
+            {
+                "Name Of the Instrument": "Godrej Consumer Products Ltd.",
+                "% to NAV": 1.32,
+                "Industry+ /Rating": "Personal Products",
+                "Ticker": "GODREJ.NS"
+            },
+            {
+                "Name Of the Instrument": "Glenmark Pharmaceuticals Ltd.",
+                "% to NAV": 1.31,
+                "Industry+ /Rating": "Pharmaceuticals & Biotechnology",
+                "Ticker": "GLENMARK.NS"
+            },
+            {
+                "Name Of the Instrument": "Hindalco Industries Ltd.",
+                "% to NAV": 1.19,
+                "Industry+ /Rating": "Non - Ferrous Metals",
+                "Ticker": "HINDALCO.NS"
+            },
+            {
+                "Name Of the Instrument": "Balkrishna Industries Ltd.",
+                "% to NAV": 1.07,
+                "Industry+ /Rating": "Auto Components",
+                "Ticker": "BALKRISHNA.NS"
+            },
+            {
+                "Name Of the Instrument": "Centum Electronics Ltd.",
+                "% to NAV": 1.07,
+                "Industry+ /Rating": "Aerospace & Defense",
+                "Ticker": "CENTUM.NS"
+            },
+            {
+                "Name Of the Instrument": "Bansal Wire Industries Limited",
+                "% to NAV": 1.06,
+                "Industry+ /Rating": "Industrial Products",
+                "Ticker": "BANSAL.NS"
+            },
+            {
+                "Name Of the Instrument": "ESCORTS KUBOTA LIMITED",
+                "% to NAV": 1.0,
+                "Industry+ /Rating": "Agricultural, Commercial & Construction Vehicles",
+                "Ticker": "ESCORTS.NS"
+            },
+            {
+                "Name Of the Instrument": "Atlanta Electricals Limited",
+                "% to NAV": 0.99,
+                "Industry+ /Rating": "Electrical Equipment",
+                "Ticker": "ATLANTA.NS"
+            }
+        ],
+        "comp": "Name Of the Instrument",
+        "w": "% to NAV",
+        "sec": "Industry+ /Rating",
+        "sec_df": [
+            {
+                "Industry+ /Rating": "Aerospace & Defense",
+                "% to NAV": 8.37
+            },
+            {
+                "Industry+ /Rating": "Agricultural, Commercial & Construction Vehicles",
+                "% to NAV": 4.74
+            },
+            {
+                "Industry+ /Rating": "Auto Components",
+                "% to NAV": 8.56
+            },
+            {
+                "Industry+ /Rating": "Automobiles",
+                "% to NAV": 13.01
+            },
+            {
+                "Industry+ /Rating": "Cement & Cement Products",
+                "% to NAV": 2.4
+            },
+            {
+                "Industry+ /Rating": "Chemicals & Petrochemicals",
+                "% to NAV": 3.1100000000000003
+            },
+            {
+                "Industry+ /Rating": "Construction",
+                "% to NAV": 0.24
+            },
+            {
+                "Industry+ /Rating": "Consumer Durables",
+                "% to NAV": 4.59
+            },
+            {
+                "Industry+ /Rating": "Diversified FMCG",
+                "% to NAV": 0.41
+            },
+            {
+                "Industry+ /Rating": "Electrical Equipment",
+                "% to NAV": 6.32
+            },
+            {
+                "Industry+ /Rating": "Ferrous Metals",
+                "% to NAV": 4.04
+            },
+            {
+                "Industry+ /Rating": "Fertilizers & Agrochemicals",
+                "% to NAV": 0.11
+            },
+            {
+                "Industry+ /Rating": "Gas",
+                "% to NAV": 0.61
+            },
+            {
+                "Industry+ /Rating": "Industrial Manufacturing",
+                "% to NAV": 4.21
+            },
+            {
+                "Industry+ /Rating": "Industrial Products",
+                "% to NAV": 7.97
+            },
+            {
+                "Industry+ /Rating": "Non - Ferrous Metals",
+                "% to NAV": 2.84
+            },
+            {
+                "Industry+ /Rating": "Personal Products",
+                "% to NAV": 1.32
+            },
+            {
+                "Industry+ /Rating": "Petroleum Products",
+                "% to NAV": 8.01
+            },
+            {
+                "Industry+ /Rating": "Pharmaceuticals & Biotechnology",
+                "% to NAV": 15.68
+            },
+            {
+                "Industry+ /Rating": "Power",
+                "% to NAV": 0.38
+            },
+            {
+                "Industry+ /Rating": "Textiles & Apparels",
+                "% to NAV": 1.79
+            },
+            {
+                "Industry+ /Rating": "Transport Services",
+                "% to NAV": 0.56
+            }
+        ]
     }
 }
