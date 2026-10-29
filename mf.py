@@ -58,6 +58,7 @@ st.markdown("""
 WATCHLIST_FILE = "tracked_funds.json"
 PORTFOLIO_FILE = "paper_portfolio.json"
 FACTSHEET_FILE = "factsheet_data.json"
+CUSTOM_TICKERS_FILE = "custom_tickers.json" # Naya File jo user-edits ko yaad rakhega
 
 TICKER_MAP = {
     "hdfc bank ltd.": "HDFCBANK.NS", "hdfc bank limited": "HDFCBANK.NS",
@@ -72,9 +73,15 @@ TICKER_MAP = {
     "tata motors ltd.": "TATAMOTORS.NS", "mahindra & mahindra ltd.": "M&M.NS"
 }
 
+if "custom_tickers" not in st.session_state: st.session_state["custom_tickers"] = load_json(CUSTOM_TICKERS_FILE, {})
+
 def clean_stock_name(name):
     raw = str(name).lower().strip()
+    
+    # Sabse pehle Custom Learned Tickers check karega
+    if raw in st.session_state["custom_tickers"]: return st.session_state["custom_tickers"][raw]
     if raw in TICKER_MAP: return TICKER_MAP[raw]
+    
     clean = raw.replace('ltd.', '').replace('limited', '').replace('co.', '').replace('company', '')
     clean = clean.replace('&', '').replace('-', ' ').replace(',', '')
     words = clean.split()
@@ -155,19 +162,34 @@ def calculate_fund_metrics(code):
         "Sharpe": sharpe, "Sortino": sortino, "Volatility (%)": round(vol*100,2) if vol else None
     }
 
+# 🔹 NAYA ADVANCED PRICE FETCHER 🔹
 @st.cache_data(ttl=300, show_spinner=False)
 def fetch_live_prices(ticker_list):
     prices = {}
     if not ticker_list: return prices
     try:
         tickers_str = " ".join(ticker_list)
-        data = yf.download(tickers_str, period="1d", group_by="ticker", threads=True, progress=False)
+        # 5 din ka data mangwayenge taaki previous close accurately mile
+        data = yf.download(tickers_str, period="5d", group_by="ticker", threads=True, progress=False)
         for t in ticker_list:
             try:
-                if len(ticker_list) > 1: last_price = data[t]['Close'].iloc[-1]
-                else: last_price = data['Close'].iloc[-1]
-                if not pd.isna(last_price): prices[t] = float(last_price)
-            except: prices[t] = None
+                if len(ticker_list) > 1: close_series = data[t]['Close'].dropna()
+                else: close_series = data['Close'].dropna()
+                
+                if len(close_series) >= 2:
+                    last_price = float(close_series.iloc[-1])
+                    prev_price = float(close_series.iloc[-2])
+                    change = round(((last_price / prev_price) - 1) * 100, 2)
+                elif len(close_series) == 1:
+                    last_price = float(close_series.iloc[-1])
+                    prev_price = last_price
+                    change = 0.0
+                else:
+                    last_price, prev_price, change = None, None, None
+                
+                if pd.notna(last_price): 
+                    prices[t] = {'live': last_price, 'prev': prev_price, 'change': change}
+            except: prices[t] = {'live': None, 'prev': None, 'change': None}
     except: pass
     return prices
 
@@ -237,29 +259,42 @@ with tab2:
                 if 'Ticker' not in top20.columns:
                     top20['Ticker'] = top20[comp].apply(clean_stock_name)
                 
-                # Copy for display taaki UI fast chale
                 disp_df = top20.copy()
                 
-                with st.spinner("Fetching Live Prices from Yahoo Finance..."):
+                with st.spinner("Fetching Advanced Price Data from Yahoo Finance..."):
                     tickers_to_fetch = [t for t in disp_df['Ticker'].tolist() if "UNKNOWN" not in str(t).upper()]
-                    live_prices = fetch_live_prices(tickers_to_fetch)
-                    disp_df['Live Price (₹)'] = disp_df['Ticker'].map(live_prices).fillna("Not Traded/Debt")
+                    live_data = fetch_live_prices(tickers_to_fetch)
+                    
+                    # Naye columns populate honge map se
+                    disp_df['Prev Price (₹)'] = disp_df['Ticker'].map(lambda x: live_data.get(x, {}).get('prev') if live_data.get(x) else None).fillna("-")
+                    disp_df['Live Price (₹)'] = disp_df['Ticker'].map(lambda x: live_data.get(x, {}).get('live') if live_data.get(x) else None).fillna("Not Traded")
+                    disp_df['% Change'] = disp_df['Ticker'].map(lambda x: live_data.get(x, {}).get('change') if live_data.get(x) else None).fillna("-")
                 
-                st.info("✏️ **Manual Override:** 'Ticker' column me double-click karke galat ticker ko sahi NSE Ticker (e.g. `ZOMATO.NS`) se replace karein aur **Enter** dabayein.")
+                st.info("✏️ **Smart AI Override:** Ek baar galat 'Ticker' ko sahi NSE Ticker (jaise `ZOMATO.NS`) se replace kijiye. System use hamesha ke liye yaad kar lega!")
                 
                 disabled_cols = [c for c in disp_df.columns if c != 'Ticker']
                 edited_df = st.data_editor(
                     disp_df,
-                    column_config={w: st.column_config.NumberColumn(format="%.2f%%")},
+                    column_config={
+                        w: st.column_config.NumberColumn(format="%.2f%%"),
+                        '% Change': st.column_config.NumberColumn(format="%.2f%%")
+                    },
                     disabled=disabled_cols,
                     use_container_width=True,
                     hide_index=True,
                     key=f"edit_top20_{curr_code}"
                 )
                 
-                # 🔹 ULTRA-STABLE UPDATE LOGIC 🔹
-                # Ab sirf tabhi cloud save hoga jab sach me Ticker name change hua ho
-                if not edited_df['Ticker'].equals(top20['Ticker']):
+                # 🔹 PERMANENT TICKER MEMORY LOGIC 🔹
+                if not edited_df['Ticker'].equals(disp_df['Ticker']):
+                    for idx in disp_df.index:
+                        old_t = disp_df.at[idx, 'Ticker']
+                        new_t = edited_df.at[idx, 'Ticker']
+                        if old_t != new_t:
+                            raw_name = str(disp_df.at[idx, comp]).lower().strip()
+                            st.session_state["custom_tickers"][raw_name] = new_t # Dictionary update
+                    
+                    save_json(CUSTOM_TICKERS_FILE, st.session_state["custom_tickers"]) # GitHub pe hamesha ke liye save
                     st.session_state["factsheet_cache"][curr_code]["top20"]['Ticker'] = edited_df['Ticker']
                     save_factsheet_cache(st.session_state["factsheet_cache"])
                     st.rerun()
@@ -323,7 +358,7 @@ with tab2:
                                 clean = clean[(clean[w] <= 100) & (~clean[comp].astype(str).str.lower().isin(['total','grand total','equity','debt','cash','portfolio']))]
                                 
                                 top20 = clean.sort_values(w, ascending=False).head(20)
-                                top20['Ticker'] = top20[comp].apply(clean_stock_name)
+                                top20['Ticker'] = top20[comp].apply(clean_stock_name) # Naya file mapping use hoga
                                 
                                 sec_df = clean.groupby(sec)[w].sum().reset_index() if sec != "None" else None
                                 if sec_df is not None: sec_df = sec_df[sec_df[w] > 0]
