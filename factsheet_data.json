@@ -4,52 +4,62 @@
             {
                 "Name of the Instrument": "Sobha Limited",
                 "% to NAV": 2.3,
-                "Industry / Rating": "Realty"
+                "Industry / Rating": "Realty",
+                "Ticker": "SOBHA.NS"
             },
             {
                 "Name of the Instrument": "REC Limited",
                 "% to NAV": 2.13,
-                "Industry / Rating": "Finance"
+                "Industry / Rating": "Finance",
+                "Ticker": "RECLTD.NS"
             },
             {
                 "Name of the Instrument": "Cholamandalam Financial Holdings Limited",
                 "% to NAV": 1.9,
-                "Industry / Rating": "Finance"
+                "Industry / Rating": "Finance",
+                "Ticker": "CHOLAMANDALAM.NS"
             },
             {
                 "Name of the Instrument": "LT Foods Limited",
                 "% to NAV": 1.81,
-                "Industry / Rating": "Agricultural Food & other Products"
+                "Industry / Rating": "Agricultural Food & other Products",
+                "Ticker": "LT.NS"
             },
             {
                 "Name of the Instrument": "State Bank of India",
                 "% to NAV": 1.7500000000000002,
-                "Industry / Rating": "Banks"
+                "Industry / Rating": "Banks",
+                "Ticker": "SBIN.NS"
             },
             {
                 "Name of the Instrument": "Cyient Limited",
                 "% to NAV": 1.6199999999999999,
-                "Industry / Rating": "IT - Services"
+                "Industry / Rating": "IT - Services",
+                "Ticker": "CYIENT.NS"
             },
             {
                 "Name of the Instrument": "The South Indian Bank Limited",
                 "% to NAV": 1.55,
-                "Industry / Rating": "Banks"
+                "Industry / Rating": "Banks",
+                "Ticker": "THE.NS"
             },
             {
                 "Name of the Instrument": "HDFC Bank Limited",
                 "% to NAV": 1.46,
-                "Industry / Rating": "Banks"
+                "Industry / Rating": "Banks",
+                "Ticker": "HDFCBANK.NS"
             },
             {
                 "Name of the Instrument": "Arvind Limited",
                 "% to NAV": 1.43,
-                "Industry / Rating": "Textiles & Apparels"
+                "Industry / Rating": "Textiles & Apparels",
+                "Ticker": "ARVIND.NS"
             },
             {
                 "Name of the Instrument": "Jubilant Pharmova Limited",
                 "% to NAV": 1.4000000000000001,
-                "Industry / Rating": "Pharmaceuticals & Biotechnology"
+                "Industry / Rating": "Pharmaceuticals & Biotechnology",
+                "Ticker": "JUBLPHARMA.NS"
             }
         ],
         "comp": "Name of the Instrument",
