@@ -1766,52 +1766,62 @@
             {
                 "Name Of the Instrument": "Firstsource Solutions Ltd.",
                 "% to NAV": 3.68,
-                "Industry+ /Rating": "Commercial Services & Supplies"
+                "Industry+ /Rating": "Commercial Services & Supplies",
+                "Ticker": "FSL.NS"
             },
             {
                 "Name Of the Instrument": "Aster DM Quality Care Limited",
                 "% to NAV": 3.37,
-                "Industry+ /Rating": "Healthcare Services"
+                "Industry+ /Rating": "Healthcare Services",
+                "Ticker": "ASTER.NS"
             },
             {
                 "Name Of the Instrument": "Gabriel India Ltd.",
                 "% to NAV": 3.09,
-                "Industry+ /Rating": "Auto Components"
+                "Industry+ /Rating": "Auto Components",
+                "Ticker": "GABRIEL.NS"
             },
             {
                 "Name Of the Instrument": "eClerx Services Limited",
                 "% to NAV": 2.92,
-                "Industry+ /Rating": "Commercial Services & Supplies"
+                "Industry+ /Rating": "Commercial Services & Supplies",
+                "Ticker": "ECLERX.NS"
             },
             {
                 "Name Of the Instrument": "Bank of Baroda",
                 "% to NAV": 2.65,
-                "Industry+ /Rating": "Banks"
+                "Industry+ /Rating": "Banks",
+                "Ticker": "BANK.NS"
             },
             {
                 "Name Of the Instrument": "Krishna Institute Of Medical Sciences Limited",
                 "% to NAV": 2.04,
-                "Industry+ /Rating": "Healthcare Services"
+                "Industry+ /Rating": "Healthcare Services",
+                "Ticker": "KRISHNA.NS"
             },
             {
                 "Name Of the Instrument": "Apar Industries Limited",
                 "% to NAV": 1.92,
-                "Industry+ /Rating": "Electrical Equipment"
+                "Industry+ /Rating": "Electrical Equipment",
+                "Ticker": "APARINDS.NS"
             },
             {
                 "Name Of the Instrument": "Indian Bank",
                 "% to NAV": 1.91,
-                "Industry+ /Rating": "Banks"
+                "Industry+ /Rating": "Banks",
+                "Ticker": "INDIAN.NS"
             },
             {
                 "Name Of the Instrument": "PEARL GLOBAL INDUSTRIES LIMITED",
                 "% to NAV": 1.9,
-                "Industry+ /Rating": "Textiles & Apparels"
+                "Industry+ /Rating": "Textiles & Apparels",
+                "Ticker": "PGIL.NS"
             },
             {
                 "Name Of the Instrument": "Eris Lifesciences Ltd",
                 "% to NAV": 1.89,
-                "Industry+ /Rating": "Pharmaceuticals & Biotechnology"
+                "Industry+ /Rating": "Pharmaceuticals & Biotechnology",
+                "Ticker": "ERIS.NS"
             }
         ],
         "comp": "Name Of the Instrument",
