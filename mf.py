@@ -84,12 +84,9 @@ def clean_stock_name(name):
 def load_factsheet_cache():
     cache = load_json(FACTSHEET_FILE, {})
     for k, v in cache.items():
-        if "top20" in v: 
-            v["top20"] = pd.DataFrame(v["top20"])
-        elif "top10" in v: 
-            v["top20"] = pd.DataFrame(v["top10"])
-        if "sec_df" in v and v["sec_df"] is not None: 
-            v["sec_df"] = pd.DataFrame(v["sec_df"])
+        if "top20" in v: v["top20"] = pd.DataFrame(v["top20"])
+        elif "top10" in v: v["top20"] = pd.DataFrame(v["top10"])
+        if "sec_df" in v and v["sec_df"] is not None: v["sec_df"] = pd.DataFrame(v["sec_df"])
     return cache
 
 def save_factsheet_cache(cache):
@@ -237,24 +234,22 @@ with tab2:
             if not top20.empty:
                 st.markdown("#### 🟢 Live Market Heatmap (Approx 70% AUM)")
                 
-                # Agar Ticker column nahi hai to banao
                 if 'Ticker' not in top20.columns:
                     top20['Ticker'] = top20[comp].apply(clean_stock_name)
                 
-                # Live Price fetch karo current Tickers ke basis par
+                # Copy for display taaki UI fast chale
+                disp_df = top20.copy()
+                
                 with st.spinner("Fetching Live Prices from Yahoo Finance..."):
-                    tickers_to_fetch = [t for t in top20['Ticker'].tolist() if "UNKNOWN" not in str(t).upper()]
+                    tickers_to_fetch = [t for t in disp_df['Ticker'].tolist() if "UNKNOWN" not in str(t).upper()]
                     live_prices = fetch_live_prices(tickers_to_fetch)
-                    top20['Live Price (₹)'] = top20['Ticker'].map(live_prices).fillna("Not Traded/Debt")
+                    disp_df['Live Price (₹)'] = disp_df['Ticker'].map(live_prices).fillna("Not Traded/Debt")
                 
-                # --- EDITABLE DATAFRAME SECTION ---
-                st.info("✏️ **Manual Override:** 'Ticker' column me double-click karke galat ticker ko sahi NSE Ticker (e.g. `ZOMATO.NS`) se replace karein aur **Enter** dabayein. Price auto-update ho jayega!")
+                st.info("✏️ **Manual Override:** 'Ticker' column me double-click karke galat ticker ko sahi NSE Ticker (e.g. `ZOMATO.NS`) se replace karein aur **Enter** dabayein.")
                 
-                # Sirf Ticker column edit karne do, baaki columns lock kar do
-                disabled_cols = [c for c in top20.columns if c != 'Ticker']
-                
-                edited_top20 = st.data_editor(
-                    top20,
+                disabled_cols = [c for c in disp_df.columns if c != 'Ticker']
+                edited_df = st.data_editor(
+                    disp_df,
                     column_config={w: st.column_config.NumberColumn(format="%.2f%%")},
                     disabled=disabled_cols,
                     use_container_width=True,
@@ -262,13 +257,14 @@ with tab2:
                     key=f"edit_top20_{curr_code}"
                 )
                 
-                # Agar user ne Ticker change kiya hai, toh save karke page refresh karo
-                if not edited_top20.equals(top20):
-                    st.session_state["factsheet_cache"][curr_code]["top20"] = edited_top20
+                # 🔹 ULTRA-STABLE UPDATE LOGIC 🔹
+                # Ab sirf tabhi cloud save hoga jab sach me Ticker name change hua ho
+                if not edited_df['Ticker'].equals(top20['Ticker']):
+                    st.session_state["factsheet_cache"][curr_code]["top20"]['Ticker'] = edited_df['Ticker']
                     save_factsheet_cache(st.session_state["factsheet_cache"])
                     st.rerun()
 
-                total_equity_tracked = edited_top20[w].sum()
+                total_equity_tracked = edited_df[w].sum()
                 st.info(f"💡 Tracking Stocks representing **{total_equity_tracked:.2f}%** of the total fund AUM.")
 
                 st.markdown("---")
@@ -280,7 +276,7 @@ with tab2:
                         st.plotly_chart(px.treemap(sec_df, path=[sec], values=w, color=w, color_continuous_scale='Electric').update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(t=10,b=10,l=10,r=10)), use_container_width=True)
                 with t2:
                     st.markdown("##### Holdings Distribution")
-                    st.plotly_chart(px.pie(top20, values=w, names=comp, hole=0.55).update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(t=0,b=0,l=0,r=0)), use_container_width=True)
+                    st.plotly_chart(px.pie(edited_df, values=w, names=comp, hole=0.55).update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(t=0,b=0,l=0,r=0)), use_container_width=True)
                     
             if st.button("🗑️ Delete & Re-upload (Recommended)"):
                 del st.session_state["factsheet_cache"][curr_code]
