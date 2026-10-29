@@ -4774,5 +4774,312 @@
                 "% to Net Assets": 1.8199999999999998
             }
         ]
+    },
+    "102434": {
+        "top35": [
+            {
+                "Name of Instrument": "Reliance Industries Limited",
+                "% to Net Assets": 6.419999999999999,
+                "Rating/Industry": "Petroleum Products",
+                "Ticker": "RELIANCE.NS"
+            },
+            {
+                "Name of Instrument": "NTPC Limited",
+                "% to Net Assets": 4.760000000000001,
+                "Rating/Industry": "Power",
+                "Ticker": "NTPC.NS"
+            },
+            {
+                "Name of Instrument": "Larsen & Toubro Limited",
+                "% to Net Assets": 4.26,
+                "Rating/Industry": "Construction",
+                "Ticker": "LT.NS"
+            },
+            {
+                "Name of Instrument": "Coal India Limited",
+                "% to Net Assets": 3.05,
+                "Rating/Industry": "Consumable Fuels",
+                "Ticker": "COAL.NS"
+            },
+            {
+                "Name of Instrument": "Oil & Natural Gas Corporation Limited",
+                "% to Net Assets": 2.9499999999999997,
+                "Rating/Industry": "Oil",
+                "Ticker": "OIL.NS"
+            },
+            {
+                "Name of Instrument": "Bharti Airtel Limited",
+                "% to Net Assets": 2.8400000000000003,
+                "Rating/Industry": "Telecom - Services",
+                "Ticker": "BHARTIARTL.NS"
+            },
+            {
+                "Name of Instrument": "Bharat Electronics Limited",
+                "% to Net Assets": 2.53,
+                "Rating/Industry": "Aerospace & Defense",
+                "Ticker": "BHARAT.NS"
+            },
+            {
+                "Name of Instrument": "Hindustan Aeronautics Limited",
+                "% to Net Assets": 2.42,
+                "Rating/Industry": "Aerospace & Defense",
+                "Ticker": "HINDUSTAN.NS"
+            },
+            {
+                "Name of Instrument": "Kirloskar Oil Engines Limited",
+                "% to Net Assets": 2.25,
+                "Rating/Industry": "Industrial Products",
+                "Ticker": "KIRLOSENG.NS"
+            },
+            {
+                "Name of Instrument": "Apollo Hospitals Enterprise Limited",
+                "% to Net Assets": 2.21,
+                "Rating/Industry": "Healthcare Services",
+                "Ticker": "APOLLO.NS"
+            },
+            {
+                "Name of Instrument": "HDFC Life Insurance Co Limited",
+                "% to Net Assets": 2.12,
+                "Rating/Industry": "Insurance",
+                "Ticker": "HDFCAMC.NS"
+            },
+            {
+                "Name of Instrument": "Ultratech Cement Limited",
+                "% to Net Assets": 2.06,
+                "Rating/Industry": "Cement & Cement Products",
+                "Ticker": "ULTRACEMCO.NS"
+            },
+            {
+                "Name of Instrument": "Siemens Limited",
+                "% to Net Assets": 1.9300000000000002,
+                "Rating/Industry": "Electrical Equipment",
+                "Ticker": "SIEMENS.NS"
+            },
+            {
+                "Name of Instrument": "Kalpataru Projects International Limited",
+                "% to Net Assets": 1.7999999999999998,
+                "Rating/Industry": "Construction",
+                "Ticker": "KALPATARU.NS"
+            },
+            {
+                "Name of Instrument": "Solar Industries India Limited",
+                "% to Net Assets": 1.73,
+                "Rating/Industry": "Chemicals & Petrochemicals",
+                "Ticker": "SOLARINDS.NS"
+            },
+            {
+                "Name of Instrument": "Inox India Limited",
+                "% to Net Assets": 1.72,
+                "Rating/Industry": "Industrial Products",
+                "Ticker": "INOXINDIA.NS"
+            },
+            {
+                "Name of Instrument": "Max Financial Services Limited",
+                "% to Net Assets": 1.71,
+                "Rating/Industry": "Insurance",
+                "Ticker": "MFSL.NS"
+            },
+            {
+                "Name of Instrument": "Carborundum Universal Limited",
+                "% to Net Assets": 1.69,
+                "Rating/Industry": "Industrial Products",
+                "Ticker": "CARBORUNDUM.NS"
+            },
+            {
+                "Name of Instrument": "Bharat Petroleum Corporation Limited",
+                "% to Net Assets": 1.68,
+                "Rating/Industry": "Petroleum Products",
+                "Ticker": "BPCL.NS"
+            },
+            {
+                "Name of Instrument": "Multi Commodity Exchange Of India Limited",
+                "% to Net Assets": 1.6400000000000001,
+                "Rating/Industry": "Capital Markets",
+                "Ticker": "MCX.NS"
+            },
+            {
+                "Name of Instrument": "Siemens Energy India Limited",
+                "% to Net Assets": 1.5699999999999998,
+                "Rating/Industry": "Electrical Equipment",
+                "Ticker": "SIEMENS.NS"
+            },
+            {
+                "Name of Instrument": "Jindal Steel Limited",
+                "% to Net Assets": 1.43,
+                "Rating/Industry": "Ferrous Metals",
+                "Ticker": "JINDAL.NS"
+            },
+            {
+                "Name of Instrument": "Asian Paints Limited",
+                "% to Net Assets": 1.37,
+                "Rating/Industry": "Consumer Durables",
+                "Ticker": "ASIANPAINT.NS"
+            },
+            {
+                "Name of Instrument": "Amber Enterprises India Limited",
+                "% to Net Assets": 1.3599999999999999,
+                "Rating/Industry": "Consumer Durables",
+                "Ticker": "AMBER.NS"
+            },
+            {
+                "Name of Instrument": "Polycab India Limited",
+                "% to Net Assets": 1.26,
+                "Rating/Industry": "Industrial Products",
+                "Ticker": "POLYCAB.NS"
+            },
+            {
+                "Name of Instrument": "Power Grid Corporation of India Limited",
+                "% to Net Assets": 1.21,
+                "Rating/Industry": "Power",
+                "Ticker": "POWERGRID.NS"
+            },
+            {
+                "Name of Instrument": "Acme Solar Holdings Limited",
+                "% to Net Assets": 1.18,
+                "Rating/Industry": "Power",
+                "Ticker": "ACME.NS"
+            },
+            {
+                "Name of Instrument": "Nippon Life India Asset Management Limited",
+                "% to Net Assets": 1.16,
+                "Rating/Industry": "Capital Markets",
+                "Ticker": "NAM-INDIA.NS"
+            },
+            {
+                "Name of Instrument": "Cyient DLM Limited",
+                "% to Net Assets": 1.13,
+                "Rating/Industry": "Aerospace & Defense",
+                "Ticker": "CYIENT.NS"
+            },
+            {
+                "Name of Instrument": "Schaeffler India Limited",
+                "% to Net Assets": 1.09,
+                "Rating/Industry": "Auto Components",
+                "Ticker": "SCHAEFFLER.NS"
+            },
+            {
+                "Name of Instrument": "Samvardhana Motherson International Limited",
+                "% to Net Assets": 1.06,
+                "Rating/Industry": "Auto Components",
+                "Ticker": "MOTHERSON.NS"
+            },
+            {
+                "Name of Instrument": "Canara HSBC Life Insurance Co Limited",
+                "% to Net Assets": 1.05,
+                "Rating/Industry": "Insurance",
+                "Ticker": "CANHLIFE.NS"
+            },
+            {
+                "Name of Instrument": "Techno Electric & Engineering Co Limited",
+                "% to Net Assets": 1.05,
+                "Rating/Industry": "Construction",
+                "Ticker": "TECHNOE.NS"
+            },
+            {
+                "Name of Instrument": "Atul Limited",
+                "% to Net Assets": 1.03,
+                "Rating/Industry": "Chemicals & Petrochemicals",
+                "Ticker": "ATUL.NS"
+            },
+            {
+                "Name of Instrument": "PB Fintech Limited",
+                "% to Net Assets": 1.03,
+                "Rating/Industry": "Financial Technology (Fintech)",
+                "Ticker": "POLICYBZR.NS"
+            }
+        ],
+        "comp": "Name of Instrument",
+        "w": "% to Net Assets",
+        "sec": "Rating/Industry",
+        "sec_df": [
+            {
+                "Rating/Industry": "Aerospace & Defense",
+                "% to Net Assets": 6.08
+            },
+            {
+                "Rating/Industry": "Agricultural Food & other Products",
+                "% to Net Assets": 0.15
+            },
+            {
+                "Rating/Industry": "Auto Components",
+                "% to Net Assets": 3.38
+            },
+            {
+                "Rating/Industry": "Capital Markets",
+                "% to Net Assets": 2.8
+            },
+            {
+                "Rating/Industry": "Cement & Cement Products",
+                "% to Net Assets": 2.4
+            },
+            {
+                "Rating/Industry": "Chemicals & Petrochemicals",
+                "% to Net Assets": 4.12
+            },
+            {
+                "Rating/Industry": "Construction",
+                "% to Net Assets": 8.62
+            },
+            {
+                "Rating/Industry": "Consumable Fuels",
+                "% to Net Assets": 3.05
+            },
+            {
+                "Rating/Industry": "Consumer Durables",
+                "% to Net Assets": 3.92
+            },
+            {
+                "Rating/Industry": "Electrical Equipment",
+                "% to Net Assets": 5.16
+            },
+            {
+                "Rating/Industry": "Ferrous Metals",
+                "% to Net Assets": 1.43
+            },
+            {
+                "Rating/Industry": "Financial Technology (Fintech)",
+                "% to Net Assets": 1.03
+            },
+            {
+                "Rating/Industry": "Gas",
+                "% to Net Assets": 0.71
+            },
+            {
+                "Rating/Industry": "Healthcare Services",
+                "% to Net Assets": 2.95
+            },
+            {
+                "Rating/Industry": "Industrial Manufacturing",
+                "% to Net Assets": 1.2100000000000002
+            },
+            {
+                "Rating/Industry": "Industrial Products",
+                "% to Net Assets": 10.76
+            },
+            {
+                "Rating/Industry": "Insurance",
+                "% to Net Assets": 4.88
+            },
+            {
+                "Rating/Industry": "Oil",
+                "% to Net Assets": 2.9499999999999997
+            },
+            {
+                "Rating/Industry": "Petroleum Products",
+                "% to Net Assets": 8.1
+            },
+            {
+                "Rating/Industry": "Power",
+                "% to Net Assets": 7.15
+            },
+            {
+                "Rating/Industry": "Realty",
+                "% to Net Assets": 1.52
+            },
+            {
+                "Rating/Industry": "Telecom - Services",
+                "% to Net Assets": 2.8400000000000003
+            }
+        ]
     }
 }
