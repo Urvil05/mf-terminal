@@ -3886,5 +3886,412 @@
                 "% to Net\n Assets": 1.53
             }
         ]
+    },
+    "147944": {
+        "top35": [
+            {
+                "Name of the Instrument": "Sobha Limited",
+                "% to NAV": 2.3,
+                "Industry / Rating": "Realty",
+                "Ticker": "SOBHA.NS"
+            },
+            {
+                "Name of the Instrument": "REC Limited",
+                "% to NAV": 2.13,
+                "Industry / Rating": "Finance",
+                "Ticker": "RECLTD.NS"
+            },
+            {
+                "Name of the Instrument": "Cholamandalam Financial Holdings Limited",
+                "% to NAV": 1.9,
+                "Industry / Rating": "Finance",
+                "Ticker": "CHOLAFIN.NS"
+            },
+            {
+                "Name of the Instrument": "LT Foods Limited",
+                "% to NAV": 1.81,
+                "Industry / Rating": "Agricultural Food & other Products",
+                "Ticker": "LT.NS"
+            },
+            {
+                "Name of the Instrument": "State Bank of India",
+                "% to NAV": 1.7500000000000002,
+                "Industry / Rating": "Banks",
+                "Ticker": "SBIN.NS"
+            },
+            {
+                "Name of the Instrument": "Cyient Limited",
+                "% to NAV": 1.6199999999999999,
+                "Industry / Rating": "IT - Services",
+                "Ticker": "CYIENT.NS"
+            },
+            {
+                "Name of the Instrument": "The South Indian Bank Limited",
+                "% to NAV": 1.55,
+                "Industry / Rating": "Banks",
+                "Ticker": "SOUTHBANK.NS"
+            },
+            {
+                "Name of the Instrument": "HDFC Bank Limited",
+                "% to NAV": 1.46,
+                "Industry / Rating": "Banks",
+                "Ticker": "HDFCBANK.NS"
+            },
+            {
+                "Name of the Instrument": "Arvind Limited",
+                "% to NAV": 1.43,
+                "Industry / Rating": "Textiles & Apparels",
+                "Ticker": "ARVIND.NS"
+            },
+            {
+                "Name of the Instrument": "Jubilant Pharmova Limited",
+                "% to NAV": 1.4000000000000001,
+                "Industry / Rating": "Pharmaceuticals & Biotechnology",
+                "Ticker": "JUBLPHARMA.NS"
+            },
+            {
+                "Name of the Instrument": "The Karnataka Bank Limited",
+                "% to NAV": 1.38,
+                "Industry / Rating": "Banks",
+                "Ticker": "THE.NS"
+            },
+            {
+                "Name of the Instrument": "PNB Housing Finance Limited",
+                "% to NAV": 1.32,
+                "Industry / Rating": "Finance",
+                "Ticker": "PNB.NS"
+            },
+            {
+                "Name of the Instrument": "Paradeep Phosphates Limited",
+                "% to NAV": 1.29,
+                "Industry / Rating": "Fertilizers & Agrochemicals",
+                "Ticker": "PARADEEP.NS"
+            },
+            {
+                "Name of the Instrument": "Rashi Peripherals Limited",
+                "% to NAV": 1.24,
+                "Industry / Rating": "IT - Hardware",
+                "Ticker": "RASHI.NS"
+            },
+            {
+                "Name of the Instrument": "Sky Gold And Diamonds Limited",
+                "% to NAV": 1.2,
+                "Industry / Rating": "Consumer Durables",
+                "Ticker": "SKY.NS"
+            },
+            {
+                "Name of the Instrument": "Yatharth Hospital And Trauma Care Services Limited",
+                "% to NAV": 1.08,
+                "Industry / Rating": "Healthcare Services",
+                "Ticker": "YATHARTH.NS"
+            },
+            {
+                "Name of the Instrument": "AWL Agri Business Limited",
+                "% to NAV": 1.03,
+                "Industry / Rating": "Agricultural Food & other Products",
+                "Ticker": "AWL.NS"
+            },
+            {
+                "Name of the Instrument": "EPL Limited",
+                "% to NAV": 1.02,
+                "Industry / Rating": "Industrial Products",
+                "Ticker": "EPL.NS"
+            },
+            {
+                "Name of the Instrument": "eClerx Services Limited",
+                "% to NAV": 0.9900000000000001,
+                "Industry / Rating": "Commercial Services & Supplies",
+                "Ticker": "ECLERX.NS"
+            },
+            {
+                "Name of the Instrument": "Shaily Engineering Plastics Limited",
+                "% to NAV": 0.9400000000000001,
+                "Industry / Rating": "Consumer Durables",
+                "Ticker": "SHAILY.NS"
+            },
+            {
+                "Name of the Instrument": "Power Finance Corporation Limited",
+                "% to NAV": 0.9299999999999999,
+                "Industry / Rating": "Finance",
+                "Ticker": "POWER.NS"
+            },
+            {
+                "Name of the Instrument": "One 97 Communications Limited",
+                "% to NAV": 0.89,
+                "Industry / Rating": "Financial Technology (Fintech)",
+                "Ticker": "ONE.NS"
+            },
+            {
+                "Name of the Instrument": "The Great Eastern Shipping Company Limited",
+                "% to NAV": 0.88,
+                "Industry / Rating": "Transport Services",
+                "Ticker": "THE.NS"
+            },
+            {
+                "Name of the Instrument": "Aditya Birla Real Estate Limited",
+                "% to NAV": 0.83,
+                "Industry / Rating": "Realty",
+                "Ticker": "ADITYA.NS"
+            },
+            {
+                "Name of the Instrument": "Strides Pharma Science Limited",
+                "% to NAV": 0.8200000000000001,
+                "Industry / Rating": "Pharmaceuticals & Biotechnology",
+                "Ticker": "STRIDES.NS"
+            },
+            {
+                "Name of the Instrument": "Godawari Power And Ispat limited",
+                "% to NAV": 0.8099999999999999,
+                "Industry / Rating": "Industrial Products",
+                "Ticker": "GODAWARI.NS"
+            },
+            {
+                "Name of the Instrument": "DCB Bank Limited",
+                "% to NAV": 0.8099999999999999,
+                "Industry / Rating": "Banks",
+                "Ticker": "DCB.NS"
+            },
+            {
+                "Name of the Instrument": "Info Edge (India) Limited",
+                "% to NAV": 0.76,
+                "Industry / Rating": "Retailing",
+                "Ticker": "INFO.NS"
+            },
+            {
+                "Name of the Instrument": "Crompton Greaves Consumer Electricals Limited",
+                "% to NAV": 0.7000000000000001,
+                "Industry / Rating": "Consumer Durables",
+                "Ticker": "CROMPTON.NS"
+            },
+            {
+                "Name of the Instrument": "Sterlite Technologies Limited",
+                "% to NAV": 0.7000000000000001,
+                "Industry / Rating": "Telecom - Equipment & Accessories",
+                "Ticker": "STERLITE.NS"
+            },
+            {
+                "Name of the Instrument": "Godrej Industries Limited",
+                "% to NAV": 0.6799999999999999,
+                "Industry / Rating": "Diversified",
+                "Ticker": "GODREJ.NS"
+            },
+            {
+                "Name of the Instrument": "Fedbank Financial Services Limited",
+                "% to NAV": 0.67,
+                "Industry / Rating": "Finance",
+                "Ticker": "FEDBANK.NS"
+            },
+            {
+                "Name of the Instrument": "Jubilant Ingrevia Limited",
+                "% to NAV": 0.66,
+                "Industry / Rating": "Chemicals & Petrochemicals",
+                "Ticker": "JUBILANT.NS"
+            },
+            {
+                "Name of the Instrument": "ICICI Lombard General Insurance Company Limited",
+                "% to NAV": 0.65,
+                "Industry / Rating": "Insurance",
+                "Ticker": "ICICI.NS"
+            },
+            {
+                "Name of the Instrument": "General Insurance Corporation of India",
+                "% to NAV": 0.64,
+                "Industry / Rating": "Insurance",
+                "Ticker": "GENERAL.NS"
+            }
+        ],
+        "comp": "Name of the Instrument",
+        "w": "% to NAV",
+        "sec": "Industry / Rating",
+        "sec_df": [
+            {
+                "Industry / Rating": "Aerospace & Defense",
+                "% to NAV": 0.12
+            },
+            {
+                "Industry / Rating": "Agricultural Food & other Products",
+                "% to NAV": 3.7600000000000002
+            },
+            {
+                "Industry / Rating": "Auto Components",
+                "% to NAV": 0.82
+            },
+            {
+                "Industry / Rating": "Automobiles",
+                "% to NAV": 0.11
+            },
+            {
+                "Industry / Rating": "Banks",
+                "% to NAV": 8.92
+            },
+            {
+                "Industry / Rating": "Beverages",
+                "% to NAV": 0.22
+            },
+            {
+                "Industry / Rating": "Capital Markets",
+                "% to NAV": 1.6400000000000001
+            },
+            {
+                "Industry / Rating": "Cement & Cement Products",
+                "% to NAV": 1.22
+            },
+            {
+                "Industry / Rating": "Chemicals & Petrochemicals",
+                "% to NAV": 3.38
+            },
+            {
+                "Industry / Rating": "Commercial Services & Supplies",
+                "% to NAV": 2.93
+            },
+            {
+                "Industry / Rating": "Construction",
+                "% to NAV": 0.65
+            },
+            {
+                "Industry / Rating": "Consumable Fuels",
+                "% to NAV": 0.09
+            },
+            {
+                "Industry / Rating": "Consumer Durables",
+                "% to NAV": 5.57
+            },
+            {
+                "Industry / Rating": "Diversified",
+                "% to NAV": 0.6799999999999999
+            },
+            {
+                "Industry / Rating": "Diversified Metals",
+                "% to NAV": 0.11
+            },
+            {
+                "Industry / Rating": "Electrical Equipment",
+                "% to NAV": 2.2600000000000002
+            },
+            {
+                "Industry / Rating": "Entertainment",
+                "% to NAV": 0.64
+            },
+            {
+                "Industry / Rating": "Ferrous Metals",
+                "% to NAV": 0.63
+            },
+            {
+                "Industry / Rating": "Fertilizers & Agrochemicals",
+                "% to NAV": 1.37
+            },
+            {
+                "Industry / Rating": "Finance",
+                "% to NAV": 10.6
+            },
+            {
+                "Industry / Rating": "Financial Technology (Fintech)",
+                "% to NAV": 1.02
+            },
+            {
+                "Industry / Rating": "Food Products",
+                "% to NAV": 0.42
+            },
+            {
+                "Industry / Rating": "Gas",
+                "% to NAV": 0.18
+            },
+            {
+                "Industry / Rating": "Healthcare Services",
+                "% to NAV": 1.79
+            },
+            {
+                "Industry / Rating": "Household Products",
+                "% to NAV": 0.21999999999999997
+            },
+            {
+                "Industry / Rating": "IT - Hardware",
+                "% to NAV": 1.24
+            },
+            {
+                "Industry / Rating": "IT - Services",
+                "% to NAV": 2.5
+            },
+            {
+                "Industry / Rating": "IT - Software",
+                "% to NAV": 0.78
+            },
+            {
+                "Industry / Rating": "Industrial Manufacturing",
+                "% to NAV": 1.44
+            },
+            {
+                "Industry / Rating": "Industrial Products",
+                "% to NAV": 3.7800000000000002
+            },
+            {
+                "Industry / Rating": "Insurance",
+                "% to NAV": 1.47
+            },
+            {
+                "Industry / Rating": "Leisure Services",
+                "% to NAV": 0.75
+            },
+            {
+                "Industry / Rating": "Minerals & Mining",
+                "% to NAV": 0.04
+            },
+            {
+                "Industry / Rating": "Non - Ferrous Metals",
+                "% to NAV": 0.9199999999999999
+            },
+            {
+                "Industry / Rating": "Oil",
+                "% to NAV": 0.36
+            },
+            {
+                "Industry / Rating": "Other Consumer Services",
+                "% to NAV": 0.33999999999999997
+            },
+            {
+                "Industry / Rating": "Other Utilities",
+                "% to NAV": 0.03
+            },
+            {
+                "Industry / Rating": "Personal Products",
+                "% to NAV": 0.24
+            },
+            {
+                "Industry / Rating": "Petroleum Products",
+                "% to NAV": 0.27999999999999997
+            },
+            {
+                "Industry / Rating": "Pharmaceuticals & Biotechnology",
+                "% to NAV": 6.93
+            },
+            {
+                "Industry / Rating": "Power",
+                "% to NAV": 0.9199999999999999
+            },
+            {
+                "Industry / Rating": "Realty",
+                "% to NAV": 6.92
+            },
+            {
+                "Industry / Rating": "Retailing",
+                "% to NAV": 3.0
+            },
+            {
+                "Industry / Rating": "Telecom - Equipment & Accessories",
+                "% to NAV": 0.7000000000000001
+            },
+            {
+                "Industry / Rating": "Telecom - Services",
+                "% to NAV": 0.65
+            },
+            {
+                "Industry / Rating": "Textiles & Apparels",
+                "% to NAV": 2.71
+            },
+            {
+                "Industry / Rating": "Transport Services",
+                "% to NAV": 1.45
+            }
+        ]
     }
 }
