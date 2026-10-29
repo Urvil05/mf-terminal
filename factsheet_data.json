@@ -3688,5 +3688,258 @@
                 "Percentage(%)": 1.65
             }
         ]
+    },
+    "149382": {
+        "top20": [
+            {
+                "Name of the Instrument": "ICICI Bank Limited",
+                "% to Net\n Assets": 3.25,
+                "Industry": "Banks",
+                "Ticker": "ICICIBANK.NS"
+            },
+            {
+                "Name of the Instrument": "HDFC Bank Limited",
+                "% to Net\n Assets": 2.7199999999999998,
+                "Industry": "Banks",
+                "Ticker": "HDFCBANK.NS"
+            },
+            {
+                "Name of the Instrument": "Sona BLW Precision Forgings Limited",
+                "% to Net\n Assets": 2.53,
+                "Industry": "Auto Components",
+                "Ticker": "SONA.NS"
+            },
+            {
+                "Name of the Instrument": "Eternal Limited",
+                "% to Net\n Assets": 2.41,
+                "Industry": "Retailing",
+                "Ticker": "ETERNAL.NS"
+            },
+            {
+                "Name of the Instrument": "Welspun Corp Limited",
+                "% to Net\n Assets": 2.35,
+                "Industry": "Industrial Products",
+                "Ticker": "WELCORP.NS"
+            },
+            {
+                "Name of the Instrument": "Apar Industries Limited",
+                "% to Net\n Assets": 2.03,
+                "Industry": "Electrical Equipment",
+                "Ticker": "APAR.NS"
+            },
+            {
+                "Name of the Instrument": "Multi Commodity Exchange of India Limited",
+                "% to Net\n Assets": 1.97,
+                "Industry": "Capital Markets",
+                "Ticker": "MULTI.NS"
+            },
+            {
+                "Name of the Instrument": "TD Power Systems Limited",
+                "% to Net\n Assets": 1.92,
+                "Industry": "Electrical Equipment",
+                "Ticker": "TD.NS"
+            },
+            {
+                "Name of the Instrument": "Shriram Finance Limited",
+                "% to Net\n Assets": 1.91,
+                "Industry": "Finance",
+                "Ticker": "SHRIRAM.NS"
+            },
+            {
+                "Name of the Instrument": "Ather Energy Limited",
+                "% to Net\n Assets": 1.78,
+                "Industry": "Automobiles",
+                "Ticker": "ATHER.NS"
+            },
+            {
+                "Name of the Instrument": "Sansera Engineering Limited",
+                "% to Net\n Assets": 1.77,
+                "Industry": "Auto Components",
+                "Ticker": "SANSERA.NS"
+            },
+            {
+                "Name of the Instrument": "RBL Bank Limited",
+                "% to Net\n Assets": 1.76,
+                "Industry": "Banks",
+                "Ticker": "RBL.NS"
+            },
+            {
+                "Name of the Instrument": "Minda Corporation Limited",
+                "% to Net\n Assets": 1.58,
+                "Industry": "Auto Components",
+                "Ticker": "MINDA.NS"
+            },
+            {
+                "Name of the Instrument": "Craftsman Automation Limited",
+                "% to Net\n Assets": 1.5599999999999998,
+                "Industry": "Auto Components",
+                "Ticker": "CRAFTSMAN.NS"
+            },
+            {
+                "Name of the Instrument": "Axis Bank Limited",
+                "% to Net\n Assets": 1.4500000000000002,
+                "Industry": "Banks",
+                "Ticker": "AXIS.NS"
+            },
+            {
+                "Name of the Instrument": "Torrent Pharmaceuticals Limited",
+                "% to Net\n Assets": 1.44,
+                "Industry": "Pharmaceuticals & Biotechnology",
+                "Ticker": "TORRENT.NS"
+            },
+            {
+                "Name of the Instrument": "GE Vernova T&D India Limited",
+                "% to Net\n Assets": 1.43,
+                "Industry": "Electrical Equipment",
+                "Ticker": "GE.NS"
+            },
+            {
+                "Name of the Instrument": "Bharti Airtel Limited",
+                "% to Net\n Assets": 1.4000000000000001,
+                "Industry": "Telecom - Services",
+                "Ticker": "BHARTI.NS"
+            },
+            {
+                "Name of the Instrument": "Mahindra & Mahindra Limited",
+                "% to Net\n Assets": 1.37,
+                "Industry": "Automobiles",
+                "Ticker": "MAHINDRA.NS"
+            },
+            {
+                "Name of the Instrument": "Larsen & Toubro Limited",
+                "% to Net\n Assets": 1.3599999999999999,
+                "Industry": "Construction",
+                "Ticker": "LARSEN.NS"
+            }
+        ],
+        "comp": "Name of the Instrument",
+        "w": "% to Net\n Assets",
+        "sec": "Industry",
+        "sec_df": [
+            {
+                "Industry": "Aerospace & Defense",
+                "% to Net\n Assets": 0.66
+            },
+            {
+                "Industry": "Agricultural Food & other Products",
+                "% to Net\n Assets": 1.05
+            },
+            {
+                "Industry": "Auto Components",
+                "% to Net\n Assets": 10.03
+            },
+            {
+                "Industry": "Automobiles",
+                "% to Net\n Assets": 5.01
+            },
+            {
+                "Industry": "Banks",
+                "% to Net\n Assets": 15.16
+            },
+            {
+                "Industry": "Beverages",
+                "% to Net\n Assets": 2.14
+            },
+            {
+                "Industry": "Capital Markets",
+                "% to Net\n Assets": 3.84
+            },
+            {
+                "Industry": "Cement & Cement Products",
+                "% to Net\n Assets": 0.6799999999999999
+            },
+            {
+                "Industry": "Chemicals & Petrochemicals",
+                "% to Net\n Assets": 2.1
+            },
+            {
+                "Industry": "Commercial Services & Supplies",
+                "% to Net\n Assets": 0.35000000000000003
+            },
+            {
+                "Industry": "Construction",
+                "% to Net\n Assets": 1.3599999999999999
+            },
+            {
+                "Industry": "Consumer Durables",
+                "% to Net\n Assets": 3.11
+            },
+            {
+                "Industry": "Electrical Equipment",
+                "% to Net\n Assets": 9.79
+            },
+            {
+                "Industry": "Ferrous Metals",
+                "% to Net\n Assets": 0.43
+            },
+            {
+                "Industry": "Finance",
+                "% to Net\n Assets": 4.9
+            },
+            {
+                "Industry": "Financial Technology (Fintech)",
+                "% to Net\n Assets": 1.2
+            },
+            {
+                "Industry": "Healthcare Services",
+                "% to Net\n Assets": 4.26
+            },
+            {
+                "Industry": "Household Products",
+                "% to Net\n Assets": 0.44999999999999996
+            },
+            {
+                "Industry": "IT - Services",
+                "% to Net\n Assets": 0.62
+            },
+            {
+                "Industry": "IT - Software",
+                "% to Net\n Assets": 3.25
+            },
+            {
+                "Industry": "Industrial Manufacturing",
+                "% to Net\n Assets": 1.27
+            },
+            {
+                "Industry": "Industrial Products",
+                "% to Net\n Assets": 3.84
+            },
+            {
+                "Industry": "Leisure Services",
+                "% to Net\n Assets": 0.24
+            },
+            {
+                "Industry": "Petroleum Products",
+                "% to Net\n Assets": 1.11
+            },
+            {
+                "Industry": "Pharmaceuticals & Biotechnology",
+                "% to Net\n Assets": 7.82
+            },
+            {
+                "Industry": "Power",
+                "% to Net\n Assets": 0.8
+            },
+            {
+                "Industry": "Realty",
+                "% to Net\n Assets": 0.6
+            },
+            {
+                "Industry": "Retailing",
+                "% to Net\n Assets": 5.33
+            },
+            {
+                "Industry": "Telecom - Services",
+                "% to Net\n Assets": 2.12
+            },
+            {
+                "Industry": "Textiles & Apparels",
+                "% to Net\n Assets": 0.35000000000000003
+            },
+            {
+                "Industry": "Transport Services",
+                "% to Net\n Assets": 1.53
+            }
+        ]
     }
 }
