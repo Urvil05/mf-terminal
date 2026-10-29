@@ -6,6 +6,7 @@ import plotly.graph_objects as go
 import requests
 import json
 import os
+import yfinance as yf
 from datetime import datetime, timedelta
 from github import Github
 
@@ -20,9 +21,7 @@ def load_json(filepath, default_val):
             repo = g.get_repo(REPO_NAME)
             file_content = repo.get_contents(filepath)
             return json.loads(file_content.decoded_content.decode("utf-8"))
-        except:
-            pass 
-            
+        except: pass 
     if os.path.exists(filepath):
         try:
             with open(filepath, "r") as f: return json.load(f)
@@ -42,10 +41,8 @@ def save_json(filepath, data):
             except:
                 repo.create_file(filepath, f"APEX Auto-Sync: Create {filepath}", content_str)
         except Exception as e:
-            if "404" in str(e):
-                st.sidebar.error("GitHub Sync Failed: Repo Not Found. Streamlit Secrets me REPO_NAME check karein ('Urvil05/mf-terminal').")
-            else:
-                st.sidebar.error(f"GitHub Sync Failed: {e}")
+            if "404" in str(e): st.sidebar.error("GitHub Sync Failed: Repo Not Found.")
+            else: st.sidebar.error(f"GitHub Sync Failed: {e}")
 
 st.set_page_config(page_title="APEX MF | Institutional Terminal", page_icon="⚡", layout="wide")
 
@@ -61,12 +58,36 @@ st.markdown("""
 WATCHLIST_FILE = "tracked_funds.json"
 PORTFOLIO_FILE = "paper_portfolio.json"
 FACTSHEET_FILE = "factsheet_data.json"
-DEFAULT_WATCHLIST = [] 
+
+# --- SMART TICKER MAPPER (Pre-fed manual dictionary for highest accuracy) ---
+TICKER_MAP = {
+    "hdfc bank ltd.": "HDFCBANK.NS", "hdfc bank limited": "HDFCBANK.NS",
+    "reliance industries ltd.": "RELIANCE.NS", "reliance industries limited": "RELIANCE.NS",
+    "icici bank ltd.": "ICICIBANK.NS", "icici bank limited": "ICICIBANK.NS",
+    "infosys ltd.": "INFY.NS", "infosys limited": "INFY.NS",
+    "larsen & toubro ltd.": "LT.NS", "itc ltd.": "ITC.NS",
+    "tata consultancy services ltd.": "TCS.NS", "bharti airtel ltd.": "BHARTIARTL.NS",
+    "axis bank ltd.": "AXISBANK.NS", "state bank of india": "SBIN.NS",
+    "bajaj finance ltd.": "BAJFINANCE.NS", "kotak mahindra bank ltd.": "KOTAKBANK.NS",
+    "maruti suzuki india ltd.": "MARUTI.NS", "sun pharmaceutical industries ltd.": "SUNPHARMA.NS",
+    "tata motors ltd.": "TATAMOTORS.NS", "mahindra & mahindra ltd.": "M&M.NS"
+}
+
+def clean_stock_name(name):
+    # Stock naam mein se extra words nikal kar NSE ticker banane ki primitive koshish
+    raw = str(name).lower().strip()
+    if raw in TICKER_MAP: return TICKER_MAP[raw]
+    
+    clean = raw.replace('ltd.', '').replace('limited', '').replace('co.', '').replace('company', '')
+    clean = clean.replace('&', '').replace('-', ' ').replace(',', '')
+    words = clean.split()
+    if len(words) > 0: return words[0].upper() + ".NS"
+    return "UNKNOWN.NS"
 
 def load_factsheet_cache():
     cache = load_json(FACTSHEET_FILE, {})
     for k, v in cache.items():
-        if "top10" in v: v["top10"] = pd.DataFrame(v["top10"])
+        if "top20" in v: v["top20"] = pd.DataFrame(v["top20"])
         if "sec_df" in v and v["sec_df"] is not None: v["sec_df"] = pd.DataFrame(v["sec_df"])
     return cache
 
@@ -74,15 +95,13 @@ def save_factsheet_cache(cache):
     serializable_cache = {}
     for k, v in cache.items():
         serializable_cache[k] = {
-            "top10": v["top10"].to_dict(orient="records"),
-            "comp": v["comp"],
-            "w": v["w"],
-            "sec": v["sec"],
+            "top20": v["top20"].to_dict(orient="records"),
+            "comp": v["comp"], "w": v["w"], "sec": v["sec"],
             "sec_df": v["sec_df"].to_dict(orient="records") if v["sec_df"] is not None else None
         }
     save_json(FACTSHEET_FILE, serializable_cache)
 
-if "watchlist" not in st.session_state: st.session_state["watchlist"] = load_json(WATCHLIST_FILE, DEFAULT_WATCHLIST)
+if "watchlist" not in st.session_state: st.session_state["watchlist"] = load_json(WATCHLIST_FILE, [])
 if "portfolio" not in st.session_state: st.session_state["portfolio"] = load_json(PORTFOLIO_FILE, [])
 if "factsheet_cache" not in st.session_state: st.session_state["factsheet_cache"] = load_factsheet_cache()
 
@@ -112,7 +131,6 @@ def calculate_fund_metrics(code):
     if not nav_data: return None
     df, name = nav_data["data"], nav_data["name"]
     latest_nav, latest_date = df.iloc[-1]['nav'], df.iloc[-1]['date']
-    
     prev_nav = df.iloc[-2]['nav'] if len(df) > 1 else latest_nav
     day_change = round(((latest_nav / prev_nav) - 1) * 100, 2) if prev_nav else 0.0
     
@@ -139,6 +157,31 @@ def calculate_fund_metrics(code):
         "Sharpe": sharpe, "Sortino": sortino, "Volatility (%)": round(vol*100,2) if vol else None
     }
 
+# 🔹 NAYA LIVE PRICE FETCHER (yfinance API) 🔹
+@st.cache_data(ttl=300, show_spinner=False)  # Har 5 minute me fetch karega
+def fetch_live_prices(ticker_list):
+    prices = {}
+    if not ticker_list: return prices
+    try:
+        # Pura data ek sath (batch me) mangwana taaki Yahoo block na kare
+        tickers_str = " ".join(ticker_list)
+        data = yf.download(tickers_str, period="1d", group_by="ticker", threads=True, progress=False)
+        
+        for t in ticker_list:
+            try:
+                # Agar multiple tickers mangwaye ho
+                if len(ticker_list) > 1:
+                    last_price = data[t]['Close'].iloc[-1]
+                else: # Agar sirf 1 ticker ho
+                    last_price = data['Close'].iloc[-1]
+                
+                if not pd.isna(last_price):
+                    prices[t] = float(last_price)
+            except:
+                prices[t] = None
+    except: pass
+    return prices
+
 all_schemes = get_all_schemes()
 
 st.sidebar.markdown("### 🔍 Add New Fund")
@@ -158,8 +201,8 @@ st.sidebar.markdown("---")
 st.sidebar.markdown("### ❌ Remove Funds")
 if st.session_state["watchlist"]:
     delete_dict = {str(c): c for c in st.session_state["watchlist"]}
-    funds_to_del = st.sidebar.multiselect("Select to remove:", list(delete_dict.keys()), key="unique_delete_funds_key")
-    if st.sidebar.button("🗑️ Remove", key="unique_remove_button_key"):
+    funds_to_del = st.sidebar.multiselect("Select to remove:", list(delete_dict.keys()), key="del_fund")
+    if st.sidebar.button("🗑️ Remove", key="rem_btn"):
         for f in funds_to_del: st.session_state["watchlist"].remove(delete_dict[f])
         save_json(WATCHLIST_FILE, st.session_state["watchlist"])
         st.rerun()
@@ -170,7 +213,7 @@ if st.session_state["watchlist"]:
         st.rerun()
 
 st.markdown("<h1 style='font-weight: 800; font-size: 2.2rem; color: #38bdf8;'>APEX QUANTITATIVE TERMINAL</h1>", unsafe_allow_html=True)
-tab1, tab2, tab3, tab4 = st.tabs(["📊 Dashboard", "🏢 Factsheet", "💼 Portfolio", "📈 Advanced Analysis"])
+tab1, tab2, tab3, tab4 = st.tabs(["📊 Dashboard", "🏢 Factsheet (Live)", "💼 Portfolio", "📈 Advanced Analysis"])
 
 with tab1:
     if st.session_state["watchlist"]:
@@ -181,7 +224,7 @@ with tab1:
     else: st.info("Watchlist is empty. Add funds from the sidebar.")
 
 with tab2:
-    st.markdown("### 📥 Fund-Specific Factsheet Parser")
+    st.markdown("### 📥 Fund-Specific Factsheet & Forecast Parser")
     
     if st.session_state["watchlist"]:
         f_dict = {}
@@ -195,21 +238,37 @@ with tab2:
         if curr_code in st.session_state["factsheet_cache"]:
             st.success(f"✅ Data for {selected_fund_name} is permanently locked.")
             cached = st.session_state["factsheet_cache"][curr_code]
-            top10, comp, w, sec, sec_df = cached["top10"], cached["comp"], cached["w"], cached["sec"], cached["sec_df"]
+            top20 = cached["top20"]
+            comp, w, sec, sec_df = cached["comp"], cached["w"], cached["sec"], cached["sec_df"]
             
+            # --- LIVE DATA FORECASTING MAGIC ---
+            st.markdown("#### 🟢 Live Market Heatmap (Top 20 Holdings - Approx 70% AUM)")
+            with st.spinner("Fetching Live Prices from Yahoo Finance (Top 20)..."):
+                
+                # Naye columns banayenge Live data ke liye
+                if 'Ticker' not in top20.columns:
+                    top20['Ticker'] = top20[comp].apply(clean_stock_name)
+                
+                tickers_to_fetch = [t for t in top20['Ticker'].tolist() if "UNKNOWN" not in t]
+                live_prices = fetch_live_prices(tickers_to_fetch)
+                
+                top20['Live Price (₹)'] = top20['Ticker'].map(live_prices).fillna("Not Traded/Debt")
+                
+                st.dataframe(top20.style.format({w: "{:.2f}%"}), use_container_width=True, hide_index=True)
+                
+                total_equity_tracked = top20[w].sum()
+                st.info(f"💡 Tracking Top 20 Stocks which represent **{total_equity_tracked:.2f}%** of the total fund AUM. (Accuracy Target: 70-80%)")
+
             st.markdown("---")
             t1, t2 = st.columns([1, 1])
             with t1:
-                st.markdown("##### Top 10 Holdings")
-                st.dataframe(top10.style.format({w: "{:.2f}%"}), use_container_width=True, hide_index=True)
+                st.markdown("##### 🏢 Sector Breakdown")
+                if sec != "None" and sec_df is not None:
+                    sec_df[sec] = sec_df[sec].fillna("Other").astype(str)
+                    st.plotly_chart(px.treemap(sec_df, path=[sec], values=w, color=w, color_continuous_scale='Electric').update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(t=10,b=10,l=10,r=10)), use_container_width=True)
             with t2:
                 st.markdown("##### Holdings Distribution")
-                st.plotly_chart(px.pie(top10, values=w, names=comp, hole=0.55).update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(t=0,b=0,l=0,r=0)), use_container_width=True)
-                
-            if sec != "None" and sec_df is not None:
-                st.markdown("##### 🏢 Sector Breakdown")
-                sec_df[sec] = sec_df[sec].fillna("Other").astype(str)
-                st.plotly_chart(px.treemap(sec_df, path=[sec], values=w, color=w, color_continuous_scale='Electric').update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(t=10,b=10,l=10,r=10)), use_container_width=True)
+                st.plotly_chart(px.pie(top20, values=w, names=comp, hole=0.55).update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(t=0,b=0,l=0,r=0)), use_container_width=True)
                 
             if st.button("🗑️ Delete & Re-upload"):
                 del st.session_state["factsheet_cache"][curr_code]
@@ -257,11 +316,14 @@ with tab2:
                                 clean = clean.dropna(subset=[w])
                                 clean = clean[(clean[w] <= 100) & (~clean[comp].astype(str).str.lower().isin(['total','grand total','equity','debt','cash','portfolio']))]
                                 
-                                top10 = clean.sort_values(w, ascending=False).head(10)
+                                # Yahan TOP 20 utha rahe hain!
+                                top20 = clean.sort_values(w, ascending=False).head(20)
+                                top20['Ticker'] = top20[comp].apply(clean_stock_name)
+                                
                                 sec_df = clean.groupby(sec)[w].sum().reset_index() if sec != "None" else None
                                 if sec_df is not None: sec_df = sec_df[sec_df[w] > 0]
                                     
-                                st.session_state["factsheet_cache"][curr_code] = {"top10": top10, "comp": comp, "w": w, "sec": sec, "sec_df": sec_df}
+                                st.session_state["factsheet_cache"][curr_code] = {"top20": top20, "comp": comp, "w": w, "sec": sec, "sec_df": sec_df}
                                 save_factsheet_cache(st.session_state["factsheet_cache"])
                                 st.rerun()
                             else: st.warning("Map Company and Weight columns.")
@@ -277,10 +339,8 @@ with tab3:
         if not code: continue
         if code not in holdings: 
             holdings[code] = {
-                'name': t.get('name', 'Unknown Fund'), 
-                'type': t.get('asset_type', '-'),
-                'sub_type': t.get('sub_type', '-'),
-                'lots': []
+                'name': t.get('name', 'Unknown Fund'), 'type': t.get('asset_type', '-'),
+                'sub_type': t.get('sub_type', '-'), 'lots': []
             }
         
         t_action = t.get('type', 'Buy')
@@ -320,46 +380,29 @@ with tab3:
                     
         if total_units > 0.001: 
             live_data = calculate_fund_metrics(code)
-            
-            # 🔹 SMART API FALLBACK: Agar AMFI fail ho jaye, toh 0 dikhane ke bajaye Average Buy NAV use karein
-            if live_data and live_data.get("Current NAV") and live_data["Current NAV"] > 0:
-                current_nav = live_data["Current NAV"]
-            else:
-                current_nav = (total_inv / total_units) if total_units > 0 else 0
+            if live_data and live_data.get("Current NAV") and live_data["Current NAV"] > 0: current_nav = live_data["Current NAV"]
+            else: current_nav = (total_inv / total_units) if total_units > 0 else 0
                 
             current_value = total_units * current_nav
             pnl = current_value - total_inv
             abs_ret = round((pnl / total_inv * 100), 2) if total_inv > 0 else 0
-            
             days_invested = max((today - min_date).days, 1)
-            if days_invested >= 365:
-                ann_ret = round((((current_value / total_inv) ** (365 / days_invested)) - 1) * 100, 2) if total_inv > 0 else 0
-            else:
-                ann_ret = abs_ret
+            ann_ret = round((((current_value / total_inv) ** (365 / days_invested)) - 1) * 100, 2) if days_invested >= 365 and total_inv > 0 else abs_ret
             
             portfolio_rows.append({
-                "Scheme": data['name'],
-                "Type": data['type'],
-                "Sub Type": data['sub_type'],
-                "No. Of Unit": round(total_units, 3),
-                "Gross Inv Amt.(₹)": round(total_inv, 2),
-                "Current NAV(₹)": round(current_nav, 4),
-                "Current Value(₹)": round(current_value, 2),
-                "Unrealised Gain /Loss(₹)": round(pnl, 2),
-                "Ann. Return (%)": ann_ret,
-                "Abs. Return (%)": abs_ret,
-                "ST Units": round(stcg_units, 3),
-                "LT Units": round(ltcg_units, 3)
+                "Scheme": data['name'], "Type": data['type'], "Sub Type": data['sub_type'],
+                "No. Of Unit": round(total_units, 3), "Gross Inv Amt.(₹)": round(total_inv, 2),
+                "Current NAV(₹)": round(current_nav, 4), "Current Value(₹)": round(current_value, 2),
+                "Unrealised Gain /Loss(₹)": round(pnl, 2), "Ann. Return (%)": ann_ret,
+                "Abs. Return (%)": abs_ret, "ST Units": round(stcg_units, 3), "LT Units": round(ltcg_units, 3)
             })
 
     if portfolio_rows:
         df_port = pd.DataFrame(portfolio_rows)
-        
         tot_inv = df_port["Gross Inv Amt.(₹)"].sum()
         tot_cur = df_port["Current Value(₹)"].sum()
         tot_pnl = df_port["Unrealised Gain /Loss(₹)"].sum()
         tot_pnl_pct = (tot_pnl / tot_inv * 100) if tot_inv > 0 else 0
-        
         df_port["% Holding"] = round((df_port["Current Value(₹)"] / tot_cur) * 100, 2) if tot_cur > 0 else 0
         
         cols = ["Scheme", "Type", "Sub Type", "No. Of Unit", "Gross Inv Amt.(₹)", "Current NAV(₹)", "Current Value(₹)", "Unrealised Gain /Loss(₹)", "Ann. Return (%)", "Abs. Return (%)", "% Holding", "ST Units", "LT Units"]
@@ -371,11 +414,9 @@ with tab3:
         c2.metric("Current Value", f"₹ {tot_cur:,.2f}")
         c3.metric("Total Unrealised P&L (₹)", f"₹ {tot_pnl:,.2f}")
         c4.metric("Total Abs. Return (%)", f"{tot_pnl_pct:.2f} %")
-        
         st.markdown("---")
         st.dataframe(df_port, use_container_width=True, hide_index=True)
-    else: 
-        st.info("No active holdings found in portfolio.")
+    else: st.info("No active holdings found in portfolio.")
 
     st.markdown("---")
     if st.button("🚨 Clear Entire Portfolio JSON Cache"):
@@ -383,146 +424,81 @@ with tab3:
         save_json(PORTFOLIO_FILE, [])
         st.rerun()
 
-    with st.expander("➕ Execute Manual Trade", expanded=False):
-        if st.session_state["watchlist"]:
-            f_dict = {}
-            for c in st.session_state["watchlist"]:
-                match = all_schemes[all_schemes["schemeCode"] == c] if not all_schemes.empty else pd.DataFrame()
-                if not match.empty: f_dict[match["schemeName"].iloc[0]] = c
-                else: f_dict[str(c)] = c
-            
-            trade_fund = st.selectbox("Select Target Scheme:", list(f_dict.keys()))
-            col1, col2 = st.columns(2)
-            trade_type = col1.selectbox("Transaction Type:", ["Buy", "SIP", "Sell"])
-            trade_date = col2.date_input("Transaction Date", value=today)
-            
-            c_u, c_n = st.columns(2)
-            trade_units = c_u.number_input("Number of Units", min_value=0.001, value=10.0, step=1.0)
-            trade_nav = c_n.number_input("NAV at execution (₹)", min_value=0.01, value=100.0, step=1.0)
-            
-            if st.button("Commit Transaction", type="primary"):
-                new_trade = {
-                    "code": f_dict[trade_fund], "name": trade_fund, 
-                    "asset_type": "-", "sub_type": "-", "type": trade_type,
-                    "date": trade_date.strftime('%Y-%m-%d'), "units": float(trade_units), "nav": float(trade_nav)
-                }
-                st.session_state["portfolio"].append(new_trade)
-                save_json(PORTFOLIO_FILE, st.session_state["portfolio"])
-                st.rerun()
-        else: st.warning("Please add funds to your Watchlist first.")
-
-    with st.expander("📁 Bulk Import Trades (CSV/Excel)", expanded=True):
-        st.markdown("Upload your broker's trade report. We now map exact **Types, Categories, Returns, and Holdings!**")
+    with st.expander("📁 Bulk Import Trades (CSV/Excel)", expanded=False):
+        st.markdown("Upload your broker's trade report.")
         bulk_file = st.file_uploader("Upload Trades File", type=["csv", "xlsx", "xls"], key="bulk_port_up")
         
         if bulk_file:
             try:
                 if bulk_file.name.endswith(".csv"): df_b = pd.read_csv(bulk_file)
                 else: df_b = pd.read_excel(bulk_file)
-                
                 df_b.columns = [str(c).strip() for c in df_b.columns]
                 
                 with st.form("bulk_map_form"):
-                    st.write("🔗 Map your CSV columns to APEX fields:")
                     cols = ["None"] + list(df_b.columns)
-                    
                     c1, c2, c3, c4 = st.columns(4)
-                    def_n = next((c for c in df_b.columns if any(k in c.lower() for k in ["name", "fund", "scheme"])), "None")
-                    def_asset = next((c for c in df_b.columns if c.lower() == "type" or "asset" in c.lower()), "None")
-                    def_sub = next((c for c in df_b.columns if "sub" in c.lower() or "category" in c.lower()), "None")
-                    def_t = next((c for c in df_b.columns if any(k in c.lower() for k in ["tran", "action", "buy"])), "None")
-                    
-                    map_name = c1.selectbox("Scheme (Name)", cols, index=cols.index(def_n) if def_n in cols else 0)
-                    map_asset = c2.selectbox("Type (Equity/Debt)", cols, index=cols.index(def_asset) if def_asset in cols else 0)
-                    map_sub = c3.selectbox("Sub Type (Category)", cols, index=cols.index(def_sub) if def_sub in cols else 0)
-                    map_type = c4.selectbox("Transaction Type", cols, index=cols.index(def_t) if def_t in cols else 0)
+                    map_name = c1.selectbox("Scheme (Name)", cols, index=cols.index(next((c for c in df_b.columns if any(k in c.lower() for k in ["name", "fund", "scheme"])), "None")) if next((c for c in df_b.columns if any(k in c.lower() for k in ["name", "fund", "scheme"])), "None") in cols else 0)
+                    map_asset = c2.selectbox("Type (Equity/Debt)", cols, index=cols.index(next((c for c in df_b.columns if c.lower() == "type" or "asset" in c.lower()), "None")) if next((c for c in df_b.columns if c.lower() == "type" or "asset" in c.lower()), "None") in cols else 0)
+                    map_sub = c3.selectbox("Sub Type (Category)", cols, index=cols.index(next((c for c in df_b.columns if "sub" in c.lower() or "category" in c.lower()), "None")) if next((c for c in df_b.columns if "sub" in c.lower() or "category" in c.lower()), "None") in cols else 0)
+                    map_type = c4.selectbox("Transaction Type", cols, index=cols.index(next((c for c in df_b.columns if any(k in c.lower() for k in ["tran", "action", "buy"])), "None")) if next((c for c in df_b.columns if any(k in c.lower() for k in ["tran", "action", "buy"])), "None") in cols else 0)
                     
                     c5, c6, c7 = st.columns(3)
-                    def_d = next((c for c in df_b.columns if any(k in c.lower() for k in ["date", "time"])), "None")
-                    def_u = next((c for c in df_b.columns if any(k in c.lower() for k in ["unit", "qty", "quantity"])), "None")
-                    def_nav = next((c for c in df_b.columns if any(k in c.lower() for k in ["nav", "price", "rate", "amt", "amount", "inv"])), "None")
+                    map_date = c5.selectbox("Date", cols, index=cols.index(next((c for c in df_b.columns if any(k in c.lower() for k in ["date", "time"])), "None")) if next((c for c in df_b.columns if any(k in c.lower() for k in ["date", "time"])), "None") in cols else 0)
+                    map_unit = c6.selectbox("No. Of Unit", cols, index=cols.index(next((c for c in df_b.columns if any(k in c.lower() for k in ["unit", "qty", "quantity"])), "None")) if next((c for c in df_b.columns if any(k in c.lower() for k in ["unit", "qty", "quantity"])), "None") in cols else 0)
+                    map_nav = c7.selectbox("Inv. Amt.(₹) or NAV", cols, index=cols.index(next((c for c in df_b.columns if any(k in c.lower() for k in ["nav", "price", "rate", "amt", "amount", "inv"])), "None")) if next((c for c in df_b.columns if any(k in c.lower() for k in ["nav", "price", "rate", "amt", "amount", "inv"])), "None") in cols else 0)
                     
-                    map_date = c5.selectbox("Date", cols, index=cols.index(def_d) if def_d in cols else 0)
-                    map_unit = c6.selectbox("No. Of Unit", cols, index=cols.index(def_u) if def_u in cols else 0)
-                    map_nav = c7.selectbox("Inv. Amt.(₹) or NAV", cols, index=cols.index(def_nav) if def_nav in cols else 0)
-                    
-                    if st.form_submit_button("🚀 Process & Import Full Data"):
-                        if "None" in [map_name, map_unit, map_nav]:
-                            st.warning("Please map at least Scheme Name, Units, and NAV/Amount to proceed.")
+                    if st.form_submit_button("🚀 Process & Import"):
+                        if "None" in [map_name, map_unit, map_nav]: st.warning("Please map at least Scheme Name, Units, and NAV/Amount to proceed.")
                         else:
                             success_count = 0
                             failed_funds = set()
-                            
                             for _, row in df_b.iterrows():
                                 raw_name = str(row[map_name]).strip()
                                 raw_lower = raw_name.lower()
-                                
-                                if raw_lower in ["nan", "none", "", "null"] or "total" in raw_lower or "note" in raw_lower:
-                                    continue
+                                if raw_lower in ["nan", "none", "", "null"] or "total" in raw_lower or "note" in raw_lower: continue
                                 
                                 clean_name = raw_name.split('-')[0].strip().lower()
                                 match = all_schemes[all_schemes['search_term'].str.contains(clean_name, regex=False, na=False)]
-                                
                                 if not match.empty:
                                     if "idcw" not in raw_lower and "div" not in raw_lower:
                                         no_idcw = match[~match['search_term'].str.contains("idcw|dividend|payout|reinvestment", regex=True)]
                                         if not no_idcw.empty: match = no_idcw
-                                        
                                     if "gr" in raw_lower or "growth" in raw_lower:
                                         gr_match = match[match['search_term'].str.contains("growth", regex=False)]
                                         if not gr_match.empty: match = gr_match
-                                        
                                     if "dir" not in raw_lower and "direct" not in raw_lower:
                                         reg_match = match[match['search_term'].str.contains("regular", regex=False)]
                                         if not reg_match.empty: match = reg_match
                                     
                                     sc_code = int(match.iloc[0]['schemeCode'])
-                                    sc_name = match.iloc[0]['schemeName']
+                                    if sc_code not in st.session_state["watchlist"]: st.session_state["watchlist"].append(sc_code)
                                     
-                                    if sc_code not in st.session_state["watchlist"]:
-                                        st.session_state["watchlist"].append(sc_code)
-                                    
-                                    try: 
-                                        if map_date != "None" and pd.notna(row[map_date]):
-                                            dt_parsed = pd.to_datetime(row[map_date]).strftime('%Y-%m-%d')
-                                        else: dt_parsed = datetime.today().strftime('%Y-%m-%d')
+                                    try: dt_parsed = pd.to_datetime(row[map_date]).strftime('%Y-%m-%d') if map_date != "None" and pd.notna(row[map_date]) else datetime.today().strftime('%Y-%m-%d')
                                     except: dt_parsed = datetime.today().strftime('%Y-%m-%d')
                                     
                                     try:
                                         r_units = float(row[map_unit])
                                         r_nav = float(row[map_nav])
-                                        if pd.isna(r_units) or pd.isna(r_nav) or r_units <= 0:
-                                            continue
+                                        if pd.isna(r_units) or pd.isna(r_nav) or r_units <= 0: continue
+                                        if r_nav > 5000 and (r_nav / r_units) < 5000: r_nav = round(r_nav / r_units, 4)
                                             
-                                        if r_nav > 5000 and (r_nav / r_units) < 5000:
-                                            r_nav = round(r_nav / r_units, 4)
-                                            
-                                        new_trade = {
-                                            "code": sc_code, "name": sc_name, 
+                                        st.session_state["portfolio"].append({
+                                            "code": sc_code, "name": match.iloc[0]['schemeName'], 
                                             "asset_type": str(row[map_asset]) if map_asset != "None" else "Equity",
                                             "sub_type": str(row[map_sub]) if map_sub != "None" else "-",
                                             "type": "Sell" if map_type != "None" and "sell" in str(row[map_type]).lower() else "Buy",
                                             "date": dt_parsed, "units": r_units, "nav": r_nav
-                                        }
-                                        st.session_state["portfolio"].append(new_trade)
+                                        })
                                         success_count += 1
-                                    except Exception: 
-                                        pass
-                                else:
-                                    failed_funds.add(raw_name)
-                            
+                                    except: pass
+                                else: failed_funds.add(raw_name)
                             save_json(WATCHLIST_FILE, st.session_state["watchlist"])
                             save_json(PORTFOLIO_FILE, st.session_state["portfolio"])
-                            
                             if success_count > 0:
-                                st.success(f"✅ Successfully imported {success_count} valid holdings with exact Growth/Regular match!")
-                                if failed_funds:
-                                    st.warning(f"Could not match these funds with AMFI DB: {', '.join(list(failed_funds)[:5])}...")
+                                st.success(f"✅ Imported {success_count} holdings.")
                                 st.rerun()
-                            else:
-                                st.error("No valid trades imported.")
-            except Exception as e:
-                st.error(f"Error reading file: {str(e)}")
+                            else: st.error("No valid trades imported.")
+            except Exception as e: st.error(f"Error reading file: {str(e)}")
 
 with tab4:
     st.markdown("### 📈 Institutional Fund Analysis")
@@ -534,18 +510,15 @@ with tab4:
             else: f_dict[str(c)] = c
             
         compare_funds = st.multiselect("Select Funds for Head-to-Head Comparison:", list(f_dict.keys()), default=list(f_dict.keys())[:2])
-        
         if compare_funds:
-            with st.spinner("Crunching historical data (100% accurate mathematical models)..."):
+            with st.spinner("Crunching historical data..."):
                 hist_data = {}
                 for f_name in compare_funds:
-                    code = f_dict[f_name]
-                    raw = get_historical_nav(code)
+                    raw = get_historical_nav(f_dict[f_name])
                     if raw: hist_data[f_name] = raw['data']
                 
                 if hist_data:
                     c1, c2 = st.columns(2)
-                    
                     with c1:
                         st.markdown("#### Maximum Drawdown (Risk)")
                         fig_dd = go.Figure()
@@ -556,40 +529,17 @@ with tab4:
                             fig_dd.add_trace(go.Scatter(x=drawdown.index, y=drawdown, mode='lines', name=f_name[:20]))
                         fig_dd.update_layout(template="plotly_dark", margin=dict(l=0, r=0, t=30, b=0))
                         st.plotly_chart(fig_dd, use_container_width=True)
-                    
                     with c2:
                         st.markdown("#### Risk vs Reward (3Y)")
                         scatter_data = []
                         for f_name in compare_funds:
-                            code = f_dict[f_name]
-                            m = calculate_fund_metrics(code)
+                            m = calculate_fund_metrics(f_dict[f_name])
                             if m and m["3-Year CAGR (%)"] and m["Volatility (%)"]:
                                 scatter_data.append({"Fund": f_name[:25], "CAGR": m["3-Year CAGR (%)"], "Risk (Vol)": m["Volatility (%)"]})
-                        
                         if scatter_data:
-                            sdf = pd.DataFrame(scatter_data)
-                            fig_sc = px.scatter(sdf, x="Risk (Vol)", y="CAGR", text="Fund", size_max=60, color="Fund")
+                            fig_sc = px.scatter(pd.DataFrame(scatter_data), x="Risk (Vol)", y="CAGR", text="Fund", size_max=60, color="Fund")
                             fig_sc.update_traces(textposition='top center')
                             fig_sc.update_layout(template="plotly_dark", margin=dict(l=0, r=0, t=30, b=0))
                             st.plotly_chart(fig_sc, use_container_width=True)
-                        else:
-                            st.warning("Not enough 3-year data for scatter plot.")
-                            
-                    st.markdown("#### 1-Year Rolling Return Consistency")
-                    roll_stats = []
-                    for f_name, df in hist_data.items():
-                        df = df.set_index('date').sort_index()
-                        df['1Y_Roll'] = df['nav'].pct_change(periods=252) * 100
-                        clean_roll = df['1Y_Roll'].dropna()
-                        if not clean_roll.empty:
-                            roll_stats.append({
-                                "Fund": f_name,
-                                "Avg 1Y Return": round(clean_roll.mean(), 2),
-                                "Max 1Y Return": round(clean_roll.max(), 2),
-                                "Min 1Y Return": round(clean_roll.min(), 2),
-                                "% Times Negative": round((len(clean_roll[clean_roll < 0]) / len(clean_roll)) * 100, 2)
-                            })
-                    if roll_stats:
-                        st.dataframe(pd.DataFrame(roll_stats), use_container_width=True, hide_index=True)
-    else:
-        st.info("Watchlist me funds add karein analysis ke liye.")
+                        else: st.warning("Not enough 3-year data for scatter plot.")
+    else: st.info("Watchlist me funds add karein analysis ke liye.")
