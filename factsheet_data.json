@@ -5508,5 +5508,312 @@
                 "% to NAV": 5.43
             }
         ]
+    },
+    "145139": {
+        "top35": [
+            {
+                "Name of the Instrument": "Sai Life Sciences Limited",
+                "% to Net Assets": 5.14,
+                "Industry*": "Pharmaceuticals & Biotechnology",
+                "Ticker": "SAILIFE.NS"
+            },
+            {
+                "Name of the Instrument": "Eternal Limited",
+                "% to Net Assets": 4.38,
+                "Industry*": "Retailing",
+                "Ticker": "ETERNAL.NS"
+            },
+            {
+                "Name of the Instrument": "Aditya Infotech Limited",
+                "% to Net Assets": 3.98,
+                "Industry*": "Industrial Manufacturing",
+                "Ticker": "CPPLUS.NS"
+            },
+            {
+                "Name of the Instrument": "Amber Enterprises India Limited",
+                "% to Net Assets": 3.69,
+                "Industry*": "Consumer Durables",
+                "Ticker": "AMBER.NS"
+            },
+            {
+                "Name of the Instrument": "Krishna Institute Of Medical Sciences Limited",
+                "% to Net Assets": 3.42,
+                "Industry*": "Healthcare Services",
+                "Ticker": "KIMS.NS"
+            },
+            {
+                "Name of the Instrument": "InterGlobe Aviation Limited",
+                "% to Net Assets": 3.08,
+                "Industry*": "Transport Services",
+                "Ticker": "INDIGO.NS"
+            },
+            {
+                "Name of the Instrument": "Max Healthcare Institute Limited",
+                "% to Net Assets": 2.98,
+                "Industry*": "Healthcare Services",
+                "Ticker": "MAXHEALTH.NS"
+            },
+            {
+                "Name of the Instrument": "Prestige Estates Projects Limited",
+                "% to Net Assets": 2.73,
+                "Industry*": "Realty",
+                "Ticker": "PRESTIGE.NS"
+            },
+            {
+                "Name of the Instrument": "Paradeep Phosphates Limited",
+                "% to Net Assets": 2.44,
+                "Industry*": "Fertilizers & Agrochemicals",
+                "Ticker": "PARADEEP.NS"
+            },
+            {
+                "Name of the Instrument": "Craftsman Automation Limited",
+                "% to Net Assets": 2.34,
+                "Industry*": "Auto Components",
+                "Ticker": "CRAFTSMAN.NS"
+            },
+            {
+                "Name of the Instrument": "Dr Agarwals Health Care Limited",
+                "% to Net Assets": 2.25,
+                "Industry*": "Healthcare Services",
+                "Ticker": "DR.NS"
+            },
+            {
+                "Name of the Instrument": "RBL Bank Limited",
+                "% to Net Assets": 2.2,
+                "Industry*": "Banks",
+                "Ticker": "RBLBANK.NS"
+            },
+            {
+                "Name of the Instrument": "ABB India Limited",
+                "% to Net Assets": 1.97,
+                "Industry*": "Electrical Equipment",
+                "Ticker": "ABB.NS"
+            },
+            {
+                "Name of the Instrument": "Karur Vysya Bank Limited",
+                "% to Net Assets": 1.95,
+                "Industry*": "Banks",
+                "Ticker": "KARURVYSYA.NS"
+            },
+            {
+                "Name of the Instrument": "Meesho Ltd",
+                "% to Net Assets": 1.94,
+                "Industry*": "Retailing",
+                "Ticker": "MEESHO.NS"
+            },
+            {
+                "Name of the Instrument": "Global Health Limited",
+                "% to Net Assets": 1.86,
+                "Industry*": "Healthcare Services",
+                "Ticker": "GLOBAL.NS"
+            },
+            {
+                "Name of the Instrument": "Corona Remedies Limited",
+                "% to Net Assets": 1.82,
+                "Industry*": "Pharmaceuticals & Biotechnology",
+                "Ticker": "CORONA.NS"
+            },
+            {
+                "Name of the Instrument": "Timken India Limited",
+                "% to Net Assets": 1.73,
+                "Industry*": "Industrial Products",
+                "Ticker": "TIMKEN.NS"
+            },
+            {
+                "Name of the Instrument": "L&T Finance Limited",
+                "% to Net Assets": 1.72,
+                "Industry*": "Finance",
+                "Ticker": "LT.NS"
+            },
+            {
+                "Name of the Instrument": "The Federal Bank  Limited",
+                "% to Net Assets": 1.66,
+                "Industry*": "Banks",
+                "Ticker": "THE.NS"
+            },
+            {
+                "Name of the Instrument": "BSE Limited",
+                "% to Net Assets": 1.57,
+                "Industry*": "Capital Markets",
+                "Ticker": "BSE.NS"
+            },
+            {
+                "Name of the Instrument": "Manipal Health Enterprises Ltd",
+                "% to Net Assets": 1.54,
+                "Industry*": "Healthcare Services",
+                "Ticker": "MANIPAL.NS"
+            },
+            {
+                "Name of the Instrument": "Aether Industries Limited",
+                "% to Net Assets": 1.51,
+                "Industry*": "Chemicals & Petrochemicals",
+                "Ticker": "AETHER.NS"
+            },
+            {
+                "Name of the Instrument": "ICICI Bank Limited",
+                "% to Net Assets": 1.49,
+                "Industry*": "Banks",
+                "Ticker": "ICICIBANK.NS"
+            },
+            {
+                "Name of the Instrument": "Trent Limited",
+                "% to Net Assets": 1.48,
+                "Industry*": "Retailing",
+                "Ticker": "TRENT.NS"
+            },
+            {
+                "Name of the Instrument": "Kwality Walls (India) Limited",
+                "% to Net Assets": 1.46,
+                "Industry*": "Food Products",
+                "Ticker": "KWALITY.NS"
+            },
+            {
+                "Name of the Instrument": "Max Financial Services Limited",
+                "% to Net Assets": 1.44,
+                "Industry*": "Insurance",
+                "Ticker": "MFSL.NS"
+            },
+            {
+                "Name of the Instrument": "Angel One Limited",
+                "% to Net Assets": 1.37,
+                "Industry*": "Capital Markets",
+                "Ticker": "ANGELONE.NS"
+            },
+            {
+                "Name of the Instrument": "EIH Limited",
+                "% to Net Assets": 1.31,
+                "Industry*": "Leisure Services",
+                "Ticker": "EIH.NS"
+            },
+            {
+                "Name of the Instrument": "Belrise Industries Ltd.",
+                "% to Net Assets": 1.3,
+                "Industry*": "Auto Components",
+                "Ticker": "BELRISE.NS"
+            },
+            {
+                "Name of the Instrument": "Go Digit General Insurance Ltd",
+                "% to Net Assets": 1.27,
+                "Industry*": "Insurance",
+                "Ticker": "GO.NS"
+            },
+            {
+                "Name of the Instrument": "Wework India Management Limited",
+                "% to Net Assets": 1.26,
+                "Industry*": "Commercial Services & Supplies",
+                "Ticker": "WEWORK.NS"
+            },
+            {
+                "Name of the Instrument": "City Union Bank Limited",
+                "% to Net Assets": 1.25,
+                "Industry*": "Banks",
+                "Ticker": "CUB.NS"
+            },
+            {
+                "Name of the Instrument": "Ethos Ltd.",
+                "% to Net Assets": 1.21,
+                "Industry*": "Consumer Durables",
+                "Ticker": "ETHOS.NS"
+            },
+            {
+                "Name of the Instrument": "CEAT Limited",
+                "% to Net Assets": 1.19,
+                "Industry*": "Auto Components",
+                "Ticker": "CEAT.NS"
+            }
+        ],
+        "comp": "Name of the Instrument",
+        "w": "% to Net Assets",
+        "sec": "Industry*",
+        "sec_df": [
+            {
+                "Industry*": "Agricultural, Commercial & Construction Vehicles",
+                "% to Net Assets": 0.75
+            },
+            {
+                "Industry*": "Auto Components",
+                "% to Net Assets": 6.82
+            },
+            {
+                "Industry*": "Banks",
+                "% to Net Assets": 10.8
+            },
+            {
+                "Industry*": "Capital Markets",
+                "% to Net Assets": 6.43
+            },
+            {
+                "Industry*": "Cement & Cement Products",
+                "% to Net Assets": 1.3900000000000001
+            },
+            {
+                "Industry*": "Chemicals & Petrochemicals",
+                "% to Net Assets": 2.86
+            },
+            {
+                "Industry*": "Commercial Services & Supplies",
+                "% to Net Assets": 1.26
+            },
+            {
+                "Industry*": "Consumer Durables",
+                "% to Net Assets": 5.81
+            },
+            {
+                "Industry*": "Electrical Equipment",
+                "% to Net Assets": 1.97
+            },
+            {
+                "Industry*": "Fertilizers & Agrochemicals",
+                "% to Net Assets": 2.44
+            },
+            {
+                "Industry*": "Finance",
+                "% to Net Assets": 2.65
+            },
+            {
+                "Industry*": "Food Products",
+                "% to Net Assets": 1.67
+            },
+            {
+                "Industry*": "Healthcare Services",
+                "% to Net Assets": 12.46
+            },
+            {
+                "Industry*": "IT - Software",
+                "% to Net Assets": 1.17
+            },
+            {
+                "Industry*": "Industrial Manufacturing",
+                "% to Net Assets": 4.77
+            },
+            {
+                "Industry*": "Industrial Products",
+                "% to Net Assets": 4.78
+            },
+            {
+                "Industry*": "Insurance",
+                "% to Net Assets": 2.71
+            },
+            {
+                "Industry*": "Leisure Services",
+                "% to Net Assets": 3.04
+            },
+            {
+                "Industry*": "Pharmaceuticals & Biotechnology",
+                "% to Net Assets": 7.6899999999999995
+            },
+            {
+                "Industry*": "Realty",
+                "% to Net Assets": 5.47
+            },
+            {
+                "Industry*": "Retailing",
+                "% to Net Assets": 7.8
+            },
+            {
+                "Industry*": "Transport Services",
+                "% to Net Assets": 4.18
+            }
+        ]
     }
 }
