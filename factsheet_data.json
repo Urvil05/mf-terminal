@@ -5146,5 +5146,194 @@
                 "% to Net Assets": 1.6731359264945098
             }
         ]
+    },
+    "151751": {
+        "top35": [
+            {
+                "Name Of the Instrument": "Bharat Electronics Ltd.",
+                "% to NAV": 14.87,
+                "Industry+ /Rating": "Aerospace & Defense",
+                "Ticker": "BEL.NS"
+            },
+            {
+                "Name Of the Instrument": "Bharat Forge Ltd.",
+                "% to NAV": 12.91,
+                "Industry+ /Rating": "Auto Components",
+                "Ticker": "BHARATFORG.NS"
+            },
+            {
+                "Name Of the Instrument": "Hindustan Aeronautics Limited",
+                "% to NAV": 12.61,
+                "Industry+ /Rating": "Aerospace & Defense",
+                "Ticker": "HAL.NS"
+            },
+            {
+                "Name Of the Instrument": "Solar Industries India Ltd.",
+                "% to NAV": 10.28,
+                "Industry+ /Rating": "Chemicals & Petrochemicals",
+                "Ticker": "SOLARINDS.NS"
+            },
+            {
+                "Name Of the Instrument": "Astra Microwave Products Ltd.",
+                "% to NAV": 6.44,
+                "Industry+ /Rating": "Aerospace & Defense",
+                "Ticker": "ASTRAMICRO.NS"
+            },
+            {
+                "Name Of the Instrument": "BEML Limited",
+                "% to NAV": 5.11,
+                "Industry+ /Rating": "Agricultural, Commercial & Construction Vehicles",
+                "Ticker": "BEML.NS"
+            },
+            {
+                "Name Of the Instrument": "MTAR Technologies Limited",
+                "% to NAV": 5.09,
+                "Industry+ /Rating": "Electrical Equipment",
+                "Ticker": "MTARTECH.NS"
+            },
+            {
+                "Name Of the Instrument": "Eicher Motors Ltd.",
+                "% to NAV": 4.67,
+                "Industry+ /Rating": "Automobiles",
+                "Ticker": "EICHER.NS"
+            },
+            {
+                "Name Of the Instrument": "Bosch Limited",
+                "% to NAV": 4.1,
+                "Industry+ /Rating": "Auto Components",
+                "Ticker": "BOSCH.NS"
+            },
+            {
+                "Name Of the Instrument": "Bharat Dynamics Limited",
+                "% to NAV": 3.19,
+                "Industry+ /Rating": "Aerospace & Defense",
+                "Ticker": "BHARAT.NS"
+            },
+            {
+                "Name Of the Instrument": "Cyient DLM Limited",
+                "% to NAV": 3.18,
+                "Industry+ /Rating": "Aerospace & Defense",
+                "Ticker": "CYIENT.NS"
+            },
+            {
+                "Name Of the Instrument": "Mazagon Dock Shipbuilders Ltd",
+                "% to NAV": 3.17,
+                "Industry+ /Rating": "Industrial Manufacturing",
+                "Ticker": "MAZAGON.NS"
+            },
+            {
+                "Name Of the Instrument": "Centum Electronics Ltd.",
+                "% to NAV": 2.95,
+                "Industry+ /Rating": "Aerospace & Defense",
+                "Ticker": "CENTUM.NS"
+            },
+            {
+                "Name Of the Instrument": "Premier Explosives Ltd.",
+                "% to NAV": 2.77,
+                "Industry+ /Rating": "Chemicals & Petrochemicals",
+                "Ticker": "PREMIER.NS"
+            },
+            {
+                "Name Of the Instrument": "Data Patterns (India) Limited",
+                "% to NAV": 1.98,
+                "Industry+ /Rating": "Aerospace & Defense",
+                "Ticker": "DATA.NS"
+            },
+            {
+                "Name Of the Instrument": "Sedemac Mechatronics Limited",
+                "% to NAV": 1.21,
+                "Industry+ /Rating": "Auto Components",
+                "Ticker": "SEDEMAC.NS"
+            },
+            {
+                "Name Of the Instrument": "Tata Motors Limited",
+                "% to NAV": 1.07,
+                "Industry+ /Rating": "Agricultural, Commercial & Construction Vehicles",
+                "Ticker": "TATA.NS"
+            },
+            {
+                "Name Of the Instrument": "IDEAFORGE TECHNOLOGY LIMITED",
+                "% to NAV": 0.77,
+                "Industry+ /Rating": "Aerospace & Defense",
+                "Ticker": "IDEAFORGE.NS"
+            },
+            {
+                "Name Of the Instrument": "Power Mech Projects Ltd.",
+                "% to NAV": 0.65,
+                "Industry+ /Rating": "Construction",
+                "Ticker": "POWER.NS"
+            },
+            {
+                "Name Of the Instrument": "INDO-MIM Limited",
+                "% to NAV": 0.36,
+                "Industry+ /Rating": "Industrial Manufacturing",
+                "Ticker": "INDOMIM.NS"
+            },
+            {
+                "Name Of the Instrument": "Cochin Shipyard Ltd.",
+                "% to NAV": 0.34,
+                "Industry+ /Rating": "Industrial Manufacturing",
+                "Ticker": "COCHINSHIP.NS"
+            },
+            {
+                "Name Of the Instrument": "Diffusion Engineers Limited",
+                "% to NAV": 0.22,
+                "Industry+ /Rating": "Industrial Products",
+                "Ticker": "DIFFUSION.NS"
+            },
+            {
+                "Name Of the Instrument": "JNK India Limited",
+                "% to NAV": 0.21,
+                "Industry+ /Rating": "Industrial Manufacturing",
+                "Ticker": "JNK.NS"
+            },
+            {
+                "Name Of the Instrument": "AEQUS LIMITED",
+                "% to NAV": 0.12,
+                "Industry+ /Rating": "Aerospace & Defense",
+                "Ticker": "AEQUS.NS"
+            }
+        ],
+        "comp": "Name Of the Instrument",
+        "w": "% to NAV",
+        "sec": "Industry+ /Rating",
+        "sec_df": [
+            {
+                "Industry+ /Rating": "Aerospace & Defense",
+                "% to NAV": 46.11
+            },
+            {
+                "Industry+ /Rating": "Agricultural, Commercial & Construction Vehicles",
+                "% to NAV": 6.180000000000001
+            },
+            {
+                "Industry+ /Rating": "Auto Components",
+                "% to NAV": 18.22
+            },
+            {
+                "Industry+ /Rating": "Automobiles",
+                "% to NAV": 4.67
+            },
+            {
+                "Industry+ /Rating": "Chemicals & Petrochemicals",
+                "% to NAV": 13.049999999999999
+            },
+            {
+                "Industry+ /Rating": "Construction",
+                "% to NAV": 0.65
+            },
+            {
+                "Industry+ /Rating": "Electrical Equipment",
+                "% to NAV": 5.09
+            },
+            {
+                "Industry+ /Rating": "Industrial Manufacturing",
+                "% to NAV": 4.08
+            },
+            {
+                "Industry+ /Rating": "Industrial Products",
+                "% to NAV": 0.22
+            }
+        ]
     }
 }
