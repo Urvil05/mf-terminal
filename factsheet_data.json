@@ -4374,5 +4374,232 @@
                 "% to Net\n Assets": 1.02
             }
         ]
+    },
+    "152208": {
+        "top35": [
+            {
+                "Name of Instrument": "ICICI Bank Limited",
+                "% to Net Assets": 9.700000000000001,
+                "Rating/Industry": "Banks",
+                "Ticker": "ICICIBANK.NS"
+            },
+            {
+                "Name of Instrument": "HDFC Bank Limited",
+                "% to Net Assets": 6.069999999999999,
+                "Rating/Industry": "Banks",
+                "Ticker": "HDFCBANK.NS"
+            },
+            {
+                "Name of Instrument": "Axis Bank Limited",
+                "% to Net Assets": 5.7,
+                "Rating/Industry": "Banks",
+                "Ticker": "AXISBANK.NS"
+            },
+            {
+                "Name of Instrument": "Cholamandalam Investment and Finance Co Limited",
+                "% to Net Assets": 5.16,
+                "Rating/Industry": "Finance",
+                "Ticker": "CHOLAMANDALAM.NS"
+            },
+            {
+                "Name of Instrument": "State Bank of India",
+                "% to Net Assets": 4.63,
+                "Rating/Industry": "Banks",
+                "Ticker": "SBIN.NS"
+            },
+            {
+                "Name of Instrument": "Kotak Mahindra Bank Limited",
+                "% to Net Assets": 4.63,
+                "Rating/Industry": "Banks",
+                "Ticker": "KOTAK.NS"
+            },
+            {
+                "Name of Instrument": "Ujjivan Small Finance Bank Limited",
+                "% to Net Assets": 4.569999999999999,
+                "Rating/Industry": "Banks",
+                "Ticker": "UJJIVAN.NS"
+            },
+            {
+                "Name of Instrument": "Shriram Finance Limited",
+                "% to Net Assets": 4.47,
+                "Rating/Industry": "Finance",
+                "Ticker": "SHRIRAMFIN.NS"
+            },
+            {
+                "Name of Instrument": "Bajaj Finance Limited",
+                "% to Net Assets": 4.32,
+                "Rating/Industry": "Finance",
+                "Ticker": "BAJFINANCE.NS"
+            },
+            {
+                "Name of Instrument": "Max Financial Services Limited",
+                "% to Net Assets": 4.18,
+                "Rating/Industry": "Insurance",
+                "Ticker": "MFSL.NS"
+            },
+            {
+                "Name of Instrument": "Canara HSBC Life Insurance Co Limited",
+                "% to Net Assets": 4.130000000000001,
+                "Rating/Industry": "Insurance",
+                "Ticker": "CANARA.NS"
+            },
+            {
+                "Name of Instrument": "City Union Bank Limited",
+                "% to Net Assets": 3.9699999999999998,
+                "Rating/Industry": "Banks",
+                "Ticker": "CITY.NS"
+            },
+            {
+                "Name of Instrument": "SBI Life Insurance Co Limited",
+                "% to Net Assets": 3.8699999999999997,
+                "Rating/Industry": "Insurance",
+                "Ticker": "SBI.NS"
+            },
+            {
+                "Name of Instrument": "Aditya Birla Capital Limited",
+                "% to Net Assets": 3.62,
+                "Rating/Industry": "Finance",
+                "Ticker": "ADITYA.NS"
+            },
+            {
+                "Name of Instrument": "Multi Commodity Exchange Of India Limited",
+                "% to Net Assets": 3.4099999999999997,
+                "Rating/Industry": "Capital Markets",
+                "Ticker": "MCX.NS"
+            },
+            {
+                "Name of Instrument": "Aadhar Housing Finance Limited",
+                "% to Net Assets": 3.34,
+                "Rating/Industry": "Finance",
+                "Ticker": "AADHAR.NS"
+            },
+            {
+                "Name of Instrument": "PB Fintech Limited",
+                "% to Net Assets": 3.01,
+                "Rating/Industry": "Financial Technology (Fintech)",
+                "Ticker": "PB.NS"
+            },
+            {
+                "Name of Instrument": "Karur Vysya Bank Limited",
+                "% to Net Assets": 2.68,
+                "Rating/Industry": "Banks",
+                "Ticker": "KARURVYSYA.NS"
+            },
+            {
+                "Name of Instrument": "PNB Housing Finance Limited",
+                "% to Net Assets": 2.64,
+                "Rating/Industry": "Finance",
+                "Ticker": "PNB.NS"
+            },
+            {
+                "Name of Instrument": "Bank Of Maharashtra",
+                "% to Net Assets": 2.5100000000000002,
+                "Rating/Industry": "Banks",
+                "Ticker": "MAHABANK.NS"
+            },
+            {
+                "Name of Instrument": "Union Bank Of India",
+                "% to Net Assets": 2.46,
+                "Rating/Industry": "Banks",
+                "Ticker": "UNION.NS"
+            },
+            {
+                "Name of Instrument": "Aditya Birla Sun Life AMC Limited",
+                "% to Net Assets": 1.51,
+                "Rating/Industry": "Capital Markets",
+                "Ticker": "ADITYA.NS"
+            },
+            {
+                "Name of Instrument": "Bank of India",
+                "% to Net Assets": 1.46,
+                "Rating/Industry": "Banks",
+                "Ticker": "BANK.NS"
+            },
+            {
+                "Name of Instrument": "BSE Limited",
+                "% to Net Assets": 1.4200000000000002,
+                "Rating/Industry": "Capital Markets",
+                "Ticker": "BSE.NS"
+            },
+            {
+                "Name of Instrument": "Prudent Corporate Advisory Services Limited",
+                "% to Net Assets": 1.4000000000000001,
+                "Rating/Industry": "Capital Markets",
+                "Ticker": "PRUDENT.NS"
+            },
+            {
+                "Name of Instrument": "National Stock Exchange Of India Limited",
+                "% to Net Assets": 0.97,
+                "Rating/Industry": "Capital Markets",
+                "Ticker": "NATIONAL.NS"
+            },
+            {
+                "Name of Instrument": "Kfin Technologies Limited",
+                "% to Net Assets": 0.86,
+                "Rating/Industry": "Capital Markets",
+                "Ticker": "KFIN.NS"
+            },
+            {
+                "Name of Instrument": "Seshaasai Technologies Limited",
+                "% to Net Assets": 0.69,
+                "Rating/Industry": "Financial Technology (Fintech)",
+                "Ticker": "SESHAASAI.NS"
+            },
+            {
+                "Name of Instrument": "Nippon Life India Asset Management Limited",
+                "% to Net Assets": 0.67,
+                "Rating/Industry": "Capital Markets",
+                "Ticker": "NIPPON.NS"
+            },
+            {
+                "Name of Instrument": "Life Insurance Corporation Of India",
+                "% to Net Assets": 0.26,
+                "Rating/Industry": "Insurance",
+                "Ticker": "LIFE.NS"
+            },
+            {
+                "Name of Instrument": "Billionbrains Garage Ventures Limited",
+                "% to Net Assets": 0.19,
+                "Rating/Industry": "Capital Markets",
+                "Ticker": "GROWW.NS"
+            },
+            {
+                "Name of Instrument": "ICICI Prudential Asset Management Co Limited",
+                "% to Net Assets": 0.02,
+                "Rating/Industry": "Capital Markets",
+                "Ticker": "ICICI.NS"
+            },
+            {
+                "Name of Instrument": "Bajaj Finserv Limited",
+                "% to Net Assets": 0.01,
+                "Rating/Industry": "Finance",
+                "Ticker": "BAJAJ.NS"
+            }
+        ],
+        "comp": "Name of Instrument",
+        "w": "% to Net Assets",
+        "sec": "Rating/Industry",
+        "sec_df": [
+            {
+                "Rating/Industry": "Banks",
+                "% to Net Assets": 48.38
+            },
+            {
+                "Rating/Industry": "Capital Markets",
+                "% to Net Assets": 10.45
+            },
+            {
+                "Rating/Industry": "Finance",
+                "% to Net Assets": 23.56
+            },
+            {
+                "Rating/Industry": "Financial Technology (Fintech)",
+                "% to Net Assets": 3.6999999999999997
+            },
+            {
+                "Rating/Industry": "Insurance",
+                "% to Net Assets": 12.44
+            }
+        ]
     }
 }
