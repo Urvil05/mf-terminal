@@ -6148,5 +6148,312 @@
                 "% to Net Assets": 0.78499367744
             }
         ]
+    },
+    "152232": {
+        "top35": [
+            {
+                "Name of the Instrument": "Rubicon Research Limited",
+                "% to Net Assets": 3.84,
+                "Industry*": "Pharmaceuticals & Biotechnology",
+                "Ticker": "RUBICON.NS"
+            },
+            {
+                "Name of the Instrument": "VA Tech Wabag Limited",
+                "% to Net Assets": 3.82,
+                "Industry*": "Other Utilities",
+                "Ticker": "VA.NS"
+            },
+            {
+                "Name of the Instrument": "CCL Products (India) Limited",
+                "% to Net Assets": 3.49,
+                "Industry*": "Agricultural Food & other Products",
+                "Ticker": "CCL.NS"
+            },
+            {
+                "Name of the Instrument": "Aditya Infotech Limited",
+                "% to Net Assets": 3.38,
+                "Industry*": "Industrial Manufacturing",
+                "Ticker": "CPPLUS.NS"
+            },
+            {
+                "Name of the Instrument": "Karur Vysya Bank Limited",
+                "% to Net Assets": 3.02,
+                "Industry*": "Banks",
+                "Ticker": "KARURVYSYA.NS"
+            },
+            {
+                "Name of the Instrument": "Dr Agarwals Health Care Limited",
+                "% to Net Assets": 2.92,
+                "Industry*": "Healthcare Services",
+                "Ticker": "AGARWALEYE.NS"
+            },
+            {
+                "Name of the Instrument": "Sky Gold And Diamonds Limited",
+                "% to Net Assets": 2.57,
+                "Industry*": "Consumer Durables",
+                "Ticker": "SKYGOLD.NS"
+            },
+            {
+                "Name of the Instrument": "Syrma SGS Technology Ltd",
+                "% to Net Assets": 2.52,
+                "Industry*": "Industrial Manufacturing",
+                "Ticker": "SYRMA.NS"
+            },
+            {
+                "Name of the Instrument": "Rainbow Childrens Medicare Limited",
+                "% to Net Assets": 2.36,
+                "Industry*": "Healthcare Services",
+                "Ticker": "RAINBOW.NS"
+            },
+            {
+                "Name of the Instrument": "Campus Activewear Limited",
+                "% to Net Assets": 2.2,
+                "Industry*": "Consumer Durables",
+                "Ticker": "CAMPUS.NS"
+            },
+            {
+                "Name of the Instrument": "Vijaya Diagnostic Centre Limited",
+                "% to Net Assets": 2.14,
+                "Industry*": "Healthcare Services",
+                "Ticker": "VIJAYA.NS"
+            },
+            {
+                "Name of the Instrument": "V-Mart Retail Limited",
+                "% to Net Assets": 2.14,
+                "Industry*": "Retailing",
+                "Ticker": "V.NS"
+            },
+            {
+                "Name of the Instrument": "Five Star Business Finance Limited",
+                "% to Net Assets": 2.1,
+                "Industry*": "Finance",
+                "Ticker": "FIVE.NS"
+            },
+            {
+                "Name of the Instrument": "Pricol Limited",
+                "% to Net Assets": 2.1,
+                "Industry*": "Auto Components",
+                "Ticker": "PRICOL.NS"
+            },
+            {
+                "Name of the Instrument": "Varroc Engineering Limited",
+                "% to Net Assets": 2.07,
+                "Industry*": "Auto Components",
+                "Ticker": "VARROC.NS"
+            },
+            {
+                "Name of the Instrument": "Asahi India Glass Limited",
+                "% to Net Assets": 2.04,
+                "Industry*": "Auto Components",
+                "Ticker": "ASAHI.NS"
+            },
+            {
+                "Name of the Instrument": "Shaily Engineering Plastics Limited",
+                "% to Net Assets": 1.88,
+                "Industry*": "Consumer Durables",
+                "Ticker": "SHAILY.NS"
+            },
+            {
+                "Name of the Instrument": "Aegis Vopak Terminals Limited",
+                "% to Net Assets": 1.84,
+                "Industry*": "Oil",
+                "Ticker": "AEGIS.NS"
+            },
+            {
+                "Name of the Instrument": "V2 Retail Limited",
+                "% to Net Assets": 1.8,
+                "Industry*": "Retailing",
+                "Ticker": "V2.NS"
+            },
+            {
+                "Name of the Instrument": "Aditya Vision Ltd",
+                "% to Net Assets": 1.76,
+                "Industry*": "Retailing",
+                "Ticker": "ADITYA.NS"
+            },
+            {
+                "Name of the Instrument": "Multi Commodity Exchange of India Limited",
+                "% to Net Assets": 1.72,
+                "Industry*": "Capital Markets",
+                "Ticker": "MCX.NS"
+            },
+            {
+                "Name of the Instrument": "JM Financial Limited",
+                "% to Net Assets": 1.72,
+                "Industry*": "Finance",
+                "Ticker": "JM.NS"
+            },
+            {
+                "Name of the Instrument": "MTAR Technologies Limited",
+                "% to Net Assets": 1.71,
+                "Industry*": "Electrical Equipment",
+                "Ticker": "MTARTECH.NS"
+            },
+            {
+                "Name of the Instrument": "DCB Bank Limited",
+                "% to Net Assets": 1.71,
+                "Industry*": "Banks",
+                "Ticker": "DCBBANK.NS"
+            },
+            {
+                "Name of the Instrument": "Meesho Ltd",
+                "% to Net Assets": 1.69,
+                "Industry*": "Retailing",
+                "Ticker": "MEESHO.NS"
+            },
+            {
+                "Name of the Instrument": "eClerx Services Limited",
+                "% to Net Assets": 1.69,
+                "Industry*": "Commercial Services & Supplies",
+                "Ticker": "ECLERX.NS"
+            },
+            {
+                "Name of the Instrument": "Apar Industries Limited",
+                "% to Net Assets": 1.65,
+                "Industry*": "Electrical Equipment",
+                "Ticker": "APARINDS.NS"
+            },
+            {
+                "Name of the Instrument": "Chalet Hotels Limited",
+                "% to Net Assets": 1.51,
+                "Industry*": "Leisure Services",
+                "Ticker": "CHALET.NS"
+            },
+            {
+                "Name of the Instrument": "Dixon Technologies (India) Limited",
+                "% to Net Assets": 1.49,
+                "Industry*": "Consumer Durables",
+                "Ticker": "DIXON.NS"
+            },
+            {
+                "Name of the Instrument": "Central Depository Services (India) Limited",
+                "% to Net Assets": 1.42,
+                "Industry*": "Capital Markets",
+                "Ticker": "CDSL.NS"
+            },
+            {
+                "Name of the Instrument": "Gabriel India Limited",
+                "% to Net Assets": 1.4,
+                "Industry*": "Auto Components",
+                "Ticker": "GABRIEL.NS"
+            },
+            {
+                "Name of the Instrument": "Symbiotec Pharmalab Limited",
+                "% to Net Assets": 1.32,
+                "Industry*": "Pharmaceuticals & Biotechnology",
+                "Ticker": "SYMBIOTEC.NS"
+            },
+            {
+                "Name of the Instrument": "Gokaldas Exports Limited",
+                "% to Net Assets": 1.3,
+                "Industry*": "Textiles & Apparels",
+                "Ticker": "GOKALDAS.NS"
+            },
+            {
+                "Name of the Instrument": "City Union Bank Limited",
+                "% to Net Assets": 1.28,
+                "Industry*": "Banks",
+                "Ticker": "CUB.NS"
+            },
+            {
+                "Name of the Instrument": "Eternal Limited",
+                "% to Net Assets": 1.28,
+                "Industry*": "Retailing",
+                "Ticker": "ETERNAL.NS"
+            }
+        ],
+        "comp": "Name of the Instrument",
+        "w": "% to Net Assets",
+        "sec": "Industry*",
+        "sec_df": [
+            {
+                "Industry*": "Agricultural Food & other Products",
+                "% to Net Assets": 3.49
+            },
+            {
+                "Industry*": "Auto Components",
+                "% to Net Assets": 7.609999999999999
+            },
+            {
+                "Industry*": "Banks",
+                "% to Net Assets": 6.63
+            },
+            {
+                "Industry*": "Capital Markets",
+                "% to Net Assets": 4.33
+            },
+            {
+                "Industry*": "Chemicals & Petrochemicals",
+                "% to Net Assets": 2.43
+            },
+            {
+                "Industry*": "Commercial Services & Supplies",
+                "% to Net Assets": 2.82
+            },
+            {
+                "Industry*": "Consumer Durables",
+                "% to Net Assets": 9.27
+            },
+            {
+                "Industry*": "Electrical Equipment",
+                "% to Net Assets": 4.46
+            },
+            {
+                "Industry*": "Finance",
+                "% to Net Assets": 4.8100000000000005
+            },
+            {
+                "Industry*": "Financial Technology (Fintech)",
+                "% to Net Assets": 0.93
+            },
+            {
+                "Industry*": "Healthcare Services",
+                "% to Net Assets": 7.42
+            },
+            {
+                "Industry*": "IT - Software",
+                "% to Net Assets": 1.9100000000000001
+            },
+            {
+                "Industry*": "Industrial Manufacturing",
+                "% to Net Assets": 8.73
+            },
+            {
+                "Industry*": "Industrial Products",
+                "% to Net Assets": 0.81
+            },
+            {
+                "Industry*": "Leisure Services",
+                "% to Net Assets": 1.92
+            },
+            {
+                "Industry*": "Oil",
+                "% to Net Assets": 1.84
+            },
+            {
+                "Industry*": "Other Utilities",
+                "% to Net Assets": 3.82
+            },
+            {
+                "Industry*": "Pharmaceuticals & Biotechnology",
+                "% to Net Assets": 6.08
+            },
+            {
+                "Industry*": "Realty",
+                "% to Net Assets": 1.01
+            },
+            {
+                "Industry*": "Retailing",
+                "% to Net Assets": 8.67
+            },
+            {
+                "Industry*": "Textiles & Apparels",
+                "% to Net Assets": 1.74
+            },
+            {
+                "Industry*": "Transport Services",
+                "% to Net Assets": 1.18
+            }
+        ]
     }
 }
