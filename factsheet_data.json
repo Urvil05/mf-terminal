@@ -5796,5 +5796,344 @@
                 "% to Net Assets": 4.443091373521
             }
         ]
+    },
+    "153198": {
+        "top35": [
+            {
+                "Name of the Instrument": "Welspun Corp Limited",
+                "% to Net Assets": 2.7732161088289997,
+                "Industry ^/ Rating": "Industrial Products",
+                "Ticker": "WELCORP.NS"
+            },
+            {
+                "Name of the Instrument": "Karur Vysya Bank Limited",
+                "% to Net Assets": 2.332432338123,
+                "Industry ^/ Rating": "Banks",
+                "Ticker": "KARURVYSYA.NS"
+            },
+            {
+                "Name of the Instrument": "Kirloskar Oil Engines Limited",
+                "% to Net Assets": 2.240027823792,
+                "Industry ^/ Rating": "Industrial Products",
+                "Ticker": "KIRLOSENG.NS"
+            },
+            {
+                "Name of the Instrument": "Dr. Lal Path labs Limited",
+                "% to Net Assets": 2.184693365032,
+                "Industry ^/ Rating": "Healthcare Services",
+                "Ticker": "LALPATHLAB.NS"
+            },
+            {
+                "Name of the Instrument": "K.P.R. Mill Limited",
+                "% to Net Assets": 2.0414689633210004,
+                "Industry ^/ Rating": "Textiles & Apparels",
+                "Ticker": "KPRMILL.NS"
+            },
+            {
+                "Name of the Instrument": "Neuland Laboratories Limited",
+                "% to Net Assets": 1.9526348640889999,
+                "Industry ^/ Rating": "Pharmaceuticals & Biotechnology",
+                "Ticker": "NEULAND.NS"
+            },
+            {
+                "Name of the Instrument": "Voltamp Transformers Limited",
+                "% to Net Assets": 1.951722676071,
+                "Industry ^/ Rating": "Electrical Equipment",
+                "Ticker": "VOLTAMP.NS"
+            },
+            {
+                "Name of the Instrument": "Anthem Biosciences Limited",
+                "% to Net Assets": 1.939932372634,
+                "Industry ^/ Rating": "Pharmaceuticals & Biotechnology",
+                "Ticker": "ANTHEM.NS"
+            },
+            {
+                "Name of the Instrument": "GNG Electronics Limited",
+                "% to Net Assets": 1.8908498429100002,
+                "Industry ^/ Rating": "IT - Hardware",
+                "Ticker": "GNG.NS"
+            },
+            {
+                "Name of the Instrument": "Kusumgar Limited",
+                "% to Net Assets": 1.8485733359829999,
+                "Industry ^/ Rating": "Textiles & Apparels",
+                "Ticker": "KUSUMGAR.NS"
+            },
+            {
+                "Name of the Instrument": "Cholamandalam Financial Holdings Limited",
+                "% to Net Assets": 1.846698139112,
+                "Industry ^/ Rating": "Finance",
+                "Ticker": "CHOLAFIN.NS"
+            },
+            {
+                "Name of the Instrument": "Godawari Power & Ispat Limited",
+                "% to Net Assets": 1.815203589801,
+                "Industry ^/ Rating": "Industrial Products",
+                "Ticker": "GODAWARI.NS"
+            },
+            {
+                "Name of the Instrument": "Doms Industries Limited",
+                "% to Net Assets": 1.7850994913109999,
+                "Industry ^/ Rating": "Household Products",
+                "Ticker": "DOMS.NS"
+            },
+            {
+                "Name of the Instrument": "NLC India Limited",
+                "% to Net Assets": 1.776101516574,
+                "Industry ^/ Rating": "Power",
+                "Ticker": "NLC.NS"
+            },
+            {
+                "Name of the Instrument": "Gland Pharma Limited",
+                "% to Net Assets": 1.77021764271,
+                "Industry ^/ Rating": "Pharmaceuticals & Biotechnology",
+                "Ticker": "GLAND.NS"
+            },
+            {
+                "Name of the Instrument": "DCB Bank Limited",
+                "% to Net Assets": 1.7435512007890002,
+                "Industry ^/ Rating": "Banks",
+                "Ticker": "DCBBANK.NS"
+            },
+            {
+                "Name of the Instrument": "Tenneco Clean Air India Limited",
+                "% to Net Assets": 1.687456840024,
+                "Industry ^/ Rating": "Auto Components",
+                "Ticker": "TENNIND.NS"
+            },
+            {
+                "Name of the Instrument": "CRISIL Limited",
+                "% to Net Assets": 1.681198366348,
+                "Industry ^/ Rating": "Finance",
+                "Ticker": "CRISIL.NS"
+            },
+            {
+                "Name of the Instrument": "Krishna Institute of Medical Sciences Limited",
+                "% to Net Assets": 1.671647857921,
+                "Industry ^/ Rating": "Healthcare Services",
+                "Ticker": "KIMS.NS"
+            },
+            {
+                "Name of the Instrument": "Torrent Pharmaceuticals Limited",
+                "% to Net Assets": 1.6303583381429998,
+                "Industry ^/ Rating": "Pharmaceuticals & Biotechnology",
+                "Ticker": "TORNTPHARM.NS"
+            },
+            {
+                "Name of the Instrument": "Coromandel International Limited",
+                "% to Net Assets": 1.617305256483,
+                "Industry ^/ Rating": "Fertilizers & Agrochemicals",
+                "Ticker": "COROMANDEL.NS"
+            },
+            {
+                "Name of the Instrument": "Multi Commodity Exchange of India Limited",
+                "% to Net Assets": 1.602215813751,
+                "Industry ^/ Rating": "Capital Markets",
+                "Ticker": "MCX.NS"
+            },
+            {
+                "Name of the Instrument": "eClerx Services Limited",
+                "% to Net Assets": 1.59622092222,
+                "Industry ^/ Rating": "Commercial Services & Supplies",
+                "Ticker": "ECLERX.NS"
+            },
+            {
+                "Name of the Instrument": "Timken India Limited",
+                "% to Net Assets": 1.5837564678949998,
+                "Industry ^/ Rating": "Industrial Products",
+                "Ticker": "TIMKEN.NS"
+            },
+            {
+                "Name of the Instrument": "Kalpataru Projects International Limited",
+                "% to Net Assets": 1.55989242876,
+                "Industry ^/ Rating": "Construction",
+                "Ticker": "KALPATARU.NS"
+            },
+            {
+                "Name of the Instrument": "Delhivery Limited",
+                "% to Net Assets": 1.524174769913,
+                "Industry ^/ Rating": "Transport Services",
+                "Ticker": "DELHIVERY.NS"
+            },
+            {
+                "Name of the Instrument": "Central Depository Services (I) Limited",
+                "% to Net Assets": 1.501352519139,
+                "Industry ^/ Rating": "Capital Markets",
+                "Ticker": "CENTRAL.NS"
+            },
+            {
+                "Name of the Instrument": "Triveni Turbine Limited",
+                "% to Net Assets": 1.453695496371,
+                "Industry ^/ Rating": "Electrical Equipment",
+                "Ticker": "TRIVENI.NS"
+            },
+            {
+                "Name of the Instrument": "Atul Limited",
+                "% to Net Assets": 1.420025778616,
+                "Industry ^/ Rating": "Chemicals & Petrochemicals",
+                "Ticker": "ATUL.NS"
+            },
+            {
+                "Name of the Instrument": "Equitas Small Finance Bank Limited",
+                "% to Net Assets": 1.407720294684,
+                "Industry ^/ Rating": "Banks",
+                "Ticker": "EQUITASBNK.NS"
+            },
+            {
+                "Name of the Instrument": "JK Cement Limited",
+                "% to Net Assets": 1.3715425924270002,
+                "Industry ^/ Rating": "Cement & Cement Products",
+                "Ticker": "JK.NS"
+            },
+            {
+                "Name of the Instrument": "Sagility Limited",
+                "% to Net Assets": 1.3633091334429999,
+                "Industry ^/ Rating": "IT - Services",
+                "Ticker": "SAGILITY.NS"
+            },
+            {
+                "Name of the Instrument": "Home First Finance Company India Limited",
+                "% to Net Assets": 1.312641391619,
+                "Industry ^/ Rating": "Finance",
+                "Ticker": "HOME.NS"
+            },
+            {
+                "Name of the Instrument": "L&T Finance Limited",
+                "% to Net Assets": 1.3050593749369999,
+                "Industry ^/ Rating": "Finance",
+                "Ticker": "LT.NS"
+            },
+            {
+                "Name of the Instrument": "Narayana Hrudayalaya Limited",
+                "% to Net Assets": 1.263515879725,
+                "Industry ^/ Rating": "Healthcare Services",
+                "Ticker": "NH.NS"
+            }
+        ],
+        "comp": "Name of the Instrument",
+        "w": "% to Net Assets",
+        "sec": "Industry ^/ Rating",
+        "sec_df": [
+            {
+                "Industry ^/ Rating": "Auto Components",
+                "% to Net Assets": 4.553865205515
+            },
+            {
+                "Industry ^/ Rating": "Automobiles",
+                "% to Net Assets": 1.1916702000380002
+            },
+            {
+                "Industry ^/ Rating": "Banks",
+                "% to Net Assets": 6.708035021609
+            },
+            {
+                "Industry ^/ Rating": "Capital Markets",
+                "% to Net Assets": 6.691604039302
+            },
+            {
+                "Industry ^/ Rating": "Cement & Cement Products",
+                "% to Net Assets": 1.3715425924270002
+            },
+            {
+                "Industry ^/ Rating": "Chemicals & Petrochemicals",
+                "% to Net Assets": 4.161991627882
+            },
+            {
+                "Industry ^/ Rating": "Commercial Services & Supplies",
+                "% to Net Assets": 1.59622092222
+            },
+            {
+                "Industry ^/ Rating": "Construction",
+                "% to Net Assets": 1.55989242876
+            },
+            {
+                "Industry ^/ Rating": "Consumer Durables",
+                "% to Net Assets": 4.417860957515
+            },
+            {
+                "Industry ^/ Rating": "Electrical Equipment",
+                "% to Net Assets": 5.6137824284010005
+            },
+            {
+                "Industry ^/ Rating": "Fertilizers & Agrochemicals",
+                "% to Net Assets": 1.617305256483
+            },
+            {
+                "Industry ^/ Rating": "Finance",
+                "% to Net Assets": 8.062020735828
+            },
+            {
+                "Industry ^/ Rating": "Financial Technology (Fintech)",
+                "% to Net Assets": 0.689792501831
+            },
+            {
+                "Industry ^/ Rating": "Healthcare Equipment & Supplies",
+                "% to Net Assets": 0.300315785262
+            },
+            {
+                "Industry ^/ Rating": "Healthcare Services",
+                "% to Net Assets": 5.119857102678
+            },
+            {
+                "Industry ^/ Rating": "Household Products",
+                "% to Net Assets": 1.7850994913109999
+            },
+            {
+                "Industry ^/ Rating": "IT - Hardware",
+                "% to Net Assets": 1.8908498429100002
+            },
+            {
+                "Industry ^/ Rating": "IT - Services",
+                "% to Net Assets": 1.3633091334429999
+            },
+            {
+                "Industry ^/ Rating": "Industrial Manufacturing",
+                "% to Net Assets": 0.017989689596000003
+            },
+            {
+                "Industry ^/ Rating": "Industrial Products",
+                "% to Net Assets": 11.952981358749
+            },
+            {
+                "Industry ^/ Rating": "Insurance",
+                "% to Net Assets": 1.195045501789
+            },
+            {
+                "Industry ^/ Rating": "Leisure Services",
+                "% to Net Assets": 1.772339427999
+            },
+            {
+                "Industry ^/ Rating": "Pharmaceuticals & Biotechnology",
+                "% to Net Assets": 10.094136287997
+            },
+            {
+                "Industry ^/ Rating": "Power",
+                "% to Net Assets": 1.776101516574
+            },
+            {
+                "Industry ^/ Rating": "Realty",
+                "% to Net Assets": 2.3466069355199997
+            },
+            {
+                "Industry ^/ Rating": "Retailing",
+                "% to Net Assets": 1.370511209792
+            },
+            {
+                "Industry ^/ Rating": "Telecom - Services",
+                "% to Net Assets": 0.97250239302
+            },
+            {
+                "Industry ^/ Rating": "Textiles & Apparels",
+                "% to Net Assets": 3.8900422993040005
+            },
+            {
+                "Industry ^/ Rating": "Transport Infrastructure",
+                "% to Net Assets": 0.24554621937300003
+            },
+            {
+                "Industry ^/ Rating": "Transport Services",
+                "% to Net Assets": 3.739885262533
+            }
+        ]
     }
 }
