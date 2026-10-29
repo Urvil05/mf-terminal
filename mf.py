@@ -89,8 +89,10 @@ def clean_stock_name(name):
 def load_factsheet_cache():
     cache = load_json(FACTSHEET_FILE, {})
     for k, v in cache.items():
-        if "top20" in v: v["top20"] = pd.DataFrame(v["top20"])
-        elif "top10" in v: v["top20"] = pd.DataFrame(v["top10"])
+        # Backward compatibility for 10, 20 and now 35 stocks
+        if "top35" in v: v["top35"] = pd.DataFrame(v["top35"])
+        elif "top20" in v: v["top35"] = pd.DataFrame(v["top20"])
+        elif "top10" in v: v["top35"] = pd.DataFrame(v["top10"])
         if "sec_df" in v and v["sec_df"] is not None: v["sec_df"] = pd.DataFrame(v["sec_df"])
     return cache
 
@@ -98,7 +100,7 @@ def save_factsheet_cache(cache):
     serializable_cache = {}
     for k, v in cache.items():
         serializable_cache[k] = {
-            "top20": v["top20"].to_dict(orient="records"),
+            "top35": v["top35"].to_dict(orient="records"),
             "comp": v["comp"], "w": v["w"], "sec": v["sec"],
             "sec_df": v["sec_df"].to_dict(orient="records") if v["sec_df"] is not None else None
         }
@@ -245,14 +247,14 @@ with tab2:
             st.success(f"✅ Data for {selected_fund_name} is permanently locked.")
             cached = st.session_state["factsheet_cache"][curr_code]
             
-            top20 = cached.get("top20", pd.DataFrame())
+            top35 = cached.get("top35", pd.DataFrame())
             comp, w, sec, sec_df = cached.get("comp", ""), cached.get("w", ""), cached.get("sec", "None"), cached.get("sec_df", None)
             
-            if not top20.empty:
-                if 'Ticker' not in top20.columns:
-                    top20['Ticker'] = top20[comp].apply(clean_stock_name)
+            if not top35.empty:
+                if 'Ticker' not in top35.columns:
+                    top35['Ticker'] = top35[comp].apply(clean_stock_name)
                 
-                disp_df = top20.copy()
+                disp_df = top35.copy()
                 
                 with st.spinner("Fetching Live Market Data & Running Prediction Model..."):
                     tickers_to_fetch = [t for t in disp_df['Ticker'].tolist() if "UNKNOWN" not in str(t).upper()]
@@ -262,7 +264,6 @@ with tab2:
                     disp_df['Live Price (₹)'] = disp_df['Ticker'].map(lambda x: live_data.get(x, {}).get('live') if live_data.get(x) else None).fillna("Not Traded")
                     disp_df['% Change'] = disp_df['Ticker'].map(lambda x: live_data.get(x, {}).get('change') if live_data.get(x) else None).fillna("-")
                 
-                # 🔹 PREDICTION ENGINE MATH 🔹
                 m_data = calculate_fund_metrics(curr_code)
                 last_official_nav = m_data["Current NAV"] if m_data else 0.0
                 
@@ -289,7 +290,8 @@ with tab2:
                     with colC:
                         st.markdown("<div class='nav-box'><h5>Est. Value Change</h5><h2 style='color:{};'>₹ {:+.4f}</h2></div>".format(pred_color, expected_pnl), unsafe_allow_html=True)
                 
-                st.markdown("#### 🟢 Live Market Heatmap")
+                st.markdown("#### 🟢 Live Market Heatmap (Top 35 Stocks)")
+                st.info("✏️ **Smart AI Override:** Galat 'Ticker' ko sahi NSE Ticker se replace karein. System use hamesha ke liye yaad kar lega!")
                 
                 disabled_cols = [c for c in disp_df.columns if c != 'Ticker']
                 edited_df = st.data_editor(
@@ -301,7 +303,7 @@ with tab2:
                     disabled=disabled_cols,
                     use_container_width=True,
                     hide_index=True,
-                    key=f"edit_top20_{curr_code}"
+                    key=f"edit_top35_{curr_code}"
                 )
                 
                 if not edited_df['Ticker'].equals(disp_df['Ticker']):
@@ -313,7 +315,7 @@ with tab2:
                             st.session_state["custom_tickers"][raw_name] = new_t
                     
                     save_json(CUSTOM_TICKERS_FILE, st.session_state["custom_tickers"])
-                    st.session_state["factsheet_cache"][curr_code]["top20"]['Ticker'] = edited_df['Ticker']
+                    st.session_state["factsheet_cache"][curr_code]["top35"]['Ticker'] = edited_df['Ticker']
                     save_factsheet_cache(st.session_state["factsheet_cache"])
                     st.rerun()
 
@@ -331,7 +333,7 @@ with tab2:
                     st.markdown("##### Holdings Distribution")
                     st.plotly_chart(px.pie(edited_df, values=w, names=comp, hole=0.55).update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(t=0,b=0,l=0,r=0)), use_container_width=True)
                     
-            if st.button("🗑️ Delete & Re-upload"):
+            if st.button("🗑️ Delete & Re-upload (Recommended for 35 Stocks)"):
                 del st.session_state["factsheet_cache"][curr_code]
                 save_factsheet_cache(st.session_state["factsheet_cache"])
                 st.rerun()
@@ -373,13 +375,14 @@ with tab2:
                                 clean = clean.dropna(subset=[w])
                                 clean = clean[(clean[w] <= 100) & (~clean[comp].astype(str).str.lower().isin(['total','grand total','equity','debt','cash','portfolio']))]
                                 
-                                top20 = clean.sort_values(w, ascending=False).head(20)
-                                top20['Ticker'] = top20[comp].apply(clean_stock_name)
+                                # UPGRADE: Ab Top 35 stocks save honge!
+                                top35 = clean.sort_values(w, ascending=False).head(35)
+                                top35['Ticker'] = top35[comp].apply(clean_stock_name)
                                 
                                 sec_df = clean.groupby(sec)[w].sum().reset_index() if sec != "None" else None
                                 if sec_df is not None: sec_df = sec_df[sec_df[w] > 0]
                                     
-                                st.session_state["factsheet_cache"][curr_code] = {"top20": top20, "comp": comp, "w": w, "sec": sec, "sec_df": sec_df}
+                                st.session_state["factsheet_cache"][curr_code] = {"top35": top35, "comp": comp, "w": w, "sec": sec, "sec_df": sec_df}
                                 save_factsheet_cache(st.session_state["factsheet_cache"])
                                 st.rerun()
                             else: st.warning("Map Company and Weight columns.")
