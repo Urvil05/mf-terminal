@@ -3878,5 +3878,170 @@
                 "Percentage(%)": 1.65
             }
         ]
+    },
+    "152800": {
+        "top35": [
+            {
+                "Name of the Instrument / Issuer": "Bharat Electronics Ltd.",
+                "% to AUM": 19.9647849993126,
+                "Industry^ / Rating": "Aerospace & Defense",
+                "Ticker": "BEL.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Hindustan Aeronautics Ltd.",
+                "% to AUM": 19.6782470996002,
+                "Industry^ / Rating": "Aerospace & Defense",
+                "Ticker": "HAL.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Bharat Forge Ltd.",
+                "% to AUM": 13.2808013549851,
+                "Industry^ / Rating": "Auto Components",
+                "Ticker": "BHARATFORG.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Solar Industries India Ltd.",
+                "% to AUM": 11.9068297205762,
+                "Industry^ / Rating": "Chemicals & Petrochemicals",
+                "Ticker": "SOLARINDS.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "MTAR technologies Ltd.",
+                "% to AUM": 3.99708407934866,
+                "Industry^ / Rating": "Electrical Equipment",
+                "Ticker": "MTARTECH.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Mazagon Dock Shipbuilders Ltd.",
+                "% to AUM": 3.9831978743386705,
+                "Industry^ / Rating": "Industrial Manufacturing",
+                "Ticker": "MAZDOCK.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Astra Microwave Products Ltd.",
+                "% to AUM": 3.4369445133336596,
+                "Industry^ / Rating": "Aerospace & Defense",
+                "Ticker": "ASTRAMICRO.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Data Patterns (India) Ltd.",
+                "% to AUM": 3.23045943953899,
+                "Industry^ / Rating": "Aerospace & Defense",
+                "Ticker": "DATAPATTNS.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Cochin Shipyard Ltd.",
+                "% to AUM": 3.15597941148006,
+                "Industry^ / Rating": "Industrial Manufacturing",
+                "Ticker": "COCHINSHIP.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Bharat Dynamics Ltd.",
+                "% to AUM": 2.53862374446897,
+                "Industry^ / Rating": "Aerospace & Defense",
+                "Ticker": "BDL.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "BEML Ltd.",
+                "% to AUM": 1.89036117147969,
+                "Industry^ / Rating": "Agricultural, Commercial & Construction Vehicles",
+                "Ticker": "BEML.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Zen Technologies Ltd.",
+                "% to AUM": 1.83704269773282,
+                "Industry^ / Rating": "Aerospace & Defense",
+                "Ticker": "ZENSARTECH.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Apollo Micro Systems Ltd.",
+                "% to AUM": 1.6386874666887,
+                "Industry^ / Rating": "Aerospace & Defense",
+                "Ticker": "APOLLO.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Garden Reach Shipbuilders & Engineers Ltd.",
+                "% to AUM": 1.5858399014171898,
+                "Industry^ / Rating": "Aerospace & Defense",
+                "Ticker": "GRSE.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Dynamatic Technologies Ltd.",
+                "% to AUM": 1.3253867682549598,
+                "Industry^ / Rating": "Industrial Manufacturing",
+                "Ticker": "DYNAMATECH.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Paras Defence And Space Technologies Ltd.",
+                "% to AUM": 1.15522931227665,
+                "Industry^ / Rating": "Aerospace & Defense",
+                "Ticker": "PARAS.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Aequs Ltd.",
+                "% to AUM": 1.14474004741501,
+                "Industry^ / Rating": "Aerospace & Defense",
+                "Ticker": "AEQUS.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "AXISCADES Technologies Ltd.",
+                "% to AUM": 0.990914436609429,
+                "Industry^ / Rating": "Aerospace & Defense",
+                "Ticker": "AXISCADES.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Centum Electronics Ltd.",
+                "% to AUM": 0.923985009376211,
+                "Industry^ / Rating": "Aerospace & Defense",
+                "Ticker": "CENTUM.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Mishra Dhatu Nigam Ltd.",
+                "% to AUM": 0.530398078850672,
+                "Industry^ / Rating": "Aerospace & Defense",
+                "Ticker": "MIDHANI.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Sigma Advanced Systems Ltd.",
+                "% to AUM": 0.383220166619379,
+                "Industry^ / Rating": "Aerospace & Defense",
+                "Ticker": "SIGMA.NS"
+            },
+            {
+                "Name of the Instrument / Issuer": "Unimech Aerospace and Manufacturing Ltd.",
+                "% to AUM": 0.377734315501377,
+                "Industry^ / Rating": "Aerospace & Defense",
+                "Ticker": "UNIMECH.NS"
+            }
+        ],
+        "comp": "Name of the Instrument / Issuer",
+        "w": "% to AUM",
+        "sec": "Industry^ / Rating",
+        "sec_df": [
+            {
+                "Industry^ / Rating": "Aerospace & Defense",
+                "% to AUM": 59.416851228741855
+            },
+            {
+                "Industry^ / Rating": "Agricultural, Commercial & Construction Vehicles",
+                "% to AUM": 1.89036117147969
+            },
+            {
+                "Industry^ / Rating": "Auto Components",
+                "% to AUM": 13.2808013549851
+            },
+            {
+                "Industry^ / Rating": "Chemicals & Petrochemicals",
+                "% to AUM": 11.9068297205762
+            },
+            {
+                "Industry^ / Rating": "Electrical Equipment",
+                "% to AUM": 3.99708407934866
+            },
+            {
+                "Industry^ / Rating": "Industrial Manufacturing",
+                "% to AUM": 8.46456405407369
+            }
+        ]
     }
 }
