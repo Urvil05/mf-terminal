@@ -4446,5 +4446,320 @@
                 "% to Net Assets": 12.44
             }
         ]
+    },
+    "153122": {
+        "top35": [
+            {
+                "name": "ICICI Bank Limited",
+                "% of allocation": 9.85,
+                "Sector": "Banks",
+                "Ticker": "ICICIBANK.NS"
+            },
+            {
+                "name": "HDFC Bank Limited",
+                "% of allocation": 9.55,
+                "Sector": "Banks",
+                "Ticker": "HDFCBANK.NS"
+            },
+            {
+                "name": "Axis Bank Limited",
+                "% of allocation": 5.42,
+                "Sector": "Banks",
+                "Ticker": "AXISBANK.NS"
+            },
+            {
+                "name": "Bharti Airtel Limited",
+                "% of allocation": 4.44,
+                "Sector": "Telecom - Services",
+                "Ticker": "BHARTIARTL.NS"
+            },
+            {
+                "name": "Larsen & Toubro Limited",
+                "% of allocation": 3.9800000000000004,
+                "Sector": "Construction",
+                "Ticker": "LT.NS"
+            },
+            {
+                "name": "Reliance Industries Limited",
+                "% of allocation": 3.1199999999999997,
+                "Sector": "Petroleum Products",
+                "Ticker": "RELIANCE.NS"
+            },
+            {
+                "name": "Mahindra & Mahindra Limited",
+                "% of allocation": 3.11,
+                "Sector": "Automobiles",
+                "Ticker": "M&M.NS"
+            },
+            {
+                "name": "NTPC Limited",
+                "% of allocation": 2.71,
+                "Sector": "Power",
+                "Ticker": "NTPC.NS"
+            },
+            {
+                "name": "Ultratech Cement Limited",
+                "% of allocation": 2.68,
+                "Sector": "Cement & Cement Products",
+                "Ticker": "ULTRATECH.NS"
+            },
+            {
+                "name": "DLF Limited",
+                "% of allocation": 2.67,
+                "Sector": "Realty",
+                "Ticker": "DLF.NS"
+            },
+            {
+                "name": "Asian Paints Limited",
+                "% of allocation": 2.63,
+                "Sector": "Consumer Durables",
+                "Ticker": "ASIAN.NS"
+            },
+            {
+                "name": "Maruti Suzuki India Limited",
+                "% of allocation": 2.3,
+                "Sector": "Automobiles",
+                "Ticker": "MARUTI.NS"
+            },
+            {
+                "name": "Hero MotoCorp Limited",
+                "% of allocation": 2.2800000000000002,
+                "Sector": "Automobiles",
+                "Ticker": "HERO.NS"
+            },
+            {
+                "name": "HDFC Life Insurance Co Limited",
+                "% of allocation": 1.6099999999999999,
+                "Sector": "Insurance",
+                "Ticker": "HDFC.NS"
+            },
+            {
+                "name": "Hyundai Motor India Limited",
+                "% of allocation": 1.4500000000000002,
+                "Sector": "Automobiles",
+                "Ticker": "HYUNDAI.NS"
+            },
+            {
+                "name": "Schaeffler India Limited",
+                "% of allocation": 1.24,
+                "Sector": "Auto Components",
+                "Ticker": "SCHAEFFLER.NS"
+            },
+            {
+                "name": "Page Industries Limited",
+                "% of allocation": 1.1900000000000002,
+                "Sector": "Textiles & Apparels",
+                "Ticker": "PAGE.NS"
+            },
+            {
+                "name": "Voltas Limited",
+                "% of allocation": 1.18,
+                "Sector": "Consumer Durables",
+                "Ticker": "VOLTAS.NS"
+            },
+            {
+                "name": "Interglobe Aviation Limited",
+                "% of allocation": 1.13,
+                "Sector": "Transport Services",
+                "Ticker": "INTERGLOBE.NS"
+            },
+            {
+                "name": "Shree Cement Limited",
+                "% of allocation": 1.06,
+                "Sector": "Cement & Cement Products",
+                "Ticker": "SHREE.NS"
+            },
+            {
+                "name": "Power Grid Corporation of India Limited",
+                "% of allocation": 1.04,
+                "Sector": "Power",
+                "Ticker": "POWER.NS"
+            },
+            {
+                "name": "Life Insurance Corporation Of India",
+                "% of allocation": 0.96,
+                "Sector": "Insurance",
+                "Ticker": "LICI.NS"
+            },
+            {
+                "name": "Multi Commodity Exchange Of India Limited",
+                "% of allocation": 0.95,
+                "Sector": "Capital Markets",
+                "Ticker": "MCX.NS"
+            },
+            {
+                "name": "Oil & Natural Gas Corporation Limited",
+                "% of allocation": 0.9299999999999999,
+                "Sector": "Oil",
+                "Ticker": "OIL.NS"
+            },
+            {
+                "name": "ICICI Prudential Life Insurance Co Limited",
+                "% of allocation": 0.86,
+                "Sector": "Insurance",
+                "Ticker": "ICICI.NS"
+            },
+            {
+                "name": "State Bank of India",
+                "% of allocation": 0.8500000000000001,
+                "Sector": "Banks",
+                "Ticker": "SBIN.NS"
+            },
+            {
+                "name": "Info Edge (India) Limited",
+                "% of allocation": 0.83,
+                "Sector": "Retailing",
+                "Ticker": "NAUKRI.NS"
+            },
+            {
+                "name": "Bharat Petroleum Corporation Limited",
+                "% of allocation": 0.8099999999999999,
+                "Sector": "Petroleum Products",
+                "Ticker": "BHARAT.NS"
+            },
+            {
+                "name": "Apollo Tyres Limited",
+                "% of allocation": 0.7799999999999999,
+                "Sector": "Auto Components",
+                "Ticker": "APOLLO.NS"
+            },
+            {
+                "name": "United Breweries Limited",
+                "% of allocation": 0.77,
+                "Sector": "Beverages",
+                "Ticker": "UNITED.NS"
+            },
+            {
+                "name": "SBI Life Insurance Co Limited",
+                "% of allocation": 0.77,
+                "Sector": "Insurance",
+                "Ticker": "SBILIFE.NS"
+            },
+            {
+                "name": "Hindustan Petroleum Corporation Limited",
+                "% of allocation": 0.6799999999999999,
+                "Sector": "Petroleum Products",
+                "Ticker": "HINDPETRO.NS"
+            },
+            {
+                "name": "Max Financial Services Limited",
+                "% of allocation": 0.6799999999999999,
+                "Sector": "Insurance",
+                "Ticker": "MFSL.NS"
+            },
+            {
+                "name": "Timken India Limited",
+                "% of allocation": 0.66,
+                "Sector": "Industrial Products",
+                "Ticker": "TIMKEN.NS"
+            },
+            {
+                "name": "Bayer Cropscience Limited",
+                "% of allocation": 0.66,
+                "Sector": "Fertilizers & Agrochemicals",
+                "Ticker": "BAYER.NS"
+            }
+        ],
+        "comp": "name",
+        "w": "% of allocation",
+        "sec": "Sector",
+        "sec_df": [
+            {
+                "Sector": "Aerospace & Defense",
+                "% of allocation": 0.44999999999999996
+            },
+            {
+                "Sector": "Auto Components",
+                "% of allocation": 2.02
+            },
+            {
+                "Sector": "Automobiles",
+                "% of allocation": 9.53
+            },
+            {
+                "Sector": "Banks",
+                "% of allocation": 26.2
+            },
+            {
+                "Sector": "Beverages",
+                "% of allocation": 0.77
+            },
+            {
+                "Sector": "Capital Markets",
+                "% of allocation": 2.44
+            },
+            {
+                "Sector": "Cement & Cement Products",
+                "% of allocation": 4.180000000000001
+            },
+            {
+                "Sector": "Chemicals & Petrochemicals",
+                "% of allocation": 0.6799999999999999
+            },
+            {
+                "Sector": "Construction",
+                "% of allocation": 3.9800000000000004
+            },
+            {
+                "Sector": "Consumer Durables",
+                "% of allocation": 4.04
+            },
+            {
+                "Sector": "Electrical Equipment",
+                "% of allocation": 0.6
+            },
+            {
+                "Sector": "Fertilizers & Agrochemicals",
+                "% of allocation": 0.66
+            },
+            {
+                "Sector": "Gas",
+                "% of allocation": 0.05
+            },
+            {
+                "Sector": "Industrial Products",
+                "% of allocation": 1.26
+            },
+            {
+                "Sector": "Insurance",
+                "% of allocation": 5.29
+            },
+            {
+                "Sector": "Leisure Services",
+                "% of allocation": 0.21
+            },
+            {
+                "Sector": "Oil",
+                "% of allocation": 0.9299999999999999
+            },
+            {
+                "Sector": "Petroleum Products",
+                "% of allocation": 4.609999999999999
+            },
+            {
+                "Sector": "Power",
+                "% of allocation": 3.75
+            },
+            {
+                "Sector": "Realty",
+                "% of allocation": 2.67
+            },
+            {
+                "Sector": "Retailing",
+                "% of allocation": 1.2
+            },
+            {
+                "Sector": "Telecom - Services",
+                "% of allocation": 4.87
+            },
+            {
+                "Sector": "Textiles & Apparels",
+                "% of allocation": 1.1900000000000002
+            },
+            {
+                "Sector": "Transport Services",
+                "% of allocation": 1.13
+            }
+        ]
     }
 }
