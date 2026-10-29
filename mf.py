@@ -89,7 +89,6 @@ def clean_stock_name(name):
 def load_factsheet_cache():
     cache = load_json(FACTSHEET_FILE, {})
     for k, v in cache.items():
-        # Backward compatibility for 10, 20 and now 35 stocks
         if "top35" in v: v["top35"] = pd.DataFrame(v["top35"])
         elif "top20" in v: v["top35"] = pd.DataFrame(v["top20"])
         elif "top10" in v: v["top35"] = pd.DataFrame(v["top10"])
@@ -283,21 +282,26 @@ with tab2:
                     st.markdown("### 🔮 Alpha Predictive Engine (Live iNAV)")
                     colA, colB, colC = st.columns(3)
                     with colA:
-                        st.markdown("<div class='nav-box'><h5>Today's Base NAV (T-1)</h5><h2 style='color:#94a3b8;'>₹ {:.4f}</h2></div>".format(last_official_nav), unsafe_allow_html=True)
+                        # Sirf 2 decimal (%.2f) display hoga
+                        st.markdown("<div class='nav-box'><h5>Today's Base NAV (T-1)</h5><h2 style='color:#94a3b8;'>₹ {:.2f}</h2></div>".format(last_official_nav), unsafe_allow_html=True)
                     with colB:
                         pred_color = "#22c55e" if normalized_est_change >= 0 else "#ef4444"
-                        st.markdown("<div class='nav-box'><h5>⚡ Predicted Tonight's NAV</h5><h2 style='color:{};'>₹ {:.4f}</h2><span style='color:{}; font-weight:bold;'>{:.2f}%</span></div>".format(pred_color, predicted_nav, pred_color, normalized_est_change), unsafe_allow_html=True)
+                        st.markdown("<div class='nav-box'><h5>⚡ Predicted Tonight's NAV</h5><h2 style='color:{};'>₹ {:.2f}</h2><span style='color:{}; font-weight:bold;'>{:.2f}%</span></div>".format(pred_color, predicted_nav, pred_color, normalized_est_change), unsafe_allow_html=True)
                     with colC:
-                        st.markdown("<div class='nav-box'><h5>Est. Value Change</h5><h2 style='color:{};'>₹ {:+.4f}</h2></div>".format(pred_color, expected_pnl), unsafe_allow_html=True)
+                        st.markdown("<div class='nav-box'><h5>Est. Value Change</h5><h2 style='color:{};'>₹ {:+.2f}</h2></div>".format(pred_color, expected_pnl), unsafe_allow_html=True)
                 
                 st.markdown("#### 🟢 Live Market Heatmap (Top 35 Stocks)")
-                                
+                st.info("✏️ **Smart AI Override:** Galat 'Ticker' ko sahi NSE Ticker se replace karein. System use hamesha ke liye yaad kar lega!")
+                
                 disabled_cols = [c for c in disp_df.columns if c != 'Ticker']
                 edited_df = st.data_editor(
                     disp_df,
+                    # Yaha par humne columns me 2 decimals restrict kiye
                     column_config={
                         w: st.column_config.NumberColumn(format="%.2f%%"),
-                        '% Change': st.column_config.NumberColumn(format="%.2f%%")
+                        '% Change': st.column_config.NumberColumn(format="%.2f%%"),
+                        'Prev Price (₹)': st.column_config.NumberColumn(format="₹ %.2f"),
+                        'Live Price (₹)': st.column_config.NumberColumn(format="₹ %.2f")
                     },
                     disabled=disabled_cols,
                     use_container_width=True,
@@ -374,7 +378,6 @@ with tab2:
                                 clean = clean.dropna(subset=[w])
                                 clean = clean[(clean[w] <= 100) & (~clean[comp].astype(str).str.lower().isin(['total','grand total','equity','debt','cash','portfolio']))]
                                 
-                                # UPGRADE: Ab Top 35 stocks save honge!
                                 top35 = clean.sort_values(w, ascending=False).head(35)
                                 top35['Ticker'] = top35[comp].apply(clean_stock_name)
                                 
@@ -444,7 +447,7 @@ with tab3:
             portfolio_rows.append({
                 "Scheme": data['name'], "Type": data['type'], "Sub Type": data['sub_type'],
                 "No. Of Unit": round(total_units, 3), "Gross Inv Amt.(₹)": round(total_inv, 2),
-                "Current NAV(₹)": round(current_nav, 4), "Current Value(₹)": round(current_value, 2),
+                "Current NAV(₹)": round(current_nav, 2), "Current Value(₹)": round(current_value, 2),
                 "Unrealised Gain /Loss(₹)": round(pnl, 2), "Ann. Return (%)": ann_ret,
                 "Abs. Return (%)": abs_ret, "ST Units": round(stcg_units, 3), "LT Units": round(ltcg_units, 3)
             })
@@ -465,7 +468,22 @@ with tab3:
         c3.metric("Total Unrealised P&L (₹)", f"₹ {tot_pnl:,.2f}")
         c4.metric("Total Abs. Return (%)", f"{tot_pnl_pct:.2f} %")
         st.markdown("---")
-        st.dataframe(df_port[cols], use_container_width=True, hide_index=True)
+        
+        # Portfolio table me sab kuch strictly 2 decimals format
+        st.dataframe(
+            df_port[cols], 
+            use_container_width=True, 
+            hide_index=True,
+            column_config={
+                "Gross Inv Amt.(₹)": st.column_config.NumberColumn(format="₹ %.2f"),
+                "Current NAV(₹)": st.column_config.NumberColumn(format="₹ %.2f"),
+                "Current Value(₹)": st.column_config.NumberColumn(format="₹ %.2f"),
+                "Unrealised Gain /Loss(₹)": st.column_config.NumberColumn(format="₹ %.2f"),
+                "Ann. Return (%)": st.column_config.NumberColumn(format="%.2f%%"),
+                "Abs. Return (%)": st.column_config.NumberColumn(format="%.2f%%"),
+                "% Holding": st.column_config.NumberColumn(format="%.2f%%")
+            }
+        )
     else: st.info("No active holdings found in portfolio.")
 
     st.markdown("---")
