@@ -5324,5 +5324,336 @@
                 "% to NAV": 0.56
             }
         ]
+    },
+    "130502": {
+        "top35": [
+            {
+                "Name Of the Instrument": "Firstsource Solutions Ltd.",
+                "% to NAV": 3.68,
+                "Industry+ /Rating": "Commercial Services & Supplies",
+                "Ticker": "FSL.NS"
+            },
+            {
+                "Name Of the Instrument": "Aster DM Quality Care Limited",
+                "% to NAV": 3.37,
+                "Industry+ /Rating": "Healthcare Services",
+                "Ticker": "ASTERDM.NS"
+            },
+            {
+                "Name Of the Instrument": "Gabriel India Ltd.",
+                "% to NAV": 3.09,
+                "Industry+ /Rating": "Auto Components",
+                "Ticker": "GABRIEL.NS"
+            },
+            {
+                "Name Of the Instrument": "eClerx Services Limited",
+                "% to NAV": 2.92,
+                "Industry+ /Rating": "Commercial Services & Supplies",
+                "Ticker": "ECLERX.NS"
+            },
+            {
+                "Name Of the Instrument": "Bank of Baroda",
+                "% to NAV": 2.65,
+                "Industry+ /Rating": "Banks",
+                "Ticker": "BANKBARODA.NS"
+            },
+            {
+                "Name Of the Instrument": "Krishna Institute Of Medical Sciences Limited",
+                "% to NAV": 2.04,
+                "Industry+ /Rating": "Healthcare Services",
+                "Ticker": "KIMS.NS"
+            },
+            {
+                "Name Of the Instrument": "Apar Industries Limited",
+                "% to NAV": 1.92,
+                "Industry+ /Rating": "Electrical Equipment",
+                "Ticker": "APARINDS.NS"
+            },
+            {
+                "Name Of the Instrument": "Indian Bank",
+                "% to NAV": 1.91,
+                "Industry+ /Rating": "Banks",
+                "Ticker": "INDIANB.NS"
+            },
+            {
+                "Name Of the Instrument": "PEARL GLOBAL INDUSTRIES LIMITED",
+                "% to NAV": 1.9,
+                "Industry+ /Rating": "Textiles & Apparels",
+                "Ticker": "PGIL.NS"
+            },
+            {
+                "Name Of the Instrument": "Eris Lifesciences Ltd",
+                "% to NAV": 1.89,
+                "Industry+ /Rating": "Pharmaceuticals & Biotechnology",
+                "Ticker": "ERIS.NS"
+            },
+            {
+                "Name Of the Instrument": "Home First Finance Company India Ltd",
+                "% to NAV": 1.76,
+                "Industry+ /Rating": "Finance",
+                "Ticker": "HOME.NS"
+            },
+            {
+                "Name Of the Instrument": "PVR LIMITED",
+                "% to NAV": 1.75,
+                "Industry+ /Rating": "Entertainment",
+                "Ticker": "PVR.NS"
+            },
+            {
+                "Name Of the Instrument": "Great Eastern Shipping Company Ltd.",
+                "% to NAV": 1.73,
+                "Industry+ /Rating": "Transport Services",
+                "Ticker": "GREAT.NS"
+            },
+            {
+                "Name Of the Instrument": "Sudarshan Chemical Industries Limited",
+                "% to NAV": 1.71,
+                "Industry+ /Rating": "Chemicals & Petrochemicals",
+                "Ticker": "SUDARSHAN.NS"
+            },
+            {
+                "Name Of the Instrument": "Vijaya Diagnostic Centre Limited",
+                "% to NAV": 1.63,
+                "Industry+ /Rating": "Healthcare Services",
+                "Ticker": "VIJAYA.NS"
+            },
+            {
+                "Name Of the Instrument": "Chalet Hotels Ltd.",
+                "% to NAV": 1.62,
+                "Industry+ /Rating": "Leisure Services",
+                "Ticker": "CHALET.NS"
+            },
+            {
+                "Name Of the Instrument": "The Federal Bank Ltd.",
+                "% to NAV": 1.61,
+                "Industry+ /Rating": "Banks",
+                "Ticker": "THE.NS"
+            },
+            {
+                "Name Of the Instrument": "Kalpataru Projects International Ltd",
+                "% to NAV": 1.57,
+                "Industry+ /Rating": "Construction",
+                "Ticker": "KALPATARU.NS"
+            },
+            {
+                "Name Of the Instrument": "City Union Bank Ltd.",
+                "% to NAV": 1.48,
+                "Industry+ /Rating": "Banks",
+                "Ticker": "CITY.NS"
+            },
+            {
+                "Name Of the Instrument": "Suprajit Engineering Ltd.",
+                "% to NAV": 1.4,
+                "Industry+ /Rating": "Auto Components",
+                "Ticker": "SUPRAJIT.NS"
+            },
+            {
+                "Name Of the Instrument": "Redington Ltd.",
+                "% to NAV": 1.35,
+                "Industry+ /Rating": "Commercial Services & Supplies",
+                "Ticker": "REDINGTON.NS"
+            },
+            {
+                "Name Of the Instrument": "Power Mech Projects Ltd.",
+                "% to NAV": 1.34,
+                "Industry+ /Rating": "Construction",
+                "Ticker": "POWERMECH.NS"
+            },
+            {
+                "Name Of the Instrument": "Timken India Ltd.",
+                "% to NAV": 1.34,
+                "Industry+ /Rating": "Industrial Products",
+                "Ticker": "TIMKEN.NS"
+            },
+            {
+                "Name Of the Instrument": "JSW Dulux Limited",
+                "% to NAV": 1.32,
+                "Industry+ /Rating": "Consumer Durables",
+                "Ticker": "JSW.NS"
+            },
+            {
+                "Name Of the Instrument": "Aditya Vision Limited",
+                "% to NAV": 1.28,
+                "Industry+ /Rating": "Retailing",
+                "Ticker": "ADITYA.NS"
+            },
+            {
+                "Name Of the Instrument": "Sonata Software Ltd.",
+                "% to NAV": 1.28,
+                "Industry+ /Rating": "IT - Software",
+                "Ticker": "SONATA.NS"
+            },
+            {
+                "Name Of the Instrument": "Dodla Dairy Limited",
+                "% to NAV": 1.24,
+                "Industry+ /Rating": "Food Products",
+                "Ticker": "DODLA.NS"
+            },
+            {
+                "Name Of the Instrument": "Godrej Consumer Products Ltd.",
+                "% to NAV": 1.23,
+                "Industry+ /Rating": "Personal Products",
+                "Ticker": "GODREJCP.NS"
+            },
+            {
+                "Name Of the Instrument": "Vardhman Textiles Ltd.",
+                "% to NAV": 1.22,
+                "Industry+ /Rating": "Textiles & Apparels",
+                "Ticker": "VARDHMAN.NS"
+            },
+            {
+                "Name Of the Instrument": "TEGA INDUSTRIES LIMITED",
+                "% to NAV": 1.2,
+                "Industry+ /Rating": "Industrial Manufacturing",
+                "Ticker": "TEGA.NS"
+            },
+            {
+                "Name Of the Instrument": "Blue Dart Express Ltd.",
+                "% to NAV": 1.18,
+                "Industry+ /Rating": "Transport Services",
+                "Ticker": "BLUE.NS"
+            },
+            {
+                "Name Of the Instrument": "LG Balakrishnan & Bros Ltd.",
+                "% to NAV": 1.18,
+                "Industry+ /Rating": "Auto Components",
+                "Ticker": "LG.NS"
+            },
+            {
+                "Name Of the Instrument": "Equitas Small Finance Bank Ltd",
+                "% to NAV": 1.15,
+                "Industry+ /Rating": "Banks",
+                "Ticker": "EQUITASBNK.NS"
+            },
+            {
+                "Name Of the Instrument": "NRB Bearing Ltd.",
+                "% to NAV": 1.12,
+                "Industry+ /Rating": "Auto Components",
+                "Ticker": "NRB.NS"
+            },
+            {
+                "Name Of the Instrument": "FIEM INDUSTRIES LIMITED",
+                "% to NAV": 1.04,
+                "Industry+ /Rating": "Auto Components",
+                "Ticker": "FIEM.NS"
+            }
+        ],
+        "comp": "Name Of the Instrument",
+        "w": "% to NAV",
+        "sec": "Industry+ /Rating",
+        "sec_df": [
+            {
+                "Industry+ /Rating": "Agricultural, Commercial & Construction Vehicles",
+                "% to NAV": 0.2
+            },
+            {
+                "Industry+ /Rating": "Auto Components",
+                "% to NAV": 11.83
+            },
+            {
+                "Industry+ /Rating": "Banks",
+                "% to NAV": 8.8
+            },
+            {
+                "Industry+ /Rating": "Beverages",
+                "% to NAV": 0.2
+            },
+            {
+                "Industry+ /Rating": "Capital Markets",
+                "% to NAV": 1.01
+            },
+            {
+                "Industry+ /Rating": "Chemicals & Petrochemicals",
+                "% to NAV": 1.71
+            },
+            {
+                "Industry+ /Rating": "Commercial Services & Supplies",
+                "% to NAV": 8.35
+            },
+            {
+                "Industry+ /Rating": "Construction",
+                "% to NAV": 4.09
+            },
+            {
+                "Industry+ /Rating": "Consumer Durables",
+                "% to NAV": 4.39
+            },
+            {
+                "Industry+ /Rating": "Electrical Equipment",
+                "% to NAV": 2.95
+            },
+            {
+                "Industry+ /Rating": "Entertainment",
+                "% to NAV": 1.75
+            },
+            {
+                "Industry+ /Rating": "Ferrous Metals",
+                "% to NAV": 1.6099999999999999
+            },
+            {
+                "Industry+ /Rating": "Fertilizers & Agrochemicals",
+                "% to NAV": 2.2
+            },
+            {
+                "Industry+ /Rating": "Finance",
+                "% to NAV": 2.48
+            },
+            {
+                "Industry+ /Rating": "Food Products",
+                "% to NAV": 1.24
+            },
+            {
+                "Industry+ /Rating": "Healthcare Services",
+                "% to NAV": 8.24
+            },
+            {
+                "Industry+ /Rating": "IT - Software",
+                "% to NAV": 2.79
+            },
+            {
+                "Industry+ /Rating": "Industrial Manufacturing",
+                "% to NAV": 2.54
+            },
+            {
+                "Industry+ /Rating": "Industrial Products",
+                "% to NAV": 3.91
+            },
+            {
+                "Industry+ /Rating": "Leisure Services",
+                "% to NAV": 1.62
+            },
+            {
+                "Industry+ /Rating": "Media",
+                "% to NAV": 0.2
+            },
+            {
+                "Industry+ /Rating": "Other Utilities",
+                "% to NAV": 0.48
+            },
+            {
+                "Industry+ /Rating": "Personal Products",
+                "% to NAV": 2.16
+            },
+            {
+                "Industry+ /Rating": "Pharmaceuticals & Biotechnology",
+                "% to NAV": 2.55
+            },
+            {
+                "Industry+ /Rating": "Retailing",
+                "% to NAV": 3.8600000000000003
+            },
+            {
+                "Industry+ /Rating": "Textiles & Apparels",
+                "% to NAV": 3.12
+            },
+            {
+                "Industry+ /Rating": "Transport Infrastructure",
+                "% to NAV": 0.36
+            },
+            {
+                "Industry+ /Rating": "Transport Services",
+                "% to NAV": 5.43
+            }
+        ]
     }
 }
