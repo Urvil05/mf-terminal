@@ -290,7 +290,6 @@ with tab2:
                         st.markdown("<div class='nav-box'><h5>Est. Value Change</h5><h2 style='color:{};'>₹ {:+.4f}</h2></div>".format(pred_color, expected_pnl), unsafe_allow_html=True)
                 
                 st.markdown("#### 🟢 Live Market Heatmap")
-                st.info("✏️ **Smart AI Override:** Galat 'Ticker' ko sahi NSE Ticker se replace karein. System use hamesha ke liye yaad kar lega!")
                 
                 disabled_cols = [c for c in disp_df.columns if c != 'Ticker']
                 edited_df = st.data_editor(
