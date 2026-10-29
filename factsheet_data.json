@@ -3630,5 +3630,246 @@
                 "% to AUM": 8.46456405407369
             }
         ]
+    },
+    "154214": {
+        "top20": [
+            {
+                "Stocks": "Welspun Corp Limited",
+                "Percentage(%)": 2.51,
+                "Sector": "Industrial Products",
+                "Ticker": "WELSPUN.NS"
+            },
+            {
+                "Stocks": "Vedant Fashions Limited",
+                "Percentage(%)": 2.26,
+                "Sector": "Retailing",
+                "Ticker": "VEDANT.NS"
+            },
+            {
+                "Stocks": "Leela Palaces Hotels & Resorts Limited",
+                "Percentage(%)": 2.23,
+                "Sector": "Leisure Services",
+                "Ticker": "THELEELA.NS"
+            },
+            {
+                "Stocks": "ZF Commercial Vehicle Control Systems India Limited",
+                "Percentage(%)": 2.19,
+                "Sector": "Auto Components",
+                "Ticker": "ZFCVINDIA.NS"
+            },
+            {
+                "Stocks": "Sansera Engineering Limited",
+                "Percentage(%)": 2.1,
+                "Sector": "Auto Components",
+                "Ticker": "SANSERA.NS"
+            },
+            {
+                "Stocks": "Aether Industries Limited",
+                "Percentage(%)": 2.04,
+                "Sector": "Chemicals & Petrochemicals",
+                "Ticker": "AETHER.NS"
+            },
+            {
+                "Stocks": "Karur Vysya Bank Limited",
+                "Percentage(%)": 2.0,
+                "Sector": "Banks",
+                "Ticker": "KARURVYSYA.NS"
+            },
+            {
+                "Stocks": "Rategain Travel Technologies Limited",
+                "Percentage(%)": 1.97,
+                "Sector": "IT - Software",
+                "Ticker": "RATEGAIN.NS"
+            },
+            {
+                "Stocks": "Central Depository Services (India) Limited",
+                "Percentage(%)": 1.95,
+                "Sector": "Capital Markets",
+                "Ticker": "CDSL.NS"
+            },
+            {
+                "Stocks": "Dr. Lal Path Labs Limited",
+                "Percentage(%)": 1.94,
+                "Sector": "Healthcare Services",
+                "Ticker": "LALPATHLAB.NS"
+            },
+            {
+                "Stocks": "Kirloskar Oil Engines Limited",
+                "Percentage(%)": 1.92,
+                "Sector": "Industrial Products",
+                "Ticker": "KIRLOSENG.NS"
+            },
+            {
+                "Stocks": "IIFL Finance Limited",
+                "Percentage(%)": 1.76,
+                "Sector": "Finance",
+                "Ticker": "IIFL.NS"
+            },
+            {
+                "Stocks": "Star Health And Allied Insurance Company Limited",
+                "Percentage(%)": 1.73,
+                "Sector": "Insurance",
+                "Ticker": "STAR.NS"
+            },
+            {
+                "Stocks": "SPR Auto Technologies Ltd",
+                "Percentage(%)": 1.72,
+                "Sector": "Auto Components",
+                "Ticker": "SHRIPISTON.NS"
+            },
+            {
+                "Stocks": "Computer Age Management Services Limited",
+                "Percentage(%)": 1.69,
+                "Sector": "Capital Markets",
+                "Ticker": "COMPUTER.NS"
+            },
+            {
+                "Stocks": "Rainbow Childrens Medicare Limited",
+                "Percentage(%)": 1.66,
+                "Sector": "Healthcare Services",
+                "Ticker": "RAINBOW.NS"
+            },
+            {
+                "Stocks": "Container Corporation of India Limited",
+                "Percentage(%)": 1.65,
+                "Sector": "Transport Services",
+                "Ticker": "CONTAINER.NS"
+            },
+            {
+                "Stocks": "Inox India Limited",
+                "Percentage(%)": 1.64,
+                "Sector": "Industrial Products",
+                "Ticker": "INOX.NS"
+            },
+            {
+                "Stocks": "NTPC Limited",
+                "Percentage(%)": 1.64,
+                "Sector": "Power",
+                "Ticker": "NTPC.NS"
+            },
+            {
+                "Stocks": "Redington Limited",
+                "Percentage(%)": 1.63,
+                "Sector": "Commercial Services & Supplies",
+                "Ticker": "REDINGTON.NS"
+            }
+        ],
+        "comp": "Stocks",
+        "w": "Percentage(%)",
+        "sec": "Sector",
+        "sec_df": [
+            {
+                "Sector": "Aerospace & Defense",
+                "Percentage(%)": 1.29
+            },
+            {
+                "Sector": "Agricultural, Commercial & Construction Vehicles",
+                "Percentage(%)": 2.7
+            },
+            {
+                "Sector": "Auto Components",
+                "Percentage(%)": 7.53
+            },
+            {
+                "Sector": "Banks",
+                "Percentage(%)": 7.75
+            },
+            {
+                "Sector": "Capital Markets",
+                "Percentage(%)": 4.76
+            },
+            {
+                "Sector": "Chemicals & Petrochemicals",
+                "Percentage(%)": 3.05
+            },
+            {
+                "Sector": "Commercial Services & Supplies",
+                "Percentage(%)": 4.93
+            },
+            {
+                "Sector": "Construction",
+                "Percentage(%)": 2.27
+            },
+            {
+                "Sector": "Consumer Durables",
+                "Percentage(%)": 3.75
+            },
+            {
+                "Sector": "Electrical Equipment",
+                "Percentage(%)": 1.57
+            },
+            {
+                "Sector": "Entertainment",
+                "Percentage(%)": 1.44
+            },
+            {
+                "Sector": "Fertilizers & Agrochemicals",
+                "Percentage(%)": 1.04
+            },
+            {
+                "Sector": "Finance",
+                "Percentage(%)": 4.86
+            },
+            {
+                "Sector": "Food Products",
+                "Percentage(%)": 1.17
+            },
+            {
+                "Sector": "Healthcare Equipment & Supplies",
+                "Percentage(%)": 1.08
+            },
+            {
+                "Sector": "Healthcare Services",
+                "Percentage(%)": 3.5999999999999996
+            },
+            {
+                "Sector": "IT - Software",
+                "Percentage(%)": 4.45
+            },
+            {
+                "Sector": "Industrial Manufacturing",
+                "Percentage(%)": 1.05
+            },
+            {
+                "Sector": "Industrial Products",
+                "Percentage(%)": 9.459999999999999
+            },
+            {
+                "Sector": "Insurance",
+                "Percentage(%)": 1.73
+            },
+            {
+                "Sector": "Leisure Services",
+                "Percentage(%)": 2.23
+            },
+            {
+                "Sector": "Non - Ferrous Metals",
+                "Percentage(%)": 1.53
+            },
+            {
+                "Sector": "Other Utilities",
+                "Percentage(%)": 1.51
+            },
+            {
+                "Sector": "Pharmaceuticals & Biotechnology",
+                "Percentage(%)": 6.28
+            },
+            {
+                "Sector": "Power",
+                "Percentage(%)": 2.44
+            },
+            {
+                "Sector": "Retailing",
+                "Percentage(%)": 4.66
+            },
+            {
+                "Sector": "Textiles & Apparels",
+                "Percentage(%)": 2.1
+            },
+            {
+                "Sector": "Transport Services",
+                "Percentage(%)": 1.65
+            }
+        ]
     }
 }
