@@ -129,10 +129,35 @@ def get_historical_nav(code):
         return {"name": res["meta"]["scheme_name"], "data": df.sort_values('date').reset_index(drop=True)}
     except: return None
 
+# 🔹 NAYA: AMFI OFFICIAL DIRECT FALLBACK 🔹
+@st.cache_data(ttl=3600, show_spinner=False)
+def get_amfi_latest_data():
+    amfi_dict = {}
+    try:
+        res = requests.get("https://www.amfiindia.com/spages/NAVAll.txt", timeout=10)
+        for line in res.text.split('\n'):
+            parts = line.split(';')
+            if len(parts) >= 5 and parts[0].isdigit():
+                amfi_dict[int(parts[0])] = {"nav": float(parts[4]), "name": parts[3].strip()}
+    except: pass
+    return amfi_dict
+
 @st.cache_data(ttl=3600, show_spinner=False)
 def calculate_fund_metrics(code):
     nav_data = get_historical_nav(code)
-    if not nav_data: return None
+    
+    if not nav_data: 
+        # Agar API Data nahi de raha (jaise DSP Business Cycle), toh AMFI se direct Live NAV fetch karega
+        amfi_data = get_amfi_latest_data()
+        fallback_nav = amfi_data.get(code, {}).get("nav", 0.0)
+        fallback_name = amfi_data.get(code, {}).get("name", f"Fund Code: {code}")
+        
+        return {
+            "Code": code, "Fund Name": f"{fallback_name} (AMFI Live)", "Current NAV": fallback_nav, "Prev NAV": fallback_nav, 
+            "1D Change (%)": 0.0, "1-Year (%)": None, "3-Year CAGR (%)": None, 
+            "Sharpe": None, "Sortino": None, "Volatility (%)": None
+        }
+        
     df, name = nav_data["data"], nav_data["name"]
     latest_nav, latest_date = df.iloc[-1]['nav'], df.iloc[-1]['date']
     prev_nav = df.iloc[-2]['nav'] if len(df) > 1 else latest_nav
@@ -227,7 +252,22 @@ with tab1:
         with st.spinner("Loading metrics..."):
             valid_m = [m for m in [calculate_fund_metrics(c) for c in st.session_state["watchlist"]] if m]
             if valid_m: 
-                st.dataframe(pd.DataFrame(valid_m).drop(columns=["Code"]), use_container_width=True, hide_index=True)
+                disp_metrics = pd.DataFrame(valid_m).drop(columns=["Code"])
+                st.dataframe(
+                    disp_metrics,
+                    column_config={
+                        "Current NAV": st.column_config.NumberColumn(format="₹ %.2f"),
+                        "Prev NAV": st.column_config.NumberColumn(format="₹ %.2f"),
+                        "1D Change (%)": st.column_config.NumberColumn(format="%.2f%%"),
+                        "1-Year (%)": st.column_config.NumberColumn(format="%.2f%%"),
+                        "3-Year CAGR (%)": st.column_config.NumberColumn(format="%.2f%%"),
+                        "Sharpe": st.column_config.NumberColumn(format="%.2f"),
+                        "Sortino": st.column_config.NumberColumn(format="%.2f"),
+                        "Volatility (%)": st.column_config.NumberColumn(format="%.2f%%"),
+                    },
+                    use_container_width=True, 
+                    hide_index=True
+                )
     else: st.info("Watchlist is empty. Add funds from the sidebar.")
 
 with tab2:
@@ -259,13 +299,7 @@ with tab2:
                     tickers_to_fetch = [t for t in disp_df['Ticker'].tolist() if "UNKNOWN" not in str(t).upper()]
                     live_data = fetch_live_prices(tickers_to_fetch)
                     
-                    # 🔹 THE ULTIMATE FIX: FORCED STRING FORMATTING 🔹
-                    # Pandas aur Streamlit ki koi mathematical processing use nahi ki.
-                    # Sidha Python string me hardcode kar diya taaki decimal change hi na ho sake.
-                    prev_strs = []
-                    live_strs = []
-                    change_strs = []
-                    
+                    prev_strs, live_strs, change_strs = [], [], []
                     for t in disp_df['Ticker']:
                         res = live_data.get(t, {})
                         if res.get('live') is not None:
@@ -350,7 +384,7 @@ with tab2:
                     st.markdown("##### Holdings Distribution")
                     st.plotly_chart(px.pie(edited_df, values=w, names=comp, hole=0.55).update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(t=0,b=0,l=0,r=0)), use_container_width=True)
                     
-            if st.button("🗑️ Delete & Re-upload (Recommended for 35 Stocks)"):
+            if st.button("🗑️ Delete & Re-upload"):
                 del st.session_state["factsheet_cache"][curr_code]
                 save_factsheet_cache(st.session_state["factsheet_cache"])
                 st.rerun()
