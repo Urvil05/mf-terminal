@@ -96,11 +96,34 @@ def clean_stock_name(name):
     words = raw.replace('ltd.', '').replace('limited', '').split()
     return (words[0].upper() + ".NS") if words else "UNKNOWN.NS"
 
+# 🔹 FIX: Memory Reader Engine (Restored Backward Compatibility) 🔹
 def load_factsheet_cache():
-    cache = load_json(FACTSHEET_FILE, {})
-    for k, v in cache.items():
+    raw_cache = load_json(FACTSHEET_FILE, {})
+    cache = {}
+    for k, v in raw_cache.items():
+        # JSON keys are strings, convert them back to integers to match the app logic
+        key = int(k) if str(k).isdigit() else k
+        
+        # Read old top20/top10 data gracefully
         if "top35" in v: v["top35"] = pd.DataFrame(v["top35"])
+        elif "top20" in v: v["top35"] = pd.DataFrame(v["top20"])
+        elif "top10" in v: v["top35"] = pd.DataFrame(v["top10"])
+        
+        if "sec_df" in v and v["sec_df"] is not None: 
+            v["sec_df"] = pd.DataFrame(v["sec_df"])
+            
+        cache[key] = v
     return cache
+
+def save_factsheet_cache(cache):
+    serializable_cache = {}
+    for k, v in cache.items():
+        serializable_cache[k] = {
+            "top35": v["top35"].to_dict(orient="records"),
+            "comp": v["comp"], "w": v["w"], "sec": v["sec"],
+            "sec_df": v["sec_df"].to_dict(orient="records") if v["sec_df"] is not None else None
+        }
+    save_json(FACTSHEET_FILE, serializable_cache)
 
 if "watchlist" not in st.session_state: st.session_state["watchlist"] = load_json(WATCHLIST_FILE, [])
 if "portfolio" not in st.session_state: st.session_state["portfolio"] = load_json(PORTFOLIO_FILE, [])
@@ -127,14 +150,30 @@ def get_historical_nav(code):
     except: return None
 
 @st.cache_data(ttl=3600, show_spinner=False)
+def get_amfi_latest_data():
+    amfi_dict = {}
+    try:
+        res = requests.get("https://www.amfiindia.com/spages/NAVAll.txt", timeout=10)
+        for line in res.text.split('\n'):
+            parts = line.split(';')
+            if len(parts) >= 5 and parts[0].isdigit():
+                amfi_dict[int(parts[0])] = {"nav": float(parts[4]), "name": parts[3].strip()}
+    except: pass
+    return amfi_dict
+
+@st.cache_data(ttl=3600, show_spinner=False)
 def calculate_fund_metrics(code):
     nav_data = get_historical_nav(code)
     
     if not nav_data: 
+        amfi_data = get_amfi_latest_data()
+        fallback_nav = amfi_data.get(code, {}).get("nav", None)
+        fallback_name = amfi_data.get(code, {}).get("name", f"Fund Code: {code}")
+        
         return {
-            "Code": code, "Fund Name": f"Fund Code: {code}", "Date": "—", "Current NAV": "—", "Prev NAV": "—", 
-            "1D Change (%)": "—", "1-Year (%)": "—", "3-Year CAGR (%)": "—", 
-            "Sharpe (3Y)": "—", "Sortino (3Y)": "—", "Volatility (3Y)": "—"
+            "Code": code, "Fund Name": f"{fallback_name} (AMFI Live)", "Date": "—", "Current NAV": fallback_nav, "Prev NAV": fallback_nav, 
+            "1D Change (%)": None, "1-Year (%)": None, "3-Year CAGR (%)": None, 
+            "Sharpe (3Y)": None, "Sortino (3Y)": None, "Volatility (3Y)": None
         }
         
     df, name = nav_data["data"], nav_data["name"]
@@ -253,6 +292,16 @@ if query and not all_schemes.empty:
                 save_json(WATCHLIST_FILE, st.session_state["watchlist"])
                 st.rerun()
 
+st.sidebar.markdown("---")
+st.sidebar.markdown("### Remove Instrument")
+if st.session_state["watchlist"]:
+    delete_dict = {str(c): c for c in st.session_state["watchlist"]}
+    funds_to_del = st.sidebar.multiselect("Select strategies to remove:", list(delete_dict.keys()), key="del_fund")
+    if st.sidebar.button("Remove Selected", key="rem_btn"):
+        for f in funds_to_del: st.session_state["watchlist"].remove(delete_dict[f])
+        save_json(WATCHLIST_FILE, st.session_state["watchlist"])
+        st.rerun()
+
 st.markdown("<h1 style='font-weight: 700; font-size: 2.0rem; color: #cbd5e1;'>Institutional Quant Terminal</h1>", unsafe_allow_html=True)
 tab1, tab2, tab3, tab4, tab5 = st.tabs(["Dashboard", "Factsheet & iNAV", "Portfolio Ledger", "Comparative Analysis", "Market & Macro"])
 
@@ -275,7 +324,6 @@ with tab1:
         c1, c2 = st.columns([2, 1])
         with c1:
             fig_flow = go.Figure()
-            # FIX: Mapping green to positive, red to negative
             fii_color = ['#22c55e' if v >= 0 else '#ef4444' for v in df_flow['FII']]
             dii_color = ['#22c55e' if v >= 0 else '#ef4444' for v in df_flow['DII']]
             
@@ -318,6 +366,7 @@ with tab2:
         curr_code = f_dict[selected_fund_name]
         
         if curr_code in st.session_state["factsheet_cache"]:
+            st.success(f"Data mapping for {selected_fund_name} is active.")
             cached = st.session_state["factsheet_cache"][curr_code]
             top35 = cached.get("top35", pd.DataFrame())
             comp, w, sec = cached.get("comp", ""), cached.get("w", ""), cached.get("sec", "None")
@@ -330,7 +379,6 @@ with tab2:
                     tickers_to_fetch = [t for t in disp_df['Ticker'].tolist() if "UNKNOWN" not in str(t).upper()]
                     live_data = fetch_live_prices(tickers_to_fetch)
                     
-                    # FIX: Mathematical accuracy preserved
                     raw_changes, prev_strs, live_strs = [], [], []
                     for t in disp_df['Ticker']:
                         res = live_data.get(t, {})
@@ -345,7 +393,7 @@ with tab2:
                             
                     disp_df['Prev Price (₹)'] = prev_strs
                     disp_df['Live Price (₹)'] = live_strs
-                    disp_df['% Change (Raw)'] = raw_changes # Hidden math column
+                    disp_df['% Change (Raw)'] = raw_changes 
                 
                 m_data = calculate_fund_metrics(curr_code)
                 last_official_nav = m_data["Current NAV"] if isinstance(m_data["Current NAV"], float) else 0.0
@@ -354,7 +402,6 @@ with tab2:
                     valid_changes = pd.to_numeric(disp_df['% Change (Raw)'], errors='coerce').fillna(0)
                     weights = pd.to_numeric(disp_df[w], errors='coerce').fillna(0) / 100
                     
-                    # Contribution BPS calculation
                     disp_df['Contribution (BPS)'] = (valid_changes * weights * 100).round(2)
                     
                     total_tracked_weight = weights.sum()
@@ -373,7 +420,6 @@ with tab2:
                         st.markdown(f"<div class='nav-box'><h5>Live iNAV Estimate</h5><h2 style='color:{pred_color};'>₹ {predicted_nav:.2f}</h2><span style='color:{pred_color}; font-weight:bold;'>{normalized_est_change:+.2f}%</span></div>", unsafe_allow_html=True)
                     with colC: st.markdown(f"<div class='nav-box'><h5>Estimated Absolute Change</h5><h2 style='color:{pred_color};'>₹ {expected_pnl:+.2f}</h2></div>", unsafe_allow_html=True)
                 
-                # Cleanup for display
                 disp_show = disp_df.drop(columns=['% Change (Raw)'])
                 
                 st.markdown("#### Holdings Heatmap & Contribution")
@@ -407,8 +453,51 @@ with tab2:
         else:
             f_file = st.file_uploader("Upload Portfolio Data (CSV/Excel)", type=["xlsx", "xls", "csv"])
             if f_file:
-                # Same map logic here
-                st.info("Mapping functionality retained from previous version.")
+                try:
+                    if f_file.name.endswith(".csv"): df_raw = pd.read_csv(f_file)
+                    else:
+                        xls = pd.ExcelFile(f_file)
+                        sheet_name = st.selectbox("Select Data Sheet:", xls.sheet_names)
+                        df_raw = pd.read_excel(xls, sheet_name=sheet_name, header=None)
+                    
+                    header_row = 0
+                    for i in range(min(30, len(df_raw))):
+                        r_vals = [str(x).lower() for x in df_raw.iloc[i].values]
+                        if any(k in r for r in r_vals for k in ["company","issuer","name"]) and any(k in r for r in r_vals for k in ["asset","weight","%"]):
+                            header_row = i
+                            break
+                    
+                    df = pd.read_csv(f_file, skiprows=header_row) if f_file.name.endswith(".csv") else pd.read_excel(f_file, sheet_name=sheet_name, skiprows=header_row)
+                    df.columns = [str(c).strip() for c in df.columns]
+                    
+                    with st.expander("Parameter Mapping", expanded=True):
+                        c1, c2, c3 = st.columns(3)
+                        def_comp = next((c for c in df.columns if any(k in c.lower() for k in ["company","instrument","issuer","name"])), "None")
+                        def_sec = next((c for c in df.columns if any(k in c.lower() for k in ["sector","industry","rating"])), "None")
+                        def_w = next((c for c in df.columns if any(k in c.lower() for k in ["asset","%","weight","nav"])), "None")
+                        
+                        comp = c1.selectbox("Asset Name Header:", ["None"] + list(df.columns), index=(["None"] + list(df.columns)).index(def_comp) if def_comp in ["None"] + list(df.columns) else 0)
+                        sec = c2.selectbox("Sector Header (Optional):", ["None"] + list(df.columns), index=(["None"] + list(df.columns)).index(def_sec) if def_sec in ["None"] + list(df.columns) else 0)
+                        w = c3.selectbox("Weight Header:", ["None"] + list(df.columns), index=(["None"] + list(df.columns)).index(def_w) if def_w in ["None"] + list(df.columns) else 0)
+                        
+                        if st.button("Finalize Configuration", type="primary"):
+                            if comp != "None" and w != "None":
+                                clean = df[[comp, w] + ([sec] if sec != "None" else [])].dropna(subset=[comp, w]).copy()
+                                clean[w] = pd.to_numeric(clean[w].astype(str).str.replace('%', '', regex=False).str.strip(), errors='coerce')
+                                clean = clean.dropna(subset=[w])
+                                clean = clean[(clean[w] <= 100) & (~clean[comp].astype(str).str.lower().isin(['total','grand total','equity','debt','cash','portfolio']))]
+                                
+                                top35 = clean.sort_values(w, ascending=False).head(35)
+                                top35['Ticker'] = top35[comp].apply(clean_stock_name)
+                                
+                                sec_df = clean.groupby(sec)[w].sum().reset_index() if sec != "None" else None
+                                if sec_df is not None: sec_df = sec_df[sec_df[w] > 0]
+                                    
+                                st.session_state["factsheet_cache"][curr_code] = {"top35": top35, "comp": comp, "w": w, "sec": sec, "sec_df": sec_df}
+                                save_factsheet_cache(st.session_state["factsheet_cache"])
+                                st.rerun()
+                            else: st.warning("Requires Asset and Weight columns for primary parsing.")
+                except Exception as e: st.error(f"Ingestion Error: {str(e)}")
 
 with tab3:
     st.markdown("#### Portfolio Ledger & Taxation Baseline")
@@ -421,7 +510,6 @@ with tab3:
         try: dt_obj = datetime.strptime(t.get('date', '2026-01-01'), '%Y-%m-%d')
         except: dt_obj = datetime.today()
         
-        # Validating multiple import keys
         is_sell = any(k in str(t.get('type', '')).lower() for k in ['sell', 'redemption', 'withdrawal', 'switch out'])
         
         if not is_sell:
@@ -486,7 +574,6 @@ with tab3:
         c4.metric("Blended Yield", f"{(tot_pnl / tot_inv * 100) if tot_inv > 0 else 0:.2f} %")
         st.markdown("---")
         
-        # Color coding P&L
         def color_pnl(val): return 'color: #22c55e' if val > 0 else 'color: #ef4444'
         
         df_display = df_port.copy()
@@ -499,6 +586,81 @@ with tab3:
             use_container_width=True, hide_index=True
         )
     else: st.info("No active equity detected.")
+
+    st.markdown("---")
+    if st.button("Flush Local Ledger State"):
+        st.session_state["portfolio"] = []
+        save_json(PORTFOLIO_FILE, [])
+        st.rerun()
+
+    with st.expander("Transaction Bulk Import Interface", expanded=False):
+        bulk_file = st.file_uploader("Upload Execution File", type=["csv", "xlsx", "xls"], key="bulk_port_up")
+        if bulk_file:
+            try:
+                df_b = pd.read_csv(bulk_file) if bulk_file.name.endswith(".csv") else pd.read_excel(bulk_file)
+                df_b.columns = [str(c).strip() for c in df_b.columns]
+                with st.form("bulk_map_form"):
+                    cols = ["None"] + list(df_b.columns)
+                    c1, c2, c3, c4 = st.columns(4)
+                    map_name = c1.selectbox("Strategy Key", cols, index=cols.index(next((c for c in df_b.columns if any(k in c.lower() for k in ["name", "fund", "scheme"])), "None")) if next((c for c in df_b.columns if any(k in c.lower() for k in ["name", "fund", "scheme"])), "None") in cols else 0)
+                    map_asset = c2.selectbox("Class Key", cols, index=cols.index(next((c for c in df_b.columns if c.lower() == "type" or "asset" in c.lower()), "None")) if next((c for c in df_b.columns if c.lower() == "type" or "asset" in c.lower()), "None") in cols else 0)
+                    map_sub = c3.selectbox("Sub-Class Key", cols, index=cols.index(next((c for c in df_b.columns if "sub" in c.lower() or "category" in c.lower()), "None")) if next((c for c in df_b.columns if "sub" in c.lower() or "category" in c.lower()), "None") in cols else 0)
+                    map_type = c4.selectbox("Execution Key", cols, index=cols.index(next((c for c in df_b.columns if any(k in c.lower() for k in ["tran", "action", "buy", "type"])), "None")) if next((c for c in df_b.columns if any(k in c.lower() for k in ["tran", "action", "buy", "type"])), "None") in cols else 0)
+                    
+                    c5, c6, c7 = st.columns(3)
+                    map_date = c5.selectbox("Timestamp Key", cols, index=cols.index(next((c for c in df_b.columns if any(k in c.lower() for k in ["date", "time"])), "None")) if next((c for c in df_b.columns if any(k in c.lower() for k in ["date", "time"])), "None") in cols else 0)
+                    map_unit = c6.selectbox("Unit Key", cols, index=cols.index(next((c for c in df_b.columns if any(k in c.lower() for k in ["unit", "qty", "quantity"])), "None")) if next((c for c in df_b.columns if any(k in c.lower() for k in ["unit", "qty", "quantity"])), "None") in cols else 0)
+                    map_nav = c7.selectbox("Pricing Key (NAV/Amt)", cols, index=cols.index(next((c for c in df_b.columns if any(k in c.lower() for k in ["nav", "price", "rate", "amt", "amount", "inv"])), "None")) if next((c for c in df_b.columns if any(k in c.lower() for k in ["nav", "price", "rate", "amt", "amount", "inv"])), "None") in cols else 0)
+                    
+                    if st.form_submit_button("Initiate Ingestion", type="primary"):
+                        if "None" in [map_name, map_unit, map_nav]: st.warning("Mapping constraint: Target identifiers missing.")
+                        else:
+                            success_count = 0
+                            failed_funds = set()
+                            for _, row in df_b.iterrows():
+                                raw_name = str(row[map_name]).strip()
+                                raw_lower = raw_name.lower()
+                                if raw_lower in ["nan", "none", "", "null"] or "total" in raw_lower or "note" in raw_lower: continue
+                                clean_name = raw_name.split('-')[0].strip().lower()
+                                match = all_schemes[all_schemes['search_term'].str.contains(clean_name, regex=False, na=False)]
+                                if not match.empty:
+                                    if "idcw" not in raw_lower and "div" not in raw_lower:
+                                        no_idcw = match[~match['search_term'].str.contains("idcw|dividend|payout|reinvestment", regex=True)]
+                                        if not no_idcw.empty: match = no_idcw
+                                    if "gr" in raw_lower or "growth" in raw_lower:
+                                        gr_match = match[match['search_term'].str.contains("growth", regex=False)]
+                                        if not gr_match.empty: match = gr_match
+                                    if "dir" not in raw_lower and "direct" not in raw_lower:
+                                        reg_match = match[match['search_term'].str.contains("regular", regex=False)]
+                                        if not reg_match.empty: match = reg_match
+                                    sc_code = int(match.iloc[0]['schemeCode'])
+                                    if sc_code not in st.session_state["watchlist"]: st.session_state["watchlist"].append(sc_code)
+                                    try: dt_parsed = pd.to_datetime(row[map_date]).strftime('%Y-%m-%d') if map_date != "None" and pd.notna(row[map_date]) else datetime.today().strftime('%Y-%m-%d')
+                                    except: dt_parsed = datetime.today().strftime('%Y-%m-%d')
+                                    try:
+                                        r_units, r_nav = float(row[map_unit]), float(row[map_nav])
+                                        if pd.isna(r_units) or pd.isna(r_nav) or r_units <= 0: continue
+                                        
+                                        action_type = str(row[map_type]).lower() if map_type != "None" else "buy"
+                                        mapped_action = "Sell" if any(k in action_type for k in ["sell", "redemption", "withdrawal"]) else "Buy"
+
+                                        st.session_state["portfolio"].append({
+                                            "code": sc_code, "name": match.iloc[0]['schemeName'], 
+                                            "asset_type": str(row[map_asset]) if map_asset != "None" else "Equity",
+                                            "sub_type": str(row[map_sub]) if map_sub != "None" else "-",
+                                            "type": mapped_action,
+                                            "date": dt_parsed, "units": r_units, "nav": r_nav
+                                        })
+                                        success_count += 1
+                                    except: pass
+                                else: failed_funds.add(raw_name)
+                            save_json(WATCHLIST_FILE, st.session_state["watchlist"])
+                            save_json(PORTFOLIO_FILE, st.session_state["portfolio"])
+                            if success_count > 0:
+                                st.success(f"Ingestion successful: {success_count} logs recorded.")
+                                st.rerun()
+                            else: st.error("Ingestion failed: No valid parameters identified.")
+            except Exception as e: st.error(f"Read format error: {str(e)}")
 
 with tab4:
     st.markdown("#### Comparative Analysis Sandbox")
@@ -515,12 +677,10 @@ with tab4:
                         fig_dd = go.Figure()
                         for f_name, df in hist_data.items():
                             df = df.set_index('date')
-                            # FIX: Outlier filter (Ignore NAV drops > 50% in 1 day)
                             df = df[df['nav'].pct_change() > -0.5] 
                             roll_max = df['nav'].cummax()
                             drawdown = (df['nav'] - roll_max) / roll_max * 100
                             fig_dd.add_trace(go.Scatter(x=drawdown.index, y=drawdown, mode='lines', name=f_name[:20]))
-                        # FIX: Y-axis constrained to negative only, Future dates blocked
                         fig_dd.update_layout(template="plotly_dark", margin=dict(l=0, r=0, t=30, b=0), yaxis=dict(range=[-100, 0]), xaxis=dict(range=[df.index.min(), datetime.today()]))
                         st.plotly_chart(fig_dd, use_container_width=True)
                     with c2:
