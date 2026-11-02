@@ -10,6 +10,8 @@ import yfinance as yf
 from datetime import datetime, timedelta
 from github import Github
 import xml.etree.ElementTree as ET
+import urllib.request
+import re
 
 # --- 1. GitHub API Setup (Permanent Storage) ---
 GITHUB_TOKEN = st.secrets.get("GITHUB_TOKEN", None)
@@ -215,23 +217,51 @@ def fetch_live_prices(ticker_list):
     except: pass
     return prices
 
+# 🔹 NAYA: AUTOMATIC FII/DII FETCHER FROM NSE 🔹
+@st.cache_data(ttl=3600, show_spinner=False)
+def fetch_today_fii_dii():
+    try:
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
+        s = requests.Session()
+        s.headers.update(headers)
+        s.get("https://www.nseindia.com", timeout=10) # Set cookies
+        res = s.get("https://www.nseindia.com/api/fiidiiTradeReact", timeout=10).json()
+        
+        fii_net = dii_net = 0.0
+        date_str = datetime.today().strftime("%Y-%m-%d")
+        for item in res:
+            cat = item.get('category', '')
+            if 'FII' in cat: fii_net = float(item.get('netValue', 0))
+            if 'DII' in cat: dii_net = float(item.get('netValue', 0))
+            if item.get('date'):
+                try: date_str = datetime.strptime(item['date'], '%d-%b-%Y').strftime("%Y-%m-%d")
+                except: pass
+                
+        return {"date": date_str, "FII": fii_net, "DII": dii_net}
+    except: return None
+
+# 🔹 NAYA: FRESH LIVE NEWS FROM ET & LIVEMINT 🔹
 @st.cache_data(ttl=1800, show_spinner=False)
 def fetch_market_news():
     news_items = []
     try:
         urls = [
-            "https://www.moneycontrol.com/rss/economy.xml",
-            "https://www.moneycontrol.com/rss/marketreports.xml"
+            "https://economictimes.indiatimes.com/markets/rssfeeds/1977021501.cms",
+            "https://www.livemint.com/rss/markets"
         ]
         for url in urls:
-            res = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'}, timeout=10)
-            root = ET.fromstring(res.content)
-            for item in root.findall('.//item')[:15]:
+            req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+            with urllib.request.urlopen(req, timeout=10) as response:
+                xml_data = response.read()
+            root = ET.fromstring(xml_data)
+            for item in root.findall('.//item')[:10]: # Top 10 from each portal
                 title = item.find('title').text
                 link = item.find('link').text
                 pubDate = item.find('pubDate').text
-                desc = item.find('description').text
-                news_items.append({"Title": title, "Date": pubDate, "Description": desc, "Link": link})
+                desc_elem = item.find('description')
+                desc = desc_elem.text if desc_elem is not None else ""
+                desc = re.sub('<[^<]+>', '', desc).strip() # HTML hatao
+                news_items.append({"Title": title, "Date": pubDate, "Description": desc[:150]+"...", "Link": link})
     except: pass
     return news_items
 
@@ -266,9 +296,38 @@ if st.session_state["watchlist"]:
         st.rerun()
 
 st.markdown("<h1 style='font-weight: 800; font-size: 2.2rem; color: #38bdf8;'>APEX QUANTITATIVE TERMINAL</h1>", unsafe_allow_html=True)
-tab1, tab2, tab3, tab4, tab5 = st.tabs(["📊 Dashboard", "🏢 Factsheet & Predictor", "💼 Portfolio", "📈 Advanced Analysis", "📰 Market & Macro"])
+tab1, tab2, tab3, tab4, tab5 = st.tabs(["📊 Dashboard", "🏢 Factsheet & Predictor", "💼 Portfolio", "📈 Advanced Analysis", "📰 Market News"])
 
 with tab1:
+    st.markdown("### 🏦 FII / DII Institutional Flow")
+    
+    # 🔹 AUTO FETCH & SAVE LOGIC (Har din apne aap chart banayega) 🔹
+    today_flow = fetch_today_fii_dii()
+    if today_flow and today_flow['date']:
+        date_k = today_flow['date']
+        if date_k not in st.session_state["fii_dii"] or st.session_state["fii_dii"][date_k] != {"FII": today_flow['FII'], "DII": today_flow['DII']}:
+            st.session_state["fii_dii"][date_k] = {"FII": today_flow['FII'], "DII": today_flow['DII']}
+            save_json(FII_DII_FILE, st.session_state["fii_dii"])
+            
+    if st.session_state["fii_dii"]:
+        df_flow = pd.DataFrame.from_dict(st.session_state["fii_dii"], orient='index').reset_index()
+        df_flow.columns = ["Date", "FII", "DII"]
+        df_flow = df_flow.sort_values('Date').tail(10)
+        
+        c1, c2 = st.columns([2, 1])
+        with c1:
+            fig_flow = go.Figure()
+            fig_flow.add_trace(go.Bar(x=df_flow['Date'], y=df_flow['FII'], name='FII (₹ Cr)', marker_color='#ef4444'))
+            fig_flow.add_trace(go.Bar(x=df_flow['Date'], y=df_flow['DII'], name='DII (₹ Cr)', marker_color='#22c55e'))
+            fig_flow.update_layout(barmode='group', template='plotly_dark', margin=dict(l=0, r=0, t=30, b=0), legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1), height=250)
+            st.plotly_chart(fig_flow, use_container_width=True)
+        with c2:
+            st.dataframe(df_flow.set_index('Date').tail(5), use_container_width=True)
+    else:
+        st.info("⏳ NSE API se FII/DII Data fetch ho raha hai. Market hours ke baad refresh karein.")
+
+    st.markdown("---")
+    st.markdown("### 📋 Watchlist Metrics")
     if st.session_state["watchlist"]:
         with st.spinner("Loading metrics..."):
             valid_m = [m for m in [calculate_fund_metrics(c) for c in st.session_state["watchlist"]] if m]
@@ -662,51 +721,18 @@ with tab4:
 
 with tab5:
     st.markdown("### 📰 Global Market & Macro News")
+    st.markdown("*(Real-time live feeds from ET Markets & LiveMint)*")
     
-    col1, col2 = st.columns([2, 1])
-    
-    with col1:
-        st.markdown("#### ⚡ Real-Time Feed")
-        with st.spinner("Fetching latest updates..."):
-            news = fetch_market_news()
-            if news:
-                for item in news:
-                    st.markdown(f"""
-                    <div style='background: rgba(255,255,255,0.03); padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 3px solid #38bdf8;'>
-                        <a href="{item['Link']}" target="_blank" style="color: #38bdf8; text-decoration: none; font-weight: 600; font-size: 1.1rem;">{item['Title']}</a>
-                        <p style="color: #94a3b8; font-size: 0.85rem; margin-top: 5px; margin-bottom: 5px;">📅 {item['Date']}</p>
-                    </div>
-                    """, unsafe_allow_html=True)
-            else:
-                st.info("Currently unable to fetch news from RSS feed.")
-                
-    with col2:
-        st.markdown("#### 🏦 FII / DII Flow Tracker")
-        st.markdown("*(Data manually updated end-of-day)*")
-        
-        with st.form("fii_form"):
-            f_date = st.date_input("Date", datetime.today())
-            f_fii = st.number_input("FII Net (₹ Crs)", value=0.0, step=100.0)
-            f_dii = st.number_input("DII Net (₹ Crs)", value=0.0, step=100.0)
-            if st.form_submit_button("💾 Save Data"):
-                date_str = f_date.strftime("%Y-%m-%d")
-                st.session_state["fii_dii"][date_str] = {"FII": f_fii, "DII": f_dii}
-                save_json(FII_DII_FILE, st.session_state["fii_dii"])
-                st.success("Saved.")
-                st.rerun()
-                
-        if st.session_state["fii_dii"]:
-            df_flow = pd.DataFrame.from_dict(st.session_state["fii_dii"], orient='index').reset_index()
-            df_flow.columns = ["Date", "FII", "DII"]
-            df_flow = df_flow.sort_values('Date').tail(10)
-            
-            fig_flow = go.Figure()
-            fig_flow.add_trace(go.Bar(x=df_flow['Date'], y=df_flow['FII'], name='FII', marker_color='#ef4444'))
-            fig_flow.add_trace(go.Bar(x=df_flow['Date'], y=df_flow['DII'], name='DII', marker_color='#22c55e'))
-            fig_flow.update_layout(barmode='group', template='plotly_dark', margin=dict(l=0, r=0, t=30, b=0), legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
-            st.plotly_chart(fig_flow, use_container_width=True)
-            
-            if st.button("🚨 Clear Flow Data"):
-                st.session_state["fii_dii"] = {}
-                save_json(FII_DII_FILE, {})
-                st.rerun()
+    with st.spinner("Fetching latest updates..."):
+        news = fetch_market_news()
+        if news:
+            for item in news:
+                st.markdown(f"""
+                <div style='background: rgba(255,255,255,0.03); padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 3px solid #38bdf8;'>
+                    <a href="{item['Link']}" target="_blank" style="color: #38bdf8; text-decoration: none; font-weight: 600; font-size: 1.1rem;">{item['Title']}</a>
+                    <p style="color: #94a3b8; font-size: 0.85rem; margin-top: 5px; margin-bottom: 5px;">📅 {item['Date']}</p>
+                    <p style="color: #cbd5e1; font-size: 0.95rem; margin-top: 5px;">{item['Description']}</p>
+                </div>
+                """, unsafe_allow_html=True)
+        else:
+            st.info("Currently unable to fetch live news. Please refresh.")
