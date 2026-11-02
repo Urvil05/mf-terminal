@@ -430,7 +430,7 @@ with tab2:
                     disp_show,
                     column_config={
                         w: st.column_config.NumberColumn(format="%.2f%%"),
-                        'Contribution (BPS)': st.column_config.NumberColumn(format="%.2f bps")
+                        'Contribution (BPS)': st.column_config.NumberColumn(format="%")
                     },
                     disabled=disabled_cols,
                     use_container_width=True, hide_index=True, key=f"edit_top35_{curr_code}"
