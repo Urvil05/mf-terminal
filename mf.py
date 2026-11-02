@@ -402,7 +402,7 @@ with tab2:
                     valid_changes = pd.to_numeric(disp_df['% Change (Raw)'], errors='coerce').fillna(0)
                     weights = pd.to_numeric(disp_df[w], errors='coerce').fillna(0) / 100
                     
-                    disp_df['Contribution (BPS)'] = (valid_changes * weights * 100).round(2)
+                    disp_df['Contribution (%)'] = (valid_changes * weights * 100).round(2)
                     
                     total_tracked_weight = weights.sum()
                     if total_tracked_weight > 0:
@@ -430,7 +430,7 @@ with tab2:
                     disp_show,
                     column_config={
                         w: st.column_config.NumberColumn(format="%.2f%%"),
-                        'Contribution (BPS)': st.column_config.NumberColumn(format="%")
+                        'Contribution (%)': st.column_config.NumberColumn(format="%")
                     },
                     disabled=disabled_cols,
                     use_container_width=True, hide_index=True, key=f"edit_top35_{curr_code}"
