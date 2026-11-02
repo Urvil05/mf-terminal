@@ -9,6 +9,7 @@ import os
 import yfinance as yf
 from datetime import datetime, timedelta
 from github import Github
+import xml.etree.ElementTree as ET
 
 # --- 1. GitHub API Setup (Permanent Storage) ---
 GITHUB_TOKEN = st.secrets.get("GITHUB_TOKEN", None)
@@ -60,6 +61,7 @@ WATCHLIST_FILE = "tracked_funds.json"
 PORTFOLIO_FILE = "paper_portfolio.json"
 FACTSHEET_FILE = "factsheet_data.json"
 CUSTOM_TICKERS_FILE = "custom_tickers.json"
+FII_DII_FILE = "fii_dii_data.json"
 
 TICKER_MAP = {
     "hdfc bank ltd.": "HDFCBANK.NS", "hdfc bank limited": "HDFCBANK.NS",
@@ -75,6 +77,7 @@ TICKER_MAP = {
 }
 
 if "custom_tickers" not in st.session_state: st.session_state["custom_tickers"] = load_json(CUSTOM_TICKERS_FILE, {})
+if "fii_dii" not in st.session_state: st.session_state["fii_dii"] = load_json(FII_DII_FILE, {})
 
 def clean_stock_name(name):
     raw = str(name).lower().strip()
@@ -130,9 +133,32 @@ def get_historical_nav(code):
     except: return None
 
 @st.cache_data(ttl=3600, show_spinner=False)
+def get_amfi_latest_data():
+    amfi_dict = {}
+    try:
+        res = requests.get("https://www.amfiindia.com/spages/NAVAll.txt", timeout=10)
+        for line in res.text.split('\n'):
+            parts = line.split(';')
+            if len(parts) >= 5 and parts[0].isdigit():
+                amfi_dict[int(parts[0])] = {"nav": float(parts[4]), "name": parts[3].strip()}
+    except: pass
+    return amfi_dict
+
+@st.cache_data(ttl=3600, show_spinner=False)
 def calculate_fund_metrics(code):
     nav_data = get_historical_nav(code)
-    if not nav_data: return None
+    
+    if not nav_data: 
+        amfi_data = get_amfi_latest_data()
+        fallback_nav = amfi_data.get(code, {}).get("nav", 0.0)
+        fallback_name = amfi_data.get(code, {}).get("name", f"Fund Code: {code}")
+        
+        return {
+            "Code": code, "Fund Name": f"{fallback_name} (AMFI Live)", "Current NAV": fallback_nav, "Prev NAV": fallback_nav, 
+            "1D Change (%)": 0.0, "1-Year (%)": None, "3-Year CAGR (%)": None, 
+            "Sharpe": None, "Sortino": None, "Volatility (%)": None
+        }
+        
     df, name = nav_data["data"], nav_data["name"]
     latest_nav, latest_date = df.iloc[-1]['nav'], df.iloc[-1]['date']
     prev_nav = df.iloc[-2]['nav'] if len(df) > 1 else latest_nav
@@ -189,6 +215,26 @@ def fetch_live_prices(ticker_list):
     except: pass
     return prices
 
+@st.cache_data(ttl=1800, show_spinner=False)
+def fetch_market_news():
+    news_items = []
+    try:
+        urls = [
+            "https://www.moneycontrol.com/rss/economy.xml",
+            "https://www.moneycontrol.com/rss/marketreports.xml"
+        ]
+        for url in urls:
+            res = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'}, timeout=10)
+            root = ET.fromstring(res.content)
+            for item in root.findall('.//item')[:15]:
+                title = item.find('title').text
+                link = item.find('link').text
+                pubDate = item.find('pubDate').text
+                desc = item.find('description').text
+                news_items.append({"Title": title, "Date": pubDate, "Description": desc, "Link": link})
+    except: pass
+    return news_items
+
 all_schemes = get_all_schemes()
 
 st.sidebar.markdown("### 🔍 Add New Fund")
@@ -220,14 +266,29 @@ if st.session_state["watchlist"]:
         st.rerun()
 
 st.markdown("<h1 style='font-weight: 800; font-size: 2.2rem; color: #38bdf8;'>APEX QUANTITATIVE TERMINAL</h1>", unsafe_allow_html=True)
-tab1, tab2, tab3, tab4 = st.tabs(["📊 Dashboard", "🏢 Factsheet & Predictor", "💼 Portfolio", "📈 Advanced Analysis"])
+tab1, tab2, tab3, tab4, tab5 = st.tabs(["📊 Dashboard", "🏢 Factsheet & Predictor", "💼 Portfolio", "📈 Advanced Analysis", "📰 Market & Macro"])
 
 with tab1:
     if st.session_state["watchlist"]:
         with st.spinner("Loading metrics..."):
             valid_m = [m for m in [calculate_fund_metrics(c) for c in st.session_state["watchlist"]] if m]
             if valid_m: 
-                st.dataframe(pd.DataFrame(valid_m).drop(columns=["Code"]), use_container_width=True, hide_index=True)
+                disp_metrics = pd.DataFrame(valid_m).drop(columns=["Code"])
+                st.dataframe(
+                    disp_metrics,
+                    column_config={
+                        "Current NAV": st.column_config.NumberColumn(format="₹ %.2f"),
+                        "Prev NAV": st.column_config.NumberColumn(format="₹ %.2f"),
+                        "1D Change (%)": st.column_config.NumberColumn(format="%.2f%%"),
+                        "1-Year (%)": st.column_config.NumberColumn(format="%.2f%%"),
+                        "3-Year CAGR (%)": st.column_config.NumberColumn(format="%.2f%%"),
+                        "Sharpe": st.column_config.NumberColumn(format="%.2f"),
+                        "Sortino": st.column_config.NumberColumn(format="%.2f"),
+                        "Volatility (%)": st.column_config.NumberColumn(format="%.2f%%"),
+                    },
+                    use_container_width=True, 
+                    hide_index=True
+                )
     else: st.info("Watchlist is empty. Add funds from the sidebar.")
 
 with tab2:
@@ -259,13 +320,7 @@ with tab2:
                     tickers_to_fetch = [t for t in disp_df['Ticker'].tolist() if "UNKNOWN" not in str(t).upper()]
                     live_data = fetch_live_prices(tickers_to_fetch)
                     
-                    # 🔹 THE ULTIMATE FIX: FORCED STRING FORMATTING 🔹
-                    # Pandas aur Streamlit ki koi mathematical processing use nahi ki.
-                    # Sidha Python string me hardcode kar diya taaki decimal change hi na ho sake.
-                    prev_strs = []
-                    live_strs = []
-                    change_strs = []
-                    
+                    prev_strs, live_strs, change_strs = [], [], []
                     for t in disp_df['Ticker']:
                         res = live_data.get(t, {})
                         if res.get('live') is not None:
@@ -350,7 +405,7 @@ with tab2:
                     st.markdown("##### Holdings Distribution")
                     st.plotly_chart(px.pie(edited_df, values=w, names=comp, hole=0.55).update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(t=0,b=0,l=0,r=0)), use_container_width=True)
                     
-            if st.button("🗑️ Delete & Re-upload (Recommended for 35 Stocks)"):
+            if st.button("🗑️ Delete & Re-upload"):
                 del st.session_state["factsheet_cache"][curr_code]
                 save_factsheet_cache(st.session_state["factsheet_cache"])
                 st.rerun()
@@ -604,3 +659,54 @@ with tab4:
                             st.plotly_chart(fig_sc, use_container_width=True)
                         else: st.warning("Not enough 3-year data.")
     else: st.info("Watchlist me funds add karein analysis ke liye.")
+
+with tab5:
+    st.markdown("### 📰 Global Market & Macro News")
+    
+    col1, col2 = st.columns([2, 1])
+    
+    with col1:
+        st.markdown("#### ⚡ Real-Time Feed")
+        with st.spinner("Fetching latest updates..."):
+            news = fetch_market_news()
+            if news:
+                for item in news:
+                    st.markdown(f"""
+                    <div style='background: rgba(255,255,255,0.03); padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 3px solid #38bdf8;'>
+                        <a href="{item['Link']}" target="_blank" style="color: #38bdf8; text-decoration: none; font-weight: 600; font-size: 1.1rem;">{item['Title']}</a>
+                        <p style="color: #94a3b8; font-size: 0.85rem; margin-top: 5px; margin-bottom: 5px;">📅 {item['Date']}</p>
+                    </div>
+                    """, unsafe_allow_html=True)
+            else:
+                st.info("Currently unable to fetch news from RSS feed.")
+                
+    with col2:
+        st.markdown("#### 🏦 FII / DII Flow Tracker")
+        st.markdown("*(Data manually updated end-of-day)*")
+        
+        with st.form("fii_form"):
+            f_date = st.date_input("Date", datetime.today())
+            f_fii = st.number_input("FII Net (₹ Crs)", value=0.0, step=100.0)
+            f_dii = st.number_input("DII Net (₹ Crs)", value=0.0, step=100.0)
+            if st.form_submit_button("💾 Save Data"):
+                date_str = f_date.strftime("%Y-%m-%d")
+                st.session_state["fii_dii"][date_str] = {"FII": f_fii, "DII": f_dii}
+                save_json(FII_DII_FILE, st.session_state["fii_dii"])
+                st.success("Saved.")
+                st.rerun()
+                
+        if st.session_state["fii_dii"]:
+            df_flow = pd.DataFrame.from_dict(st.session_state["fii_dii"], orient='index').reset_index()
+            df_flow.columns = ["Date", "FII", "DII"]
+            df_flow = df_flow.sort_values('Date').tail(10)
+            
+            fig_flow = go.Figure()
+            fig_flow.add_trace(go.Bar(x=df_flow['Date'], y=df_flow['FII'], name='FII', marker_color='#ef4444'))
+            fig_flow.add_trace(go.Bar(x=df_flow['Date'], y=df_flow['DII'], name='DII', marker_color='#22c55e'))
+            fig_flow.update_layout(barmode='group', template='plotly_dark', margin=dict(l=0, r=0, t=30, b=0), legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
+            st.plotly_chart(fig_flow, use_container_width=True)
+            
+            if st.button("🚨 Clear Flow Data"):
+                st.session_state["fii_dii"] = {}
+                save_json(FII_DII_FILE, {})
+                st.rerun()
