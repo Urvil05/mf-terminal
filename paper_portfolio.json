@@ -1,1 +1,232 @@
-[]
+[
+    {
+        "code": 154214,
+        "name": "Abakkus Small Cap Fund - Regular Plan - Growth",
+        "asset_type": "Equity",
+        "sub_type": "-",
+        "type": "Buy",
+        "date": "2026-11-02",
+        "units": 27286.148,
+        "nav": 11.607
+    },
+    {
+        "code": 152800,
+        "name": "Aditya Birla Sun Life Nifty India Defence Index Fund - Regular Plan - GROWTH",
+        "asset_type": "Equity",
+        "sub_type": "-",
+        "type": "Buy",
+        "date": "2026-11-02",
+        "units": 4284.051,
+        "nav": 12.3748
+    },
+    {
+        "code": 149382,
+        "name": "Axis Multicap Fund - Regular Plan - Growth Option",
+        "asset_type": "Equity",
+        "sub_type": "-",
+        "type": "Buy",
+        "date": "2026-11-02",
+        "units": 6851.246,
+        "nav": 18.85
+    },
+    {
+        "code": 147944,
+        "name": "BANDHAN Small Cap Fund - Regular Plan - Growth",
+        "asset_type": "Equity",
+        "sub_type": "-",
+        "type": "Buy",
+        "date": "2026-11-02",
+        "units": 480.523,
+        "nav": 48.753
+    },
+    {
+        "code": 150816,
+        "name": "Canara Robeco Mid Cap Fund - Regular Plan - Growth Option",
+        "asset_type": "Equity",
+        "sub_type": "-",
+        "type": "Buy",
+        "date": "2026-11-02",
+        "units": 6160.64,
+        "nav": 17.12
+    },
+    {
+        "code": 152208,
+        "name": "DSP Banking & Financial Services Fund - Regular Plan - Growth",
+        "asset_type": "Equity",
+        "sub_type": "-",
+        "type": "Buy",
+        "date": "2026-11-02",
+        "units": 3207.021,
+        "nav": 13.529
+    },
+    {
+        "code": 153122,
+        "name": "DSP Business Cycle Fund - Regular Plan - Growth",
+        "asset_type": "Equity",
+        "sub_type": "-",
+        "type": "Buy",
+        "date": "2026-11-02",
+        "units": 7149.386,
+        "nav": 9.704
+    },
+    {
+        "code": 105989,
+        "name": "DSP Small Cap Fund - Regular Plan - Growth",
+        "asset_type": "Equity",
+        "sub_type": "-",
+        "type": "Buy",
+        "date": "2026-11-02",
+        "units": 337.86,
+        "nav": 217.768
+    },
+    {
+        "code": 102434,
+        "name": "DSP India T.I.G.E.R. Fund - Regular Plan - Growth",
+        "asset_type": "Equity",
+        "sub_type": "-",
+        "type": "Buy",
+        "date": "2026-11-02",
+        "units": 563.141,
+        "nav": 330.655
+    },
+    {
+        "code": 103360,
+        "name": "Franklin India Small Cap Fund - Regular Plan - Growth",
+        "asset_type": "Equity",
+        "sub_type": "-",
+        "type": "Buy",
+        "date": "2026-11-02",
+        "units": 494.883,
+        "nav": 164.9656
+    },
+    {
+        "code": 151751,
+        "name": "HDFC Defence Fund - Regular Plan - Growth Option",
+        "asset_type": "Equity",
+        "sub_type": "-",
+        "type": "Buy",
+        "date": "2026-11-02",
+        "units": 3057.98,
+        "nav": 28.02
+    },
+    {
+        "code": 152602,
+        "name": "HDFC Manufacturing Fund - Regular Plan - Growth Option",
+        "asset_type": "Equity",
+        "sub_type": "-",
+        "type": "Buy",
+        "date": "2026-11-02",
+        "units": 6526.797,
+        "nav": 11.1
+    },
+    {
+        "code": 130502,
+        "name": "HDFC Small Cap Fund - Regular Plan - Growth Option",
+        "asset_type": "Equity",
+        "sub_type": "-",
+        "type": "Buy",
+        "date": "2026-11-02",
+        "units": 1171.452,
+        "nav": 131.328
+    },
+    {
+        "code": 145139,
+        "name": "Invesco India Small Cap Fund - Regular Plan - Growth",
+        "asset_type": "Equity",
+        "sub_type": "-",
+        "type": "Buy",
+        "date": "2026-11-02",
+        "units": 1563.455,
+        "nav": 45.35
+    },
+    {
+        "code": 114931,
+        "name": "Mirae Asset Great Consumer Fund - Regular Plan - Growth",
+        "asset_type": "Equity",
+        "sub_type": "-",
+        "type": "Buy",
+        "date": "2026-11-02",
+        "units": 644.29,
+        "nav": 87.379
+    },
+    {
+        "code": 147479,
+        "name": "Mirae Asset Midcap Fund - Regular Plan - Growth",
+        "asset_type": "Equity",
+        "sub_type": "-",
+        "type": "Buy",
+        "date": "2026-11-02",
+        "units": 2683.27,
+        "nav": 36.669
+    },
+    {
+        "code": 153198,
+        "name": "Mirae Asset Small Cap Fund - Regular Plan - Growth",
+        "asset_type": "Equity",
+        "sub_type": "-",
+        "type": "Buy",
+        "date": "2026-11-02",
+        "units": 17561.5,
+        "nav": 11.809
+    },
+    {
+        "code": 152232,
+        "name": "Motilal Oswal Small Cap Fund - Regular Plan - Growth",
+        "asset_type": "Equity",
+        "sub_type": "-",
+        "type": "Buy",
+        "date": "2026-11-02",
+        "units": 15524.003,
+        "nav": 15.9659
+    },
+    {
+        "code": 149089,
+        "name": "Nippon India Flexi Cap Fund - Regular Plan - Growth Option",
+        "asset_type": "Equity",
+        "sub_type": "-",
+        "type": "Buy",
+        "date": "2026-11-02",
+        "units": 1919.258,
+        "nav": 15.5592
+    },
+    {
+        "code": 101262,
+        "name": "Nippon India Power & Infra Fund - Regular Plan - Growth Option",
+        "asset_type": "Equity",
+        "sub_type": "-",
+        "type": "Buy",
+        "date": "2026-11-02",
+        "units": 427.597,
+        "nav": 349.3327
+    },
+    {
+        "code": 129647,
+        "name": "Union Small Cap Fund - Regular Plan - Growth Option",
+        "asset_type": "Equity",
+        "sub_type": "-",
+        "type": "Buy",
+        "date": "2026-11-02",
+        "units": 416.715,
+        "nav": 56.5
+    },
+    {
+        "code": 152225,
+        "name": "WhiteOak Capital Large & Mid Cap Fund - Regular Plan - Growth Option",
+        "asset_type": "Equity",
+        "sub_type": "-",
+        "type": "Buy",
+        "date": "2026-11-02",
+        "units": 6781.433,
+        "nav": 12.987
+    },
+    {
+        "code": 150583,
+        "name": "WhiteOak Capital Mid Cap Fund - Regular Plan - Growth Option",
+        "asset_type": "Equity",
+        "sub_type": "-",
+        "type": "Buy",
+        "date": "2026-11-02",
+        "units": 6074.831,
+        "nav": 20.651
+    }
+]
