@@ -407,11 +407,6 @@ with tab2:
 disp_df['Live Price (₹)'] = pd.to_numeric(disp_df['Live Price (₹)'].astype(str).str.replace(',', ''), errors='coerce')
 disp_df['Prev Price (₹)'] = pd.to_numeric(disp_df['Prev Price (₹)'].astype(str).str.replace(',', ''), errors='coerce')
 
-# 2. Agar weights percentage wale column se aa raha hai, toh % hata kar usko number banana
-# (Agar aapne upar weights define kiya hai, to usko aise update kar lo)
-# weights = pd.to_numeric(disp_df['Percentage(%)'].astype(str).str.replace('%', ''), errors='coerce')
-
-# 3. Ab aapka original formula perfectly chalega
 disp_df['Contribution (%)'] = ((((disp_df['Live Price (₹)'] - disp_df['Prev Price (₹)']) / disp_df['Prev Price (₹)']) * 100) * weights / 100).round(2) 
                 
                     total_tracked_weight = weights.sum()
