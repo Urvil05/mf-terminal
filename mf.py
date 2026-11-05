@@ -96,22 +96,17 @@ def clean_stock_name(name):
     words = raw.replace('ltd.', '').replace('limited', '').split()
     return (words[0].upper() + ".NS") if words else "UNKNOWN.NS"
 
-# 🔹 FIX: Memory Reader Engine (Restored Backward Compatibility) 🔹
 def load_factsheet_cache():
     raw_cache = load_json(FACTSHEET_FILE, {})
     cache = {}
     for k, v in raw_cache.items():
-        # JSON keys are strings, convert them back to integers to match the app logic
         key = int(k) if str(k).isdigit() else k
-        
-        # Read old top20/top10 data gracefully
         if "top35" in v: v["top35"] = pd.DataFrame(v["top35"])
         elif "top20" in v: v["top35"] = pd.DataFrame(v["top20"])
         elif "top10" in v: v["top35"] = pd.DataFrame(v["top10"])
         
         if "sec_df" in v and v["sec_df"] is not None: 
             v["sec_df"] = pd.DataFrame(v["sec_df"])
-            
         cache[key] = v
     return cache
 
@@ -369,7 +364,7 @@ with tab2:
             st.success(f"Data mapping for {selected_fund_name} is active.")
             cached = st.session_state["factsheet_cache"][curr_code]
             top35 = cached.get("top35", pd.DataFrame())
-            comp, w, sec = cached.get("comp", ""), cached.get("w", ""), cached.get("sec", "None")
+            comp, w, sec, sec_df = cached.get("comp", ""), cached.get("w", ""), cached.get("sec", "None"), cached.get("sec_df", None)
             
             if not top35.empty:
                 if 'Ticker' not in top35.columns: top35['Ticker'] = top35[comp].apply(clean_stock_name)
@@ -446,6 +441,24 @@ with tab2:
                     st.rerun()
 
                 st.caption(f"Coverage: Extrapolated from {edited_df[w].sum():.2f}% portfolio weight.")
+                
+                # 🔹 RESTORED: Sector Breakdown & Pie Chart Logic 🔹
+                st.markdown("---")
+                t1, t2 = st.columns([1, 1])
+                with t1:
+                    st.markdown("##### Sector Allocation")
+                    if sec != "None" and sec_df is not None:
+                        sec_df[sec] = sec_df[sec].fillna("Other").astype(str)
+                        st.plotly_chart(px.treemap(sec_df, path=[sec], values=w, color=w, color_continuous_scale='Electric').update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(t=10,b=10,l=10,r=10)), use_container_width=True)
+                    else:
+                        st.info("Sector mapping not identified during initial setup.")
+                with t2:
+                    st.markdown("##### Holdings Distribution")
+                    fig_pie = px.pie(edited_df, values=w, names=comp, hole=0.55)
+                    fig_pie.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(t=0,b=0,l=0,r=0), showlegend=False)
+                    fig_pie.update_traces(textposition='inside', textinfo='percent+label')
+                    st.plotly_chart(fig_pie, use_container_width=True)
+
             if st.button("Reset File Configuration"):
                 del st.session_state["factsheet_cache"][curr_code]
                 save_factsheet_cache(st.session_state["factsheet_cache"])
