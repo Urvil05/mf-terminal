@@ -401,21 +401,17 @@ with tab2:
                 if last_official_nav > 0:
                     valid_changes = pd.to_numeric(disp_df['% Change (Raw)'], errors='coerce').fillna(0)
                     weights = pd.to_numeric(disp_df[w], errors='coerce').fillna(0) / 100
-
-# 1. Prices ko proper numbers me convert karna (agar commas wagera hain to wo bhi hat jayenge)
-disp_df['Live Price (₹)'] = pd.to_numeric(disp_df['Live Price (₹)'].astype(str).str.replace(',', ''), errors='coerce')
-disp_df['Prev Price (₹)'] = pd.to_numeric(disp_df['Prev Price (₹)'].astype(str).str.replace(',', ''), errors='coerce')
-
-disp_df['Contribution (%)'] = ((((disp_df['Live Price (₹)'] - disp_df['Prev Price (₹)']) / disp_df['Prev Price (₹)']) * 100) * weights / 100).round(2) 
-                
-total_tracked_weight = weights.sum()
-if total_tracked_weight > 0:
-   weighted_sum = (valid_changes * weights).sum()
-   normalized_est_change = weighted_sum / total_tracked_weight
-   predicted_nav = last_official_nav * (1 + (normalized_est_change / 100))
-   expected_pnl = predicted_nav - last_official_nav
-else:
-    normalized_est_change, predicted_nav, expected_pnl = 0, last_official_nav, 0
+                    
+                    disp_df['Contribution (BPS)'] = (valid_changes * weights * 100).round(2)
+                    
+                    total_tracked_weight = weights.sum()
+                    if total_tracked_weight > 0:
+                        weighted_sum = (valid_changes * weights).sum()
+                        normalized_est_change = weighted_sum / total_tracked_weight
+                        predicted_nav = last_official_nav * (1 + (normalized_est_change / 100))
+                        expected_pnl = predicted_nav - last_official_nav
+                    else:
+                        normalized_est_change, predicted_nav, expected_pnl = 0, last_official_nav, 0
                     
                     colA, colB, colC = st.columns(3)
                     with colA: st.markdown(f"<div class='nav-box'><h5>Base NAV (As of {m_data['Date']})</h5><h2 style='color:#94a3b8;'>₹ {last_official_nav:.2f}</h2></div>", unsafe_allow_html=True)
@@ -434,7 +430,7 @@ else:
                     disp_show,
                     column_config={
                         w: st.column_config.NumberColumn(format="%.2f%%"),
-                        'Contribution (%)': st.column_config.NumberColumn(format="%")
+                        'Contribution (BPS)': st.column_config.NumberColumn(format="%.2f bps")
                     },
                     disabled=disabled_cols,
                     use_container_width=True, hide_index=True, key=f"edit_top35_{curr_code}"
