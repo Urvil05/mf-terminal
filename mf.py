@@ -408,14 +408,14 @@ disp_df['Prev Price (₹)'] = pd.to_numeric(disp_df['Prev Price (₹)'].astype(s
 
 disp_df['Contribution (%)'] = ((((disp_df['Live Price (₹)'] - disp_df['Prev Price (₹)']) / disp_df['Prev Price (₹)']) * 100) * weights / 100).round(2) 
                 
-                    total_tracked_weight = weights.sum()
-                    if total_tracked_weight > 0:
-                        weighted_sum = (valid_changes * weights).sum()
-                        normalized_est_change = weighted_sum / total_tracked_weight
-                        predicted_nav = last_official_nav * (1 + (normalized_est_change / 100))
-                        expected_pnl = predicted_nav - last_official_nav
-                    else:
-                        normalized_est_change, predicted_nav, expected_pnl = 0, last_official_nav, 0
+total_tracked_weight = weights.sum()
+if total_tracked_weight > 0:
+   weighted_sum = (valid_changes * weights).sum()
+   normalized_est_change = weighted_sum / total_tracked_weight
+   predicted_nav = last_official_nav * (1 + (normalized_est_change / 100))
+   expected_pnl = predicted_nav - last_official_nav
+else:
+    normalized_est_change, predicted_nav, expected_pnl = 0, last_official_nav, 0
                     
                     colA, colB, colC = st.columns(3)
                     with colA: st.markdown(f"<div class='nav-box'><h5>Base NAV (As of {m_data['Date']})</h5><h2 style='color:#94a3b8;'>₹ {last_official_nav:.2f}</h2></div>", unsafe_allow_html=True)
