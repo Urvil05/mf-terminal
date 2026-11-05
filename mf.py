@@ -401,7 +401,6 @@ with tab2:
                 if last_official_nav > 0:
                     valid_changes = pd.to_numeric(disp_df['% Change (Raw)'], errors='coerce').fillna(0)
                     weights = pd.to_numeric(disp_df[w], errors='coerce').fillna(0) / 100
-                   import pandas as pd # (Agar upar import nahi kiya hai toh)
 
 # 1. Prices ko proper numbers me convert karna (agar commas wagera hain to wo bhi hat jayenge)
 disp_df['Live Price (₹)'] = pd.to_numeric(disp_df['Live Price (₹)'].astype(str).str.replace(',', ''), errors='coerce')
