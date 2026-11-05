@@ -402,7 +402,7 @@ with tab2:
                     valid_changes = pd.to_numeric(disp_df['% Change (Raw)'], errors='coerce').fillna(0)
                     weights = pd.to_numeric(disp_df[w], errors='coerce').fillna(0) / 100
                     
-                    disp_df['Contribution (%)'] = (valid_changes * weights * 100).round(2)
+                    disp_df['Contribution (%)'] = ((df['Live Price (₹)'] - df['Prev Price (₹)']) / df['Prev Price (₹)']) * 100) * weights * 100).round(2)
                     
                     total_tracked_weight = weights.sum()
                     if total_tracked_weight > 0:
